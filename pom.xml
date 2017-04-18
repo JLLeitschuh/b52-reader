@@ -10,4 +10,36 @@
     <artifactId>b52-reader</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+
+    <properties>
+        <!-- Source properties. -->
+        <java-version>1.8</java-version>
+
+        <!-- Plugin versions. -->
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+    </properties>
+
+
+    <build>
+
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <directory>target</directory>
+
+        <plugins>
+
+            <!-- Specify Java version for sources and targets (.class files). -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                    <source>${java-version}</source>
+                    <target>${java-version}</target>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
 </project>
