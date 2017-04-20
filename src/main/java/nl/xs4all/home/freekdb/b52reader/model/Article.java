@@ -23,8 +23,9 @@ public class Article {
     private boolean read;
     private boolean starred;
     private boolean archived;
+    private int likes;
 
-    public Article(String id, String url, Author author, String title, Date dateTime, String text) {
+    public Article(String id, String url, Author author, String title, Date dateTime, String text, int likes) {
         this.id = id;
         this.url = url;
         this.author = author;
@@ -34,6 +35,7 @@ public class Article {
         this.dateTime = dateTime;
         this.text = text;
         this.textWordCount = Utilities.calculateWordCount(text);
+        this.likes = likes;
     }
 
     public String getId() {
@@ -54,6 +56,14 @@ public class Article {
 
     public String getNormalizedTitle() {
         return normalizedTitle;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Date getDateTime() {
+        return dateTime;
     }
 
     long getWordCount() {
@@ -82,5 +92,9 @@ public class Article {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
+    }
+
+    public int getLikes() {
+        return likes;
     }
 }

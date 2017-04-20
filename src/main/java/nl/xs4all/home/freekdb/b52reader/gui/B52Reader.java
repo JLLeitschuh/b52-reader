@@ -10,7 +10,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +46,7 @@ public class B52Reader {
 
     private void createAndShowGui() {
         articles = TestData.getTestArticles();
+        filteredArticles = articles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
         frame.setBounds(100, 100, 800, 600);
@@ -55,7 +55,7 @@ public class B52Reader {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-        JTable table = createTable(new ArrayList<>());
+        JTable table = createTable(articles);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
@@ -122,40 +122,48 @@ public class B52Reader {
     }
 
     private JTable createTable(List<Article> articles) {
+        ArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
+
         tableModel = new ArticlesTableModel(articles);
 
         table = new JTable(tableModel);
-        // todo: table.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
+        table.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
         table.setRowHeight(42);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().setSelectionInterval(0, 0);
 
         // todo: table.addKeyListener(new KeyboardShortcutHandler(this));
 
+        int selectedArticleIndex = table.getSelectedRow();
+        final Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
+
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
-                boolean updateArticleList = false;
+                if (selectedArticle != null) {
+                    boolean updateArticleList = false;
 
-                if (mouseEvent.getX() < 36) {
-                    Article clickedArticle = filteredArticles.get(table.getSelectedRow());
-                    clickedArticle.setStarred(!clickedArticle.isStarred());
-                    updateArticleList = true;
-                } else if (mouseEvent.getX() < 60) {
-                    Article clickedArticle = filteredArticles.get(table.getSelectedRow());
-                    clickedArticle.setRead(!clickedArticle.isRead());
-                    updateArticleList = true;
+                    // todo: Get rid of these magic numbers (36 and 60) below.
+                    if (mouseEvent.getX() < 36) {
+                        selectedArticle.setStarred(!selectedArticle.isStarred());
+                        updateArticleList = true;
+                    } else if (mouseEvent.getX() < 60) {
+                        selectedArticle.setRead(!selectedArticle.isRead());
+                        updateArticleList = true;
+                    }
+
+                    if (updateArticleList) {
+                        // todo: Keep selection and scroll location if possible.
+                        filterAndShowArticles();
+                    }
                 }
-
-                if (updateArticleList)
-                    // todo: Keep selection and scroll location if possible.
-                    filterAndShowArticles();
             }
         });
 
         table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            if (table.getSelectedRow() >= 0 && !listSelectionEvent.getValueIsAdjusting())
-                selectArticle(filteredArticles.get(table.getSelectedRow()), table.getSelectedRow());
+            if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
+                selectArticle(selectedArticle, selectedArticleIndex);
+            }
         });
 
         if (tableModel.getRowCount() > 0)
