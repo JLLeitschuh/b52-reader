@@ -39,6 +39,7 @@ public class B52Reader {
     private JTextField filterTextField;
     private JTable table;
     private ArticlesTableModel tableModel;
+    private JPanel selectedArticlePanel;
 
     public static void main(String[] arguments) {
         SwingUtilities.invokeLater(() -> new B52Reader().createAndShowGui());
@@ -182,5 +183,15 @@ public class B52Reader {
         selectedArticle = article;
 
         // todo: Show the article in an embedded browser!
+
+        // For now, we simply show a panel with the article's URL.
+        if (selectedArticlePanel != null) {
+            frame.getContentPane().remove(selectedArticlePanel);
+        }
+
+        selectedArticlePanel = new JPanel();
+        selectedArticlePanel.add(new JLabel(article.getUrl()));
+        frame.getContentPane().add(selectedArticlePanel, BorderLayout.CENTER);
+        frame.getContentPane().validate();
     }
 }
