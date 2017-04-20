@@ -26,7 +26,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.testdata.TestData;
+import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
@@ -46,7 +46,9 @@ public class B52Reader {
     }
 
     private void createAndShowGui() {
-        articles = TestData.getTestArticles();
+        //articles = TestData.getTestArticles();
+        articles = new NrcScienceArticleSource().getArticles();
+
         filteredArticles = articles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);

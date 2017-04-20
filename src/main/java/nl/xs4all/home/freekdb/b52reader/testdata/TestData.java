@@ -13,6 +13,7 @@ import java.util.List;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 
+@SuppressWarnings("unused")
 public class TestData {
     public static List<Article> getTestArticles() {
         return Arrays.asList(

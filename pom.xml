@@ -24,6 +24,7 @@
 
         <!-- Dependency versions. -->
         <commons-lang3.version>3.5</commons-lang3.version>
+        <jsoup.version>1.10.2</jsoup.version>
 
         <!-- Plugin versions. -->
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
@@ -36,6 +37,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
         </dependency>
 
     </dependencies>
