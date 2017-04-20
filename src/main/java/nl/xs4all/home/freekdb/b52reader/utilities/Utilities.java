@@ -6,6 +6,11 @@
 
 package nl.xs4all.home.freekdb.b52reader.utilities;
 
+import java.net.URL;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class Utilities {
@@ -15,5 +20,11 @@ public class Utilities {
 
     public static int calculateWordCount(String text) {
         return text == null || text.trim().isEmpty() ? 0 : text.trim().split("\\s+").length;
+    }
+
+    public static Icon getIconResource(String iconFileName) {
+        URL iconFileUrl = Utilities.class.getClassLoader().getResource(iconFileName);
+
+        return (iconFileUrl != null) ? new ImageIcon(iconFileUrl.getFile()) : null;
     }
 }

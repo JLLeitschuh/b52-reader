@@ -9,9 +9,7 @@ package nl.xs4all.home.freekdb.b52reader.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.net.URL;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -19,6 +17,7 @@ import javax.swing.table.TableCellRenderer;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class ArticleTableCellRenderer extends JPanel implements TableCellRenderer {
     private static final Font BOLD_FONT = new Font("Calibri", Font.BOLD, 14);
@@ -98,10 +97,8 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
 
         this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : defaultBackgroundColor);
 
-        URL iconFileUrl = getIconFileUrl(article.isStarred());
-        if (iconFileUrl != null) {
-            starredLabel.setIcon(new ImageIcon(iconFileUrl.getFile()));
-        }
+        String iconFileName = "32x32-" + (article.isStarred() ? "Full_Star_Yellow" : "Empty_Star") + ".png";
+        starredLabel.setIcon(Utilities.getIconResource(iconFileName));
 
         readLabel.setVisible(!article.isRead());
         readLabel.setText(article.isRead() ? "R" : "U");
@@ -112,11 +109,5 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         textLabel.setText(article.getText());
 
         return this;
-    }
-
-    private URL getIconFileUrl(boolean starred) {
-        String iconFileName = "32x32-" + (starred ? "Full_Star_Yellow" : "Empty_Star") + ".png";
-
-        return getClass().getClassLoader().getResource(iconFileName);
     }
 }

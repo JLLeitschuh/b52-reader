@@ -14,13 +14,13 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class ArticleFilter implements Predicate<Article> {
     private static final String AUTHOR_PREFIX = "author:";
-    private final String TITLE_PREFIX = "title:";
-    private final String IS_PREFIX = "is:";
+    private static final String TITLE_PREFIX = "title:";
+    private static final String IS_PREFIX = "is:";
 
-    private final String STARRED_STATE = "starred";
-    private final String UNSTARRED_STATE = "unstarred";
-    private final String READ_STATE = "read";
-    private final String UNREAD_STATE = "unread";
+    private static final String STARRED_STATE = "starred";
+    private static final String UNSTARRED_STATE = "unstarred";
+    private static final String READ_STATE = "read";
+    private static final String UNREAD_STATE = "unread";
 
     private String normalizedAuthorName;
     private String normalizedTitle;
