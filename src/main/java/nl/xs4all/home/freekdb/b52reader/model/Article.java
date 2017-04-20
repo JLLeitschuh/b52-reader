@@ -6,6 +6,7 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class Article {
     private String id;
+    private String url;
     private Author author;
     private String title;
     private String normalizedTitle;
@@ -17,8 +18,9 @@ public class Article {
     private boolean starred;
     private boolean archived;
 
-    public Article(String id, Author author, String title, Date dateTime, String text) {
+    public Article(String id, String url, Author author, String title, Date dateTime, String text) {
         this.id = id;
+        this.url = url;
         this.author = author;
         this.title = title;
         this.normalizedTitle = Utilities.normalize(title);
@@ -30,6 +32,10 @@ public class Article {
 
     public String getId() {
         return id;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public Author getAuthor() {

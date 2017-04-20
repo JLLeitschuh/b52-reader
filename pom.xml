@@ -15,9 +15,23 @@
         <!-- Source properties. -->
         <java-version>1.8</java-version>
 
+        <!-- Dependency versions. -->
+        <commons-lang3.version>3.5</commons-lang3.version>
+
         <!-- Plugin versions. -->
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
     </properties>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+
+    </dependencies>
 
 
     <build>
