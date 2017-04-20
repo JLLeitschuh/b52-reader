@@ -134,12 +134,12 @@ public class B52Reader {
 
         // todo: table.addKeyListener(new KeyboardShortcutHandler(this));
 
-        int selectedArticleIndex = table.getSelectedRow();
-        final Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
-
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
+                int selectedArticleIndex = table.getSelectedRow();
+                Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
+
                 if (selectedArticle != null) {
                     boolean updateArticleList = false;
 
@@ -161,7 +161,10 @@ public class B52Reader {
         });
 
         table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+            int selectedArticleIndex = table.getSelectedRow();
+
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
+                Article selectedArticle = filteredArticles.get(selectedArticleIndex);
                 selectArticle(selectedArticle, selectedArticleIndex);
             }
         });

@@ -9,6 +9,7 @@ package nl.xs4all.home.freekdb.b52reader.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -97,10 +98,10 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
 
         this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : defaultBackgroundColor);
 
-        starredLabel.setIcon(new ImageIcon("C:\\Freek\\TOPdesk\\Java\\SeleniumExample\\notes\\viewer\\" +
-                                           "32x32-" +
-                                           (article.isStarred() ? "Full_Star_Yellow" : "Empty_Star") +
-                                           ".png"));
+        URL iconFileUrl = getIconFileUrl(article.isStarred());
+        if (iconFileUrl != null) {
+            starredLabel.setIcon(new ImageIcon(iconFileUrl.getFile()));
+        }
 
         readLabel.setVisible(!article.isRead());
         readLabel.setText(article.isRead() ? "R" : "U");
@@ -111,5 +112,11 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         textLabel.setText(article.getText());
 
         return this;
+    }
+
+    private URL getIconFileUrl(boolean starred) {
+        String iconFileName = "32x32-" + (starred ? "Full_Star_Yellow" : "Empty_Star") + ".png";
+
+        return getClass().getClassLoader().getResource(iconFileName);
     }
 }
