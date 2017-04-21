@@ -193,7 +193,7 @@ public class B52Reader {
 
     private void selectArticle(Article article, int articleIndex) {
         frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " +
-                       +(articleIndex + 1) + "/" + filteredArticles.size());
+                       (articleIndex + 1) + "/" + filteredArticles.size());
 
         selectedArticle = article;
 
