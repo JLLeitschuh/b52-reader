@@ -25,8 +25,13 @@ import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
+import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
+import nl.xs4all.home.freekdb.b52reader.gui.nativeswing.JWebBrowserPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
+
+import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
@@ -42,7 +47,15 @@ public class B52Reader {
     private JPanel selectedArticlePanel;
 
     public static void main(String[] arguments) {
+        if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
+            NativeInterface.open();
+        }
+
         SwingUtilities.invokeLater(() -> new B52Reader().createAndShowGui());
+
+        if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
+            NativeInterface.runEventPump();
+        }
     }
 
     private void createAndShowGui() {
@@ -180,19 +193,29 @@ public class B52Reader {
 
     private void selectArticle(Article article, int articleIndex) {
         frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " +
-                       + (articleIndex + 1) + "/" + filteredArticles.size());
+                       +(articleIndex + 1) + "/" + filteredArticles.size());
 
         selectedArticle = article;
 
-        // todo: Show the article in an embedded browser!
-
-        // For now, we simply show a panel with the article's URL.
         if (selectedArticlePanel != null) {
             frame.getContentPane().remove(selectedArticlePanel);
         }
 
-        selectedArticlePanel = new JPanel();
-        selectedArticlePanel.add(new JLabel(article.getUrl()));
+        switch (Constants.EMBEDDED_BROWSER_TYPE) {
+            case EMBEDDED_BROWSER_DJ_NATIVE_SWING:
+                // Use the JWebBrowser class from the DJ Native Swing library.
+                // todo: cache some embedded browsers (and don't use too much memory).
+                selectedArticlePanel = JWebBrowserPanel.createJWebBrowserPanel(article.getUrl());
+                break;
+
+            case EMBEDDED_BROWSER_PLACEHOLDER:
+            default:
+                // Placeholder for an embedded browser.
+                selectedArticlePanel = new JPanel();
+                selectedArticlePanel.add(new JLabel(article.getUrl()));
+                break;
+        }
+
         frame.getContentPane().add(selectedArticlePanel, BorderLayout.CENTER);
         frame.getContentPane().validate();
     }

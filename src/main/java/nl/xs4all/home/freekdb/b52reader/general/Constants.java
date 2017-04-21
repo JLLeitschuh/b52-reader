@@ -13,4 +13,6 @@ public class Constants {
     public static final SimpleDateFormat DATE_TIME_FORMAT_LONGER = new SimpleDateFormat("EEE dd-MMM HH:mm");
 
     public static final Color NICE_LIGHT_BLUE = new Color(205, 230, 247);
+
+    public static final EmbeddedBrowserType EMBEDDED_BROWSER_TYPE = EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING;
 }
