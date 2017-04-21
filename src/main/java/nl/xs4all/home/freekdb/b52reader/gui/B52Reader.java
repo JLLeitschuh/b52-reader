@@ -46,7 +46,7 @@ public class B52Reader {
     }
 
     private void createAndShowGui() {
-        //articles = TestData.getTestArticles();
+        //articles = new TestDataArticleSource().getArticles();
         articles = new NrcScienceArticleSource().getArticles();
 
         filteredArticles = articles;

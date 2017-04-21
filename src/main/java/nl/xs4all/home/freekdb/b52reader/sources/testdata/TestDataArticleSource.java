@@ -4,7 +4,7 @@
  */
 
 
-package nl.xs4all.home.freekdb.b52reader.testdata;
+package nl.xs4all.home.freekdb.b52reader.sources.testdata;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -12,12 +12,12 @@ import java.util.List;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
-
-// todo: Move this class to the sources package and implement the ArticleSource interface.
+import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 
 @SuppressWarnings("unused")
-public class TestData {
-    public static List<Article> getTestArticles() {
+public class TestDataArticleSource implements ArticleSource {
+    @Override
+    public List<Article> getArticles() {
         return Arrays.asList(
                 new Article("1", "http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html",
                             new Author("Cara Santa Maria"), "WTF Is String Theory?", new Date(),
