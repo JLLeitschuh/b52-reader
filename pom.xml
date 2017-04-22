@@ -15,7 +15,7 @@
 
     <groupId>nl.xs4all.home.freekdb</groupId>
     <artifactId>b52-reader</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.6-SNAPSHOT</version>
 
 
     <properties>
@@ -23,26 +23,75 @@
         <java-version>1.8</java-version>
 
         <!-- Dependency versions. -->
-        <commons-lang3.version>3.5</commons-lang3.version>
+        <dj-nativeswing.version>1.0.2.20120308</dj-nativeswing.version>
+        <org.eclipse.swt.version>4.3</org.eclipse.swt.version>
+        <!-- h2 1.4.194 has a problem: the pom file is missing in several maven repositories? -->
+        <!--<h2.version>1.4.194</h2.version>-->
+        <h2.version>1.4.193</h2.version>
         <jsoup.version>1.10.2</jsoup.version>
+        <commons-lang3.version>3.5</commons-lang3.version>
 
         <!-- Plugin versions. -->
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
     </properties>
 
 
+    <repositories>
+
+        <repository>
+            <id>repository.jspresso.org-maven2</id>
+            <name>Jspresso framework repository</name>
+            <url>http://repository.jspresso.org/maven2/</url>
+        </repository>
+
+    </repositories>
+
+
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
+            <groupId>chrriis</groupId>
+            <artifactId>dj-nativeswing</artifactId>
+            <version>${dj-nativeswing.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>chrriis</groupId>
+            <artifactId>dj-nativeswing-swt</artifactId>
+            <version>${dj-nativeswing.version}</version>
+
+            <!-- Exclude SWT 3.7.2 from 2012 that dj-nativeswing-swt-1.0.2.20120308.pom depends on. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.swt</groupId>
+                    <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.swt</groupId>
+            <!-- todo: Remove platform dependency. -->
+            <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+            <version>${org.eclipse.swt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
 
     </dependencies>
