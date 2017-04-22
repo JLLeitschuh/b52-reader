@@ -17,7 +17,13 @@ public class JWebBrowserPanel {
         JPanel webBrowserPanel = new JPanel(new BorderLayout());
 
         JWebBrowser webBrowser = new JWebBrowser();
+
+        webBrowser.setMenuBarVisible(false);
+        webBrowser.setButtonBarVisible(false);
+        webBrowser.setLocationBarVisible(false);
+
         webBrowser.navigate(url);
+
         webBrowserPanel.add(webBrowser, BorderLayout.CENTER);
 
         return webBrowserPanel;
