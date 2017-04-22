@@ -1,10 +1,10 @@
 # b52-reader
-Fast reader for website articles with good support for searching.
+A fast reader for website articles with good support for searching.
 
 ## Goals
-The main goals of the b52-reader are to support anyone who wants to read articles from one or more websites and:
-- have a fast experience because multiple articles are already fetched by the b52-reader, trying to predict which articles you want to read next;
-- provide good support for searching on keywords, author, publication date;
+The main goal of the b52-reader is to support anyone who wants to comfortably read articles from one or more websites with additional functionality like searching. More specifically it should enable you to:
+- have a fast experience because multiple articles are already fetched by the b52-reader, which is trying to predict which articles you want to read next;
+- provide good support for searching on keywords, author, and publication date;
 - give multiple ways of sorting your list of articles;
 - keep track of the articles that you have read.
 
@@ -13,4 +13,13 @@ Additional goals that could be achieved at a later stage are:
 - make the experience at least as smooth as using the website directly, so no additional login requests etc.
 
 ## Technology
-Java 8 desktop application using the Swing library for the GUI and either [JxBrowser](https://www.teamdev.com/jxbrowser) or [Java-CEF](https://bitbucket.org/chromiumembedded/java-cef) for adding Chromium-based browsers. In principle support Windows, Linux, and macOS (although my personal focus is on Windows and I don't have a macOS test device).
+Java 8 desktop application using the Swing library for the GUI and either [DJ Native Swing](https://github.com/Chrriis/DJ-Native-Swing), [JxBrowser](https://www.teamdev.com/jxbrowser), or [Java-CEF](https://bitbucket.org/chromiumembedded/java-cef) for adding embedded browsers. In principle support Windows, Linux, and macOS (although my personal focus is on Windows and I don't have a macOS test device).
+
+## Acknowledgements
+Thanks for developers planetwide for developing great (open source) software. Specifically I would like to thank the following projects:
+- the Java programming language and the JVM;
+- tools: IntelliJ IDEA, git, GitHub, and Maven;
+- libraries: Swing, jsoup, Apache Commons Lang, DJ Native Swing, and SWT;
+- browsers: Chrome and Firefox;
+- operating systems: Windows, Linux, macOS, and Unix;
+- the Internet in general and Stack Overflow in particular!
