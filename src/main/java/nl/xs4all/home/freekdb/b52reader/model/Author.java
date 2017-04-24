@@ -12,6 +12,7 @@ import java.util.List;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class Author {
+    private final int id;
     private final String name;
     private final String normalizedName;
 
@@ -19,7 +20,8 @@ public class Author {
 
     private long totalWordCount;
 
-    public Author(String name) {
+    public Author(int id, String name) {
+        this.id = id;
         this.name = name;
         this.normalizedName = Utilities.normalize(name);
     }
@@ -29,6 +31,10 @@ public class Author {
         totalWordCount += article.getWordCount();
 
         return this;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {

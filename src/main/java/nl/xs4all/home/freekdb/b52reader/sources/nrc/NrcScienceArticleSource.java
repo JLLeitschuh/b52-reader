@@ -32,14 +32,14 @@ public class NrcScienceArticleSource implements ArticleSource {
             Document articleListDocument = Jsoup.connect("https://www.nrc.nl/sectie/wetenschap/").get();
             Elements articleElements = articleListDocument.select(".nmt-item__link");
 
-            Author author = new Author("NRC");
+            Author author = new Author(3, "NRC science");
 
             for (Element articleElement : articleElements) {
                 String url = "https://www.nrc.nl/" + articleElement.attr("href");
                 String title = articleElement.getElementsByClass("nmt-item__headline").text();
                 String text = articleElement.getElementsByClass("nmt-item__teaser").text();
 
-                articles.add(new Article("id" + articles.size(), url, author, title, new Date(), text, 1234));
+                articles.add(new Article(articles.size(), url, author, title, new Date(), text, 1234));
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -11,7 +11,7 @@ import java.util.Date;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class Article {
-    private String id;
+    private final int id;
     private String url;
     private Author author;
     private String title;
@@ -25,7 +25,7 @@ public class Article {
     private boolean archived;
     private int likes;
 
-    public Article(String id, String url, Author author, String title, Date dateTime, String text, int likes) {
+    public Article(int id, String url, Author author, String title, Date dateTime, String text, int likes) {
         this.id = id;
         this.url = url;
         this.author = author;
@@ -38,7 +38,7 @@ public class Article {
         this.likes = likes;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 

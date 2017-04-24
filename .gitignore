@@ -1,6 +1,9 @@
 # Ignore generated files.
-*.class
+target/
 *.jar
+
+# Ignore H2 database files.
+data/
 
 # Ignore IntelliJ IDEA project files.
 .idea/
