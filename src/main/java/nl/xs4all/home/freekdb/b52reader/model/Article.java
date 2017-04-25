@@ -6,12 +6,16 @@
 
 package nl.xs4all.home.freekdb.b52reader.model;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class Article {
-    private final int id;
+    private int id;
     private String url;
     private Author author;
     private String title;
@@ -20,10 +24,10 @@ public class Article {
     private Date dateTime;
     private String text;
     private long textWordCount;
+    private int likes;
     private boolean read;
     private boolean starred;
     private boolean archived;
-    private int likes;
 
     public Article(int id, String url, Author author, String title, Date dateTime, String text, int likes) {
         this.id = id;
@@ -38,8 +42,43 @@ public class Article {
         this.likes = likes;
     }
 
+    public static Article createArticleFromDatabase(ResultSet resultSet, List<Author> authors) {
+        Article article = null;
+
+        try {
+            int id = resultSet.getInt("id");
+            String url = resultSet.getString("url");
+
+            int authorId = resultSet.getInt("author_id");
+            Author author = authors.stream()
+                    .filter(anAuthor -> anAuthor.getId() == authorId)
+                    .findFirst()
+                    .orElse(null);
+
+            String title = resultSet.getString("title");
+            Date dateTime = resultSet.getTimestamp("date_time");
+            String text = resultSet.getString("text");
+            int likes = resultSet.getInt("likes");
+
+            article = new Article(id, url, author, title, dateTime, text, likes);
+
+            article.setRead(resultSet.getBoolean("read"));
+            article.setStarred(resultSet.getBoolean("starred"));
+            article.setArchived(resultSet.getBoolean("archived"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return article;
+    }
+
+    @SuppressWarnings("unused")
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getUrl() {
@@ -90,11 +129,45 @@ public class Article {
         return archived;
     }
 
+    @SuppressWarnings("unused")
     public void setArchived(boolean archived) {
         this.archived = archived;
     }
 
     public int getLikes() {
         return likes;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + id + "] Article \"" + title + "\" by " + author;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != getClass()) {
+            return false;
+        }
+
+        Article other = (Article) obj;
+
+        return Objects.equals(id, other.id) &&
+               Objects.equals(url, other.url) &&
+               Objects.equals(author, other.author) &&
+               Objects.equals(title, other.title) &&
+               Objects.equals(dateTime, other.dateTime) &&
+               Objects.equals(text, other.text) &&
+               Objects.equals(likes, other.likes) &&
+               Objects.equals(read, other.read) &&
+               Objects.equals(starred, other.starred) &&
+               Objects.equals(archived, other.archived);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, url, author, title, dateTime, text, likes, read, starred, archived);
     }
 }

@@ -7,9 +7,11 @@
 package nl.xs4all.home.freekdb.b52reader.sources;
 
 import java.util.List;
+import java.util.Map;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.model.Author;
 
 public interface ArticleSource {
-    List<Article> getArticles();
+    List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap);
 }

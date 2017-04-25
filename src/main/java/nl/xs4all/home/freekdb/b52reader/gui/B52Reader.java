@@ -10,7 +10,10 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
@@ -29,6 +32,8 @@ import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.gui.nativeswing.JWebBrowserPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
@@ -36,7 +41,8 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
 
-    private List<Article> articles;
+    private PersistencyHandler persistencyHandler;
+    private List<Article> currentArticles;
     private List<Article> filteredArticles;
     private Article selectedArticle;
 
@@ -51,18 +57,23 @@ public class B52Reader {
             NativeInterface.open();
         }
 
-        SwingUtilities.invokeLater(() -> new B52Reader().createAndShowGui());
+        SwingUtilities.invokeLater(() -> new B52Reader().createAndShowApplication());
 
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
             NativeInterface.runEventPump();
         }
     }
 
-    private void createAndShowGui() {
-        //articles = new TestDataArticleSource().getArticles();
-        articles = new NrcScienceArticleSource().getArticles();
+    private void createAndShowApplication() {
+        initializeDatabase();
 
-        filteredArticles = articles;
+        //currentArticles = new TestDataArticleSource().getArticles();
+
+        Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
+        Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
+        currentArticles = new NrcScienceArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
+
+        filteredArticles = currentArticles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
         frame.setBounds(100, 100, 800, 600);
@@ -71,13 +82,39 @@ public class B52Reader {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-        JTable table = createTable(articles);
+        JTable table = createTable(currentArticles);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
 
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                saveDataAndCloseDatabase();
+            }
+        });
+
         frame.getContentPane().add(northPanel, BorderLayout.NORTH);
         frame.setVisible(true);
+    }
+
+    private void initializeDatabase() {
+        persistencyHandler = new PersistencyHandler();
+
+        if (persistencyHandler.initializeDatabaseConnection()) {
+            persistencyHandler.createTablesIfNeeded();
+
+            //persistencyHandler.deleteAllAuthorsAndArticles();
+            //persistencyHandler.insertTestData();
+            //persistencyHandler.readAndPrintAuthorsAndArticles();
+
+            persistencyHandler.readAuthorsAndArticles();
+
+            if (persistencyHandler.getStoredAuthors().size() > 0 || persistencyHandler.getStoredArticles().size() > 0) {
+                System.out.println("Authors: " + persistencyHandler.getStoredAuthors());
+                System.out.println("Articles: " + persistencyHandler.getStoredArticles());
+            }
+        }
     }
 
     private JPanel createFilterPanel() {
@@ -111,7 +148,7 @@ public class B52Reader {
     private void filterAndShowArticles() {
         Article previousSelectedArticle = selectedArticle;
 
-        filteredArticles = articles.stream()
+        filteredArticles = currentArticles.stream()
                 .filter(filterTextField != null ? new ArticleFilter(filterTextField.getText()) : article -> true)
                 .filter(article -> !article.isArchived())
                 .collect(Collectors.toList());
@@ -218,5 +255,13 @@ public class B52Reader {
 
         frame.getContentPane().add(selectedArticlePanel, BorderLayout.CENTER);
         frame.getContentPane().validate();
+    }
+
+    private void saveDataAndCloseDatabase() {
+        persistencyHandler.saveAuthorsAndArticles(currentArticles);
+
+        if (persistencyHandler.closeDatabaseConnection()) {
+            System.out.println("Closed the database connection.");
+        }
     }
 }

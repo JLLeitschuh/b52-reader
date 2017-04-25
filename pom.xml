@@ -26,7 +26,7 @@
         <!-- Dependency versions. -->
         <dj-nativeswing.version>1.0.2.20120308</dj-nativeswing.version>
         <org.eclipse.swt.version>4.3</org.eclipse.swt.version>
-        <!-- h2 1.4.194 has a problem: the pom file is missing in several maven repositories? -->
+        <!-- h2 1.4.194 has a problem: the pom file is empty in several maven repositories? -->
         <!--<h2.version>1.4.194</h2.version>-->
         <h2.version>1.4.193</h2.version>
         <jsoup.version>1.10.2</jsoup.version>
