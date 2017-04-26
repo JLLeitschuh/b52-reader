@@ -25,8 +25,8 @@ public class Article {
     private String text;
     private long textWordCount;
     private int likes;
-    private boolean read;
     private boolean starred;
+    private boolean read;
     private boolean archived;
 
     public Article(int id, String url, Author author, String title, Date dateTime, String text, int likes) {
@@ -105,6 +105,10 @@ public class Article {
         return dateTime;
     }
 
+    public void setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
+    }
+
     long getWordCount() {
         return titleWordCount + textWordCount;
     }
@@ -129,7 +133,6 @@ public class Article {
         return archived;
     }
 
-    @SuppressWarnings("unused")
     public void setArchived(boolean archived) {
         this.archived = archived;
     }

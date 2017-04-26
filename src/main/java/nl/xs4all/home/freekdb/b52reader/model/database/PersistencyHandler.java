@@ -111,6 +111,7 @@ public class PersistencyHandler {
                 int id = authorsResultSet.getInt("id");
                 String name = authorsResultSet.getString("name");
                 Author author = new Author(id, name);
+
                 storedAuthors.add(author);
                 storedAuthorsMap.put(name, author);
             }
@@ -124,6 +125,7 @@ public class PersistencyHandler {
             ResultSet articlesResultSet = statement.executeQuery("select distinct * from article");
             while (articlesResultSet.next()) {
                 Article article = Article.createArticleFromDatabase(articlesResultSet, storedAuthors);
+
                 storedArticles.add(article);
                 storedArticlesMap.put(article.getUrl(), article);
             }
@@ -220,9 +222,11 @@ public class PersistencyHandler {
 
             for (Article existingArticle : existingArticles) {
                 Article storedArticle = storedArticlesMap.get(existingArticle.getUrl());
-                existingArticle.setId(storedArticle.getId());
 
-                // todo: Currently, all articles seem to be updated?!?
+                // Copy the id and date/time fields since these will never match the fields of the stored article.
+                existingArticle.setId(storedArticle.getId());
+                existingArticle.setDateTime(storedArticle.getDateTime());
+
                 if (!existingArticle.equals(storedArticle)) {
                     preparedStatement.setString(1, existingArticle.getUrl());
                     preparedStatement.setInt(2, existingArticle.getAuthor().getId());

@@ -40,23 +40,19 @@ public class NrcScienceArticleSource implements ArticleSource {
                 String title = articleElement.getElementsByClass("nmt-item__headline").text();
                 String text = articleElement.getElementsByClass("nmt-item__teaser").text();
 
-//                Article article;
-//                if (previousArticlesMap.containsKey(url)) {
-//                    article = previousArticlesMap.get(url);
-//                    // todo: Does the previous article need an update?
-//                    // todo: Use the author object from the database or the new one?
-//                }
-//                else {
-//                    Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-//                    article = new Article(-1 - newArticles.size(), url, author, title, new Date(), text, 1234);
-//                }
-
-                // For the moment: do not use the article objects that were created from the database, because we want
-                // to be able to compare the articles in memory to the stored articles to see whether an update of a
-                // stored article is needed.
-
+                // We create new article objects, because we want to be able to compare the articles in memory to the
+                // stored articles to see whether an update of a stored article is needed.
                 Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
                 Article article = new Article(-1 - newArticles.size(), url, author, title, new Date(), text, 1234);
+
+                // If there is previous data available for this article, copy the fields that are managed by the B52 reader.
+                if (previousArticlesMap.containsKey(url)) {
+                    Article previousArticle = previousArticlesMap.get(url);
+
+                    article.setStarred(previousArticle.isStarred());
+                    article.setRead(previousArticle.isRead());
+                    article.setArchived(previousArticle.isArchived());
+                }
 
                 newArticles.add(article);
             }
