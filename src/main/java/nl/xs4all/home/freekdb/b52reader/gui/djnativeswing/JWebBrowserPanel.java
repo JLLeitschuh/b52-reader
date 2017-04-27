@@ -4,7 +4,7 @@
  */
 
 
-package nl.xs4all.home.freekdb.b52reader.gui.nativeswing;
+package nl.xs4all.home.freekdb.b52reader.gui.djnativeswing;
 
 import java.awt.BorderLayout;
 
@@ -12,9 +12,9 @@ import javax.swing.JPanel;
 
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
-public class JWebBrowserPanel {
-    public static JPanel createJWebBrowserPanel(String url) {
-        JPanel webBrowserPanel = new JPanel(new BorderLayout());
+public class JWebBrowserPanel extends JPanel {
+    public JWebBrowserPanel(String url) {
+        super(new BorderLayout());
 
         JWebBrowser webBrowser = new JWebBrowser();
 
@@ -24,8 +24,6 @@ public class JWebBrowserPanel {
 
         webBrowser.navigate(url);
 
-        webBrowserPanel.add(webBrowser, BorderLayout.CENTER);
-
-        return webBrowserPanel;
+        this.add(webBrowser, BorderLayout.CENTER);
     }
 }

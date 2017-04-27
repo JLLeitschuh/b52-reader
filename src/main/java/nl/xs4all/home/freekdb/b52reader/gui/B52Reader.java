@@ -30,7 +30,7 @@ import javax.swing.event.DocumentListener;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
-import nl.xs4all.home.freekdb.b52reader.gui.nativeswing.JWebBrowserPanel;
+import nl.xs4all.home.freekdb.b52reader.gui.djnativeswing.JWebBrowserPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
@@ -242,7 +242,7 @@ public class B52Reader {
             case EMBEDDED_BROWSER_DJ_NATIVE_SWING:
                 // Use the JWebBrowser class from the DJ Native Swing library.
                 // todo: cache some embedded browsers (and don't use too much memory).
-                selectedArticlePanel = JWebBrowserPanel.createJWebBrowserPanel(article.getUrl());
+                selectedArticlePanel = new JWebBrowserPanel(article.getUrl());
                 break;
 
             case EMBEDDED_BROWSER_PLACEHOLDER:
