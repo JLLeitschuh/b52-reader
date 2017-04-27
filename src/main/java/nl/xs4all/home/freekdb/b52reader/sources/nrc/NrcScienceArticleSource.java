@@ -15,6 +15,7 @@ import java.util.Map;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -59,6 +60,9 @@ public class NrcScienceArticleSource implements ArticleSource {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("Fetched " + Utilities.countAndWord(newArticles.size(), "article") +
+                           " from the NRC website.");
 
         return newArticles;
     }

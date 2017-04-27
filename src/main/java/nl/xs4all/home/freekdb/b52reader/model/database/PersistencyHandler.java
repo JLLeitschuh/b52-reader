@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 /**
  * Enable storage of articles and authors in an H2 database.
@@ -39,16 +40,8 @@ public class PersistencyHandler {
     private List<Article> storedArticles;
     private Map<String, Article> storedArticlesMap;
 
-    public List<Author> getStoredAuthors() {
-        return storedAuthors;
-    }
-
     public Map<String, Author> getStoredAuthorsMap() {
         return storedAuthorsMap;
-    }
-
-    public List<Article> getStoredArticles() {
-        return storedArticles;
     }
 
     public Map<String, Article> getStoredArticlesMap() {
@@ -116,8 +109,7 @@ public class PersistencyHandler {
                 storedAuthorsMap.put(name, author);
             }
 
-            System.out.println("Read " + storedAuthors.size() + " author" +
-                               (storedAuthors.size() != 1 ? "s" : "") +
+            System.out.println("Read " + Utilities.countAndWord(storedAuthors.size(), "author") +
                                " from the database.");
 
             storedArticles = new ArrayList<>();
@@ -130,8 +122,7 @@ public class PersistencyHandler {
                 storedArticlesMap.put(article.getUrl(), article);
             }
 
-            System.out.println("Read " + storedArticles.size() + " article" +
-                               (storedArticles.size() != 1 ? "s" : "") +
+            System.out.println("Read " + Utilities.countAndWord(storedArticles.size(), "article") +
                                " from the database.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -181,8 +172,7 @@ public class PersistencyHandler {
 
                 preparedStatement.close();
 
-                System.out.println("Wrote " + newAuthors.size() + " new author" +
-                                   (newAuthors.size() != 1 ? "s" : "") +
+                System.out.println("Wrote " + Utilities.countAndWord(newAuthors.size(), "new author") +
                                    " to the database.");
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -259,8 +249,7 @@ public class PersistencyHandler {
 
             preparedStatement.close();
 
-            System.out.println("Updated " + updateArticles.size() + " article" +
-                               (updateArticles.size() != 1 ? "s" : "") +
+            System.out.println("Updated " + Utilities.countAndWord(updateArticles.size(), "article") +
                                " in the database.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -299,8 +288,7 @@ public class PersistencyHandler {
 
             preparedStatement.close();
 
-            System.out.println("Wrote " + newArticles.size() + " new article" +
-                               (newArticles.size() != 1 ? "s" : "") +
+            System.out.println("Wrote " + Utilities.countAndWord(newArticles.size(), "new article") +
                                " to the database.");
         } catch (SQLException e) {
             e.printStackTrace();

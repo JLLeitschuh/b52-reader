@@ -27,4 +27,8 @@ public class Utilities {
 
         return (iconFileUrl != null) ? new ImageIcon(iconFileUrl.getFile()) : null;
     }
+
+    public static String countAndWord(int count, String word) {
+        return count + " " + word + (count != 1 ? "s" : "");
+    }
 }

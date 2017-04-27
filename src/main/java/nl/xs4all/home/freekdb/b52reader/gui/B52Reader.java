@@ -38,6 +38,7 @@ import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
+// todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
 
@@ -50,7 +51,7 @@ public class B52Reader {
     private JTextField filterTextField;
     private JTable table;
     private ArticlesTableModel tableModel;
-    private JPanel selectedArticlePanel;
+    private ManyBrowsersPanel manyBrowsersPanel;
 
     public static void main(String[] arguments) {
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
@@ -67,11 +68,10 @@ public class B52Reader {
     private void createAndShowApplication() {
         initializeDatabase();
 
-        //currentArticles = new TestDataArticleSource().getArticles();
-
         Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
         Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
         currentArticles = new NrcScienceArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
+        //currentArticles = new TestDataArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
 
         filteredArticles = currentArticles;
 
@@ -87,14 +87,18 @@ public class B52Reader {
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
 
+        manyBrowsersPanel = new ManyBrowsersPanel();
+
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
+                manyBrowsersPanel.disposeAllBrowsers();
                 saveDataAndCloseDatabase();
             }
         });
 
         frame.getContentPane().add(northPanel, BorderLayout.NORTH);
+        frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
         frame.setVisible(true);
     }
 
@@ -110,10 +114,10 @@ public class B52Reader {
 
             persistencyHandler.readAuthorsAndArticles();
 
-            if (persistencyHandler.getStoredAuthors().size() > 0 || persistencyHandler.getStoredArticles().size() > 0) {
-                System.out.println("Authors: " + persistencyHandler.getStoredAuthors());
-                System.out.println("Articles: " + persistencyHandler.getStoredArticles());
-            }
+            //if (persistencyHandler.getStoredAuthors().size() > 0 || persistencyHandler.getStoredArticles().size() > 0) {
+            //    System.out.println("Authors: " + persistencyHandler.getStoredAuthors());
+            //    System.out.println("Articles: " + persistencyHandler.getStoredArticles());
+            //}
         }
     }
 
@@ -234,27 +238,36 @@ public class B52Reader {
 
         selectedArticle = article;
 
-        if (selectedArticlePanel != null) {
-            frame.getContentPane().remove(selectedArticlePanel);
+        // todo: This whole if-else could be one method of the ManyBrowsersPanel class.
+        if (manyBrowsersPanel.hasBrowserForUrl(selectedArticle.getUrl())) {
+            manyBrowsersPanel.makeBrowserVisible(selectedArticle.getUrl());
         }
+        else {
+            manyBrowsersPanel.addAndShowBrowser(selectedArticle.getUrl());
+        }
+    }
+
+    // todo: Merge/move this method into the ManyBrowsersPanel class to support different types of embedded browsers.
+    @SuppressWarnings("unused")
+    private JPanel createNewBrowserPanel(Article article) {
+        JPanel newBrowserPanel;
 
         switch (Constants.EMBEDDED_BROWSER_TYPE) {
             case EMBEDDED_BROWSER_DJ_NATIVE_SWING:
                 // Use the JWebBrowser class from the DJ Native Swing library.
                 // todo: cache some embedded browsers (and don't use too much memory).
-                selectedArticlePanel = new JWebBrowserPanel(article.getUrl());
+                newBrowserPanel = new JWebBrowserPanel(article.getUrl());
                 break;
 
             case EMBEDDED_BROWSER_PLACEHOLDER:
             default:
                 // Placeholder for an embedded browser.
-                selectedArticlePanel = new JPanel();
-                selectedArticlePanel.add(new JLabel(article.getUrl()));
+                newBrowserPanel = new JPanel();
+                newBrowserPanel.add(new JLabel(article.getUrl()));
                 break;
         }
 
-        frame.getContentPane().add(selectedArticlePanel, BorderLayout.CENTER);
-        frame.getContentPane().validate();
+        return newBrowserPanel;
     }
 
     private void saveDataAndCloseDatabase() {
