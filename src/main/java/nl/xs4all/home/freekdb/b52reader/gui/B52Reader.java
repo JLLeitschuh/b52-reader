@@ -76,18 +76,19 @@ public class B52Reader {
         filteredArticles = currentArticles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
-        frame.setBounds(100, 100, 800, 600);
+        frame.setBounds(100, 100, 1024, 768);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
+        manyBrowsersPanel = new ManyBrowsersPanel();
+
         JTable table = createTable(currentArticles);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
-
-        manyBrowsersPanel = new ManyBrowsersPanel();
 
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -100,6 +101,8 @@ public class B52Reader {
         frame.getContentPane().add(northPanel, BorderLayout.NORTH);
         frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
         frame.setVisible(true);
+
+        // Start a background thread to initialize and load some browsers in the background.
     }
 
     private void initializeDatabase() {
@@ -233,18 +236,12 @@ public class B52Reader {
     }
 
     private void selectArticle(Article article, int articleIndex) {
-        frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " +
-                       (articleIndex + 1) + "/" + filteredArticles.size());
+        String articleCounterAndSize = (articleIndex + 1) + "/" + filteredArticles.size();
+        frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " + articleCounterAndSize);
 
         selectedArticle = article;
 
-        // todo: This whole if-else could be one method of the ManyBrowsersPanel class.
-        if (manyBrowsersPanel.hasBrowserForUrl(selectedArticle.getUrl())) {
-            manyBrowsersPanel.makeBrowserVisible(selectedArticle.getUrl());
-        }
-        else {
-            manyBrowsersPanel.addAndShowBrowser(selectedArticle.getUrl());
-        }
+        manyBrowsersPanel.showBrowser(selectedArticle.getUrl());
     }
 
     // todo: Merge/move this method into the ManyBrowsersPanel class to support different types of embedded browsers.

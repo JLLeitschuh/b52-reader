@@ -1,3 +1,9 @@
+/*
+ * Project: B52 reader (https://github.com/FreekDB/b52-reader).
+ * License: Apache version 2 (https://www.apache.org/licenses/LICENSE-2.0).
+ */
+
+
 package nl.xs4all.home.freekdb.b52reader.gui;
 
 import java.awt.BorderLayout;
@@ -27,25 +33,22 @@ class ManyBrowsersPanel extends JPanel {
         webBrowsers = new ArrayList<>();
     }
 
-    boolean hasBrowserForUrl(String url) {
-        return urlToBrowserPanels.containsKey(url);
-    }
-
-    void addAndShowBrowser(String url) {
-        JPanel browserPanel = new JPanel(new BorderLayout());
-        JWebBrowser webBrowser = createWebBrowser(url);
-        webBrowsers.add(webBrowser);
-        browserPanel.add(webBrowser, BorderLayout.CENTER);
-        hideAllBrowsers();
-        browserPanels.add(browserPanel);
-        urlToBrowserPanels.put(url, browserPanel);
-        add(browserPanel, BorderLayout.CENTER);
-        validate();
-    }
-
-    void makeBrowserVisible(String url) {
-        hideAllBrowsers();
-        showBrowser(url);
+    void showBrowser(String url) {
+        if (urlToBrowserPanels.containsKey(url)) {
+            hideAllBrowsers();
+            makeBrowserVisible(url);
+        }
+        else {
+            JPanel browserPanel = new JPanel(new BorderLayout());
+            JWebBrowser webBrowser = createWebBrowser(url);
+            webBrowsers.add(webBrowser);
+            browserPanel.add(webBrowser, BorderLayout.CENTER);
+            hideAllBrowsers();
+            browserPanels.add(browserPanel);
+            urlToBrowserPanels.put(url, browserPanel);
+            add(browserPanel, BorderLayout.CENTER);
+            validate();
+        }
     }
 
     @SuppressWarnings("unused")
@@ -56,7 +59,7 @@ class ManyBrowsersPanel extends JPanel {
             if (browserPanel.isVisible() && !urlToBrowserPanels.isEmpty()) {
                 // This should not happen. Show another browser before removing the visible one.
                 String randomUrl = urlToBrowserPanels.keySet().iterator().next();
-                showBrowser(randomUrl);
+                makeBrowserVisible(randomUrl);
             }
             remove(browserPanel);
             validate();
@@ -94,7 +97,7 @@ class ManyBrowsersPanel extends JPanel {
         browserPanels.forEach(browserPanel -> browserPanel.setVisible(false));
     }
 
-    private void showBrowser(String url) {
+    private void makeBrowserVisible(String url) {
         if (urlToBrowserPanels.containsKey(url)) {
             urlToBrowserPanels.get(url).setVisible(true);
         }
@@ -102,8 +105,4 @@ class ManyBrowsersPanel extends JPanel {
             System.err.println("Browser with url " + url + " not found.");
         }
     }
-
-//    private void showRandomBrowser() {
-//        browserPanels.get(randomGenerator.nextInt(browserPanels.size())).setVisible(true);
-//    }
 }
