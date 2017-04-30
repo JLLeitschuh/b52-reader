@@ -18,6 +18,9 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import chrriis.dj.nativeswing.swtimpl.NSPanelComponent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserEvent;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 // todo: Make this class more generic by supporting different types of embedded browsers.
 class ManyBrowsersPanel extends JPanel {
@@ -33,20 +36,39 @@ class ManyBrowsersPanel extends JPanel {
         webBrowsers = new ArrayList<>();
     }
 
-    void showBrowser(String url) {
+    boolean hasBrowserForUrl(String url) {
+        return urlToBrowserPanels.containsKey(url);
+    }
+
+    void showBrowser(String url, boolean makeBrowserVisible) {
         if (urlToBrowserPanels.containsKey(url)) {
-            hideAllBrowsers();
-            makeBrowserVisible(url);
-        }
-        else {
+            if (makeBrowserVisible) {
+                System.out.println("Show browser for " + url);
+                hideAllBrowserPanels();
+                makeBrowserPanelVisible(url);
+            }
+        } else {
+            System.out.println("Create new browser for " + url);
             JPanel browserPanel = new JPanel(new BorderLayout());
             JWebBrowser webBrowser = createWebBrowser(url);
             webBrowsers.add(webBrowser);
             browserPanel.add(webBrowser, BorderLayout.CENTER);
-            hideAllBrowsers();
+
+            if (makeBrowserVisible) {
+                hideAllBrowserPanels();
+            }
+
             browserPanels.add(browserPanel);
             urlToBrowserPanels.put(url, browserPanel);
-            add(browserPanel, BorderLayout.CENTER);
+
+            if (makeBrowserVisible) {
+                System.out.println("Show browser for " + url);
+                add(browserPanel, BorderLayout.CENTER);
+            } else {
+                browserPanel.setVisible(false);
+                add(browserPanel, BorderLayout.CENTER);
+            }
+
             validate();
         }
     }
@@ -54,22 +76,27 @@ class ManyBrowsersPanel extends JPanel {
     @SuppressWarnings("unused")
     void removeBrowser(String url) {
         if (urlToBrowserPanels.containsKey(url)) {
+
+            // Dispose (disposeNativePeer) and remove (webBrowsers) the browser too!!!
+
             JPanel browserPanel = urlToBrowserPanels.remove(url);
             browserPanels.remove(browserPanel);
             if (browserPanel.isVisible() && !urlToBrowserPanels.isEmpty()) {
                 // This should not happen. Show another browser before removing the visible one.
                 String randomUrl = urlToBrowserPanels.keySet().iterator().next();
-                makeBrowserVisible(randomUrl);
+                makeBrowserPanelVisible(randomUrl);
             }
             remove(browserPanel);
             validate();
             repaint();
         } else {
-            System.err.println("No dummy browsers left?!?");
+            System.err.println("Browser not found.");
         }
     }
 
     void disposeAllBrowsers() {
+        long start = System.currentTimeMillis();
+
         webBrowsers.forEach(NSPanelComponent::disposeNativePeer);
 
         int browserCount = webBrowsers.size();
@@ -78,7 +105,9 @@ class ManyBrowsersPanel extends JPanel {
         urlToBrowserPanels.clear();
         browserPanels.clear();
 
-        System.out.println("Disposed " + Utilities.countAndWord(browserCount, "browser") + ".");
+        long end = System.currentTimeMillis();
+        System.out.println("Disposed " + Utilities.countAndWord(browserCount, "browser") + " in " +
+                           (end - start) + " milliseconds.");
     }
 
     private JWebBrowser createWebBrowser(String url) {
@@ -90,18 +119,42 @@ class ManyBrowsersPanel extends JPanel {
 
         webBrowser.navigate(url);
 
+        // https://sourceforge.net/p/djproject/discussion/671154/thread/1d25bf1a/
+
+        String partUrl = url.substring(url.lastIndexOf('/') + 1);
+
+        webBrowser.addWebBrowserListener(new WebBrowserAdapter() {
+            @Override
+            public void loadingProgressChanged(WebBrowserEvent webBrowserEvent) {
+                super.loadingProgressChanged(webBrowserEvent);
+
+                System.out.println("[" + System.currentTimeMillis() + " - " + partUrl + "] Changed loading progress: " +
+                                   webBrowser.getLoadingProgress());
+            }
+
+            @Override
+            public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
+                super.locationChanged(webBrowserNavigationEvent);
+
+                System.out.println("[" + System.currentTimeMillis() + " - " + partUrl + "] Location changed: " +
+                                   webBrowserNavigationEvent.getNewResourceLocation());
+            }
+        });
+
+        // The initial loading progress always seems to be 100.
+        // System.out.println("[" + partUrl + "] Initial loading progress: " + webBrowser.getLoadingProgress());
+
         return webBrowser;
     }
 
-    private void hideAllBrowsers() {
+    private void hideAllBrowserPanels() {
         browserPanels.forEach(browserPanel -> browserPanel.setVisible(false));
     }
 
-    private void makeBrowserVisible(String url) {
+    private void makeBrowserPanelVisible(String url) {
         if (urlToBrowserPanels.containsKey(url)) {
             urlToBrowserPanels.get(url).setVisible(true);
-        }
-        else {
+        } else {
             System.err.println("Browser with url " + url + " not found.");
         }
     }

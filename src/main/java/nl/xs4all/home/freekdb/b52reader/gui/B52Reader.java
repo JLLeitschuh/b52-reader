@@ -24,6 +24,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -42,10 +43,14 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
 
+    private static final int BACKGROUND_BROWSER_MAX_COUNT = 1;
+
     private PersistencyHandler persistencyHandler;
     private List<Article> currentArticles;
     private List<Article> filteredArticles;
     private Article selectedArticle;
+    private int backgroundArticleIndex;
+    private int backgroundBrowserCount;
 
     private JFrame frame;
     private JTextField filterTextField;
@@ -76,8 +81,9 @@ public class B52Reader {
         filteredArticles = currentArticles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
-        frame.setBounds(100, 100, 1024, 768);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //frame.setBounds(0, 0, 1920, 1080);
+        frame.setBounds(0, 0, 1024, 768);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JPanel northPanel = new JPanel(new BorderLayout());
@@ -102,7 +108,27 @@ public class B52Reader {
         frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
         frame.setVisible(true);
 
-        // Start a background thread to initialize and load some browsers in the background.
+        // Start a background timer to initialize and load some browsers in the background.
+        backgroundBrowserCount = 0;
+        backgroundArticleIndex = 3;  //1;
+        Timer backgroundTasksTimer = new Timer(2000, actionEvent -> handleBackgroundTasks());
+        backgroundTasksTimer.start();
+    }
+
+    private void handleBackgroundTasks() {
+        System.out.println("Started with background tasks.");
+
+        if (backgroundBrowserCount < BACKGROUND_BROWSER_MAX_COUNT && backgroundArticleIndex < currentArticles.size()) {
+            String url = currentArticles.get(backgroundArticleIndex).getUrl();
+            if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
+                System.out.println("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
+                manyBrowsersPanel.showBrowser(url, false);
+                backgroundBrowserCount++;
+            }
+            backgroundArticleIndex++;
+        }
+
+        System.out.println("Finished with background tasks.");
     }
 
     private void initializeDatabase() {
@@ -110,17 +136,7 @@ public class B52Reader {
 
         if (persistencyHandler.initializeDatabaseConnection()) {
             persistencyHandler.createTablesIfNeeded();
-
-            //persistencyHandler.deleteAllAuthorsAndArticles();
-            //persistencyHandler.insertTestData();
-            //persistencyHandler.readAndPrintAuthorsAndArticles();
-
             persistencyHandler.readAuthorsAndArticles();
-
-            //if (persistencyHandler.getStoredAuthors().size() > 0 || persistencyHandler.getStoredArticles().size() > 0) {
-            //    System.out.println("Authors: " + persistencyHandler.getStoredAuthors());
-            //    System.out.println("Articles: " + persistencyHandler.getStoredArticles());
-            //}
         }
     }
 
@@ -241,7 +257,7 @@ public class B52Reader {
 
         selectedArticle = article;
 
-        manyBrowsersPanel.showBrowser(selectedArticle.getUrl());
+        manyBrowsersPanel.showBrowser(selectedArticle.getUrl(), true);
     }
 
     // todo: Merge/move this method into the ManyBrowsersPanel class to support different types of embedded browsers.
