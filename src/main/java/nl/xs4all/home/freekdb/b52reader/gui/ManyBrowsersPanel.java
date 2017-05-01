@@ -7,10 +7,12 @@
 package nl.xs4all.home.freekdb.b52reader.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.JPanel;
 
@@ -48,28 +50,28 @@ class ManyBrowsersPanel extends JPanel {
                 makeBrowserPanelVisible(url);
             }
         } else {
-            System.out.println("Create new browser for " + url);
-            JPanel browserPanel = new JPanel(new BorderLayout());
+            System.out.println("Create a new browser for " + url);
+
+            Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
+            hideAllBrowserPanels();
+
             JWebBrowser webBrowser = createWebBrowser(url);
             webBrowsers.add(webBrowser);
+
+            JPanel browserPanel = new JPanel(new BorderLayout());
             browserPanel.add(webBrowser, BorderLayout.CENTER);
-
-            if (makeBrowserVisible) {
-                hideAllBrowserPanels();
-            }
-
             browserPanels.add(browserPanel);
             urlToBrowserPanels.put(url, browserPanel);
 
-            if (makeBrowserVisible) {
-                System.out.println("Show browser for " + url);
-                add(browserPanel, BorderLayout.CENTER);
-            } else {
-                browserPanel.setVisible(false);
-                add(browserPanel, BorderLayout.CENTER);
-            }
+            System.out.println((makeBrowserVisible ? "Show" : "Add") + " the browser for " + url);
 
+            add(browserPanel, BorderLayout.CENTER);
             validate();
+
+            if (!makeBrowserVisible) {
+                hideAllBrowserPanels();
+                visibleBrowserPanel.ifPresent(panel -> panel.setVisible(true));
+            }
         }
     }
 

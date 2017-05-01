@@ -43,7 +43,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
 
-    private static final int BACKGROUND_BROWSER_MAX_COUNT = 1;
+    private static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
 
     private PersistencyHandler persistencyHandler;
     private List<Article> currentArticles;
@@ -81,9 +81,9 @@ public class B52Reader {
         filteredArticles = currentArticles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
-        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        //frame.setBounds(0, 0, 1920, 1080);
-        frame.setBounds(0, 0, 1024, 768);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setBounds(0, 0, 1920, 1080);
+        //frame.setBounds(0, 0, 1024, 768);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JPanel northPanel = new JPanel(new BorderLayout());
@@ -110,15 +110,15 @@ public class B52Reader {
 
         // Start a background timer to initialize and load some browsers in the background.
         backgroundBrowserCount = 0;
-        backgroundArticleIndex = 3;  //1;
+        backgroundArticleIndex = 1;
         Timer backgroundTasksTimer = new Timer(2000, actionEvent -> handleBackgroundTasks());
         backgroundTasksTimer.start();
     }
 
     private void handleBackgroundTasks() {
-        System.out.println("Started with background tasks.");
-
         if (backgroundBrowserCount < BACKGROUND_BROWSER_MAX_COUNT && backgroundArticleIndex < currentArticles.size()) {
+            System.out.println("Started with background tasks.");
+
             String url = currentArticles.get(backgroundArticleIndex).getUrl();
             if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
                 System.out.println("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
@@ -126,9 +126,9 @@ public class B52Reader {
                 backgroundBrowserCount++;
             }
             backgroundArticleIndex++;
-        }
 
-        System.out.println("Finished with background tasks.");
+            System.out.println("Finished with background tasks.");
+        }
     }
 
     private void initializeDatabase() {
