@@ -18,6 +18,9 @@ import javax.swing.JPanel;
 
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import chrriis.dj.nativeswing.swtimpl.NSPanelComponent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
@@ -26,6 +29,8 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 // todo: Make this class more generic by supporting different types of embedded browsers.
 class ManyBrowsersPanel extends JPanel {
+    private static final Logger logger = LogManager.getLogger(ManyBrowsersPanel.class);
+
     private List<JPanel> browserPanels;
     private Map<String, JPanel> urlToBrowserPanels;
     private List<JWebBrowser> webBrowsers;
@@ -45,12 +50,12 @@ class ManyBrowsersPanel extends JPanel {
     void showBrowser(String url, boolean makeBrowserVisible) {
         if (urlToBrowserPanels.containsKey(url)) {
             if (makeBrowserVisible) {
-                System.out.println("Show browser for " + url);
+                logger.info("Show browser for {}", url);
                 hideAllBrowserPanels();
                 makeBrowserPanelVisible(url);
             }
         } else {
-            System.out.println("Create a new browser for " + url);
+            logger.info("Create a new browser for {}", url);
 
             Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
             hideAllBrowserPanels();
@@ -63,7 +68,7 @@ class ManyBrowsersPanel extends JPanel {
             browserPanels.add(browserPanel);
             urlToBrowserPanels.put(url, browserPanel);
 
-            System.out.println((makeBrowserVisible ? "Show" : "Add") + " the browser for " + url);
+            logger.info("{} the browser for {}", makeBrowserVisible ? "Show" : "Add", url);
 
             add(browserPanel, BorderLayout.CENTER);
             validate();
@@ -92,7 +97,7 @@ class ManyBrowsersPanel extends JPanel {
             validate();
             repaint();
         } else {
-            System.err.println("Browser not found.");
+            logger.error("Browser not found.");
         }
     }
 
@@ -108,8 +113,7 @@ class ManyBrowsersPanel extends JPanel {
         browserPanels.clear();
 
         long end = System.currentTimeMillis();
-        System.out.println("Disposed " + Utilities.countAndWord(browserCount, "browser") + " in " +
-                           (end - start) + " milliseconds.");
+        logger.info("Disposed {} in {} milliseconds.", Utilities.countAndWord(browserCount, "browser"), end - start);
     }
 
     private JWebBrowser createWebBrowser(String url) {
@@ -130,21 +134,16 @@ class ManyBrowsersPanel extends JPanel {
             public void loadingProgressChanged(WebBrowserEvent webBrowserEvent) {
                 super.loadingProgressChanged(webBrowserEvent);
 
-                System.out.println("[" + System.currentTimeMillis() + " - " + partUrl + "] Changed loading progress: " +
-                                   webBrowser.getLoadingProgress());
+                logger.info("[{}] Changed loading progress: {}", partUrl, webBrowser.getLoadingProgress());
             }
 
             @Override
             public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
                 super.locationChanged(webBrowserNavigationEvent);
 
-                System.out.println("[" + System.currentTimeMillis() + " - " + partUrl + "] Location changed: " +
-                                   webBrowserNavigationEvent.getNewResourceLocation());
+                logger.info("[{}] Location changed: {}", partUrl, webBrowserNavigationEvent.getNewResourceLocation());
             }
         });
-
-        // The initial loading progress always seems to be 100.
-        // System.out.println("[" + partUrl + "] Initial loading progress: " + webBrowser.getLoadingProgress());
 
         return webBrowser;
     }
@@ -157,7 +156,7 @@ class ManyBrowsersPanel extends JPanel {
         if (urlToBrowserPanels.containsKey(url)) {
             urlToBrowserPanels.get(url).setVisible(true);
         } else {
-            System.err.println("Browser with url " + url + " not found.");
+            logger.error("Browser with url {} not found.", url);
         }
     }
 }

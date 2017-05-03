@@ -17,6 +17,8 @@ import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,6 +28,8 @@ import org.jsoup.select.Elements;
  * NRC Handelsblad (a Dutch newspaper) article source.
  */
 public class NrcScienceArticleSource implements ArticleSource {
+    private static final Logger logger = LogManager.getLogger(NrcScienceArticleSource.class);
+
     @Override
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         List<Article> newArticles = new ArrayList<>();
@@ -61,8 +65,7 @@ public class NrcScienceArticleSource implements ArticleSource {
             e.printStackTrace();
         }
 
-        System.out.println("Fetched " + Utilities.countAndWord(newArticles.size(), "article") +
-                           " from the NRC website.");
+        logger.info("Fetched {} from the NRC website.", Utilities.countAndWord(newArticles.size(), "article"));
 
         return newArticles;
     }

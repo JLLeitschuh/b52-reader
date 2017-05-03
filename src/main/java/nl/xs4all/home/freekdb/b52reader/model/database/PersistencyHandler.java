@@ -26,12 +26,17 @@ import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Enable storage of articles and authors in an H2 database.
  * <p>
  * If performance is not good enough: http://h2database.com/html/performance.html.
  */
 public class PersistencyHandler {
+    private static final Logger logger = LogManager.getLogger(PersistencyHandler.class);
+
     private Connection databaseConnection;
     private Statement statement;
 
@@ -62,7 +67,7 @@ public class PersistencyHandler {
             result = false;
         }
 
-        System.out.println("Initialized the database connection.");
+        logger.info("Initialized the database connection.");
 
         return result;
     }
@@ -73,7 +78,7 @@ public class PersistencyHandler {
                 statement.execute("create table author(id int auto_increment primary key, " +
                                   "name varchar(100))");
 
-                System.out.println("Created the author database table.");
+                logger.info("Created the author database table.");
             }
 
             if (!tableExists("article")) {
@@ -82,7 +87,7 @@ public class PersistencyHandler {
                                   "title varchar(200), date_time timestamp, text varchar(8128), " +
                                   "starred boolean, read boolean, archived boolean, likes int)");
 
-                System.out.println("Created the article database table.");
+                logger.info("Created the article database table.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -109,8 +114,7 @@ public class PersistencyHandler {
                 storedAuthorsMap.put(name, author);
             }
 
-            System.out.println("Read " + Utilities.countAndWord(storedAuthors.size(), "author") +
-                               " from the database.");
+            logger.info("Read {} from the database.", Utilities.countAndWord(storedAuthors.size(), "author"));
 
             storedArticles = new ArrayList<>();
             storedArticlesMap = new HashMap<>();
@@ -122,8 +126,7 @@ public class PersistencyHandler {
                 storedArticlesMap.put(article.getUrl(), article);
             }
 
-            System.out.println("Read " + Utilities.countAndWord(storedArticles.size(), "article") +
-                               " from the database.");
+            logger.info("Read {} from the database.", Utilities.countAndWord(storedArticles.size(), "article"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -166,14 +169,13 @@ public class PersistencyHandler {
                 for (int authorIndex = 0; authorIndex < results.length; authorIndex++) {
                     int result = results[authorIndex];
                     if (result != 1) {
-                        System.err.println("Error writing author " + newAuthors.get(authorIndex) + " to the database.");
+                        logger.error("Error writing author {} to the database.", newAuthors.get(authorIndex));
                     }
                 }
 
                 preparedStatement.close();
 
-                System.out.println("Wrote " + Utilities.countAndWord(newAuthors.size(), "new author") +
-                                   " to the database.");
+                logger.info("Wrote {} to the database.", Utilities.countAndWord(newAuthors.size(), "new author"));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -241,16 +243,14 @@ public class PersistencyHandler {
                 for (int articleIndex = 0; articleIndex < results.length; articleIndex++) {
                     int result = results[articleIndex];
                     if (result != 1) {
-                        System.err.println("Error updating article " + updateArticles.get(articleIndex) +
-                                           " in the database.");
+                        logger.error("Error updating article {} in the database.", updateArticles.get(articleIndex));
                     }
                 }
             }
 
             preparedStatement.close();
 
-            System.out.println("Updated " + Utilities.countAndWord(updateArticles.size(), "article") +
-                               " in the database.");
+            logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), "article"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -282,14 +282,13 @@ public class PersistencyHandler {
             for (int articleIndex = 0; articleIndex < results.length; articleIndex++) {
                 int result = results[articleIndex];
                 if (result != 1) {
-                    System.err.println("Error writing article " + newArticles.get(articleIndex) + " to the database.");
+                    logger.error("Error writing article {} to the database.", newArticles.get(articleIndex));
                 }
             }
 
             preparedStatement.close();
 
-            System.out.println("Wrote " + Utilities.countAndWord(newArticles.size(), "new article") +
-                               " to the database.");
+            logger.info("Wrote {} to the database.", Utilities.countAndWord(newArticles.size(), "new article"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -359,7 +358,7 @@ public class PersistencyHandler {
             e.printStackTrace();
         }
 
-        System.out.println("Removed all authors and articles from the database.");
+        logger.info("Removed all authors and articles from the database.");
     }
 
     @SuppressWarnings("unused")
@@ -367,14 +366,14 @@ public class PersistencyHandler {
         try {
             ResultSet authorsResultSet = statement.executeQuery("select * from author");
             if (authorsResultSet.next()) {
-                System.out.println();
-                System.out.println("Authors:");
+                logger.info("");
+                logger.info("Authors:");
                 printResultSet(authorsResultSet);
             }
 
             ResultSet articlesResultSet = statement.executeQuery("select * from article");
             if (articlesResultSet.next()) {
-                System.out.println("Articles:");
+                logger.info("Articles:");
                 printResultSet(articlesResultSet);
             }
         } catch (SQLException e) {
@@ -391,9 +390,9 @@ public class PersistencyHandler {
                     String columnName = metaData.getColumnName(columnIndex).toLowerCase();
                     String value = resultSet.getString(columnIndex);
 
-                    System.out.println(columnName + ": " + value);
+                    logger.info("{}: {}", columnName, value);
                 }
-                System.out.println();
+                logger.info("");
                 firstRecord = false;
             }
         } catch (SQLException e) {

@@ -12,6 +12,9 @@ import java.util.function.Predicate;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ArticleFilter implements Predicate<Article> {
     private static final String AUTHOR_PREFIX = "author:";
     private static final String TITLE_PREFIX = "title:";
@@ -22,6 +25,8 @@ public class ArticleFilter implements Predicate<Article> {
     private static final String READ_STATE = "read";
     private static final String UNREAD_STATE = "unread";
 
+    private static final Logger logger = LogManager.getLogger(ArticleFilter.class);
+
     private String normalizedAuthorName;
     private String normalizedTitle;
     private Boolean starred;
@@ -31,20 +36,20 @@ public class ArticleFilter implements Predicate<Article> {
         Arrays.stream(filterText.split(" ")).forEach(filterPart -> {
             if (filterPart.startsWith(AUTHOR_PREFIX) && filterPart.length() > AUTHOR_PREFIX.length()) {
                 normalizedAuthorName = Utilities.normalize(filterPart.substring(AUTHOR_PREFIX.length()));
-                System.out.println("Filter on author: " + normalizedAuthorName);
+                logger.debug("Filter on author: {}", normalizedAuthorName);
             } else if (filterPart.startsWith(TITLE_PREFIX) && filterPart.length() > TITLE_PREFIX.length()) {
                 normalizedTitle = Utilities.normalize(filterPart.substring(TITLE_PREFIX.length()));
-                System.out.println("Filter on title: " + normalizedTitle);
+                logger.debug("Filter on title: {}", normalizedTitle);
             } else if (filterPart.startsWith(IS_PREFIX) && filterPart.length() > IS_PREFIX.length()) {
                 String state = filterPart.substring(IS_PREFIX.length()).toLowerCase();
                 if (STARRED_STATE.equals(state) || UNSTARRED_STATE.equals(state))
                     starred = STARRED_STATE.equals(state);
                 if (state.equals(READ_STATE) || UNREAD_STATE.equals(state))
                     read = READ_STATE.equals(state);
-                System.out.println("Filter on state: " + state);
+                logger.debug("Filter on state: {}", state);
             } else if (!"".equals(filterPart.trim())) {
                 // Incomplete filter parts will be ignored.
-                System.out.println("Filter not understood: " + filterPart);
+                logger.debug("Filter not understood: {}", filterPart);
             }
         });
     }

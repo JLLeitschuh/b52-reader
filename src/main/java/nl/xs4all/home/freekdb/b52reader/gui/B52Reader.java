@@ -42,8 +42,6 @@ import org.apache.logging.log4j.Logger;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
-// todo: Use logger instead of println statements.
-
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
