@@ -37,13 +37,19 @@ import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
+
+// todo: Use logger instead of println statements.
 
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
-
     private static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
+
+    private static final Logger logger = LogManager.getLogger(B52Reader.class);
 
     private PersistencyHandler persistencyHandler;
     private List<Article> currentArticles;
@@ -117,17 +123,17 @@ public class B52Reader {
 
     private void handleBackgroundTasks() {
         if (backgroundBrowserCount < BACKGROUND_BROWSER_MAX_COUNT && backgroundArticleIndex < currentArticles.size()) {
-            System.out.println("Started with background tasks.");
+            logger.debug("Started with background tasks.");
 
             String url = currentArticles.get(backgroundArticleIndex).getUrl();
             if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
-                System.out.println("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
+                logger.debug("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
                 manyBrowsersPanel.showBrowser(url, false);
                 backgroundBrowserCount++;
             }
             backgroundArticleIndex++;
 
-            System.out.println("Finished with background tasks.");
+            logger.debug("Finished with background tasks.");
         }
     }
 
@@ -287,7 +293,7 @@ public class B52Reader {
         persistencyHandler.saveAuthorsAndArticles(currentArticles);
 
         if (persistencyHandler.closeDatabaseConnection()) {
-            System.out.println("Closed the database connection.");
+            logger.debug("Closed the database connection.");
         }
     }
 }

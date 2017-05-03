@@ -1,0 +1,26 @@
+{
+  "configuration": {
+    "status": "error",
+    "name": "B52Reader",
+    "packages": "nl.xs4all.home.freekdb.b52reader",
+    "ThresholdFilter": {
+      "level": "debug"
+    },
+    "appenders": {
+      "console": {
+        "name": "console",
+        "PatternLayout": {
+          "pattern": "%level{length=1} %date %message%n"
+        }
+      }
+    },
+    "loggers": {
+      "root": {
+        "level": "debug",
+        "AppenderRef": {
+          "ref": "console"
+        }
+      }
+    }
+  }
+}
