@@ -12,6 +12,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,14 +38,13 @@ import nl.xs4all.home.freekdb.b52reader.gui.djnativeswing.JWebBrowserPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
-
-// todo: Add The Verge article source (https://www.theverge.com/mobile/rss/index.xml).
 
 // todo: Fix SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 //       mvn dependency:tree
@@ -84,12 +86,7 @@ public class B52Reader {
     private void createAndShowApplication() {
         initializeDatabase();
 
-        Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
-        Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
-        //currentArticles = new NrcScienceArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
-        //currentArticles = new AcmSoftwareArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
-        currentArticles = new TestDataArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
-
+        currentArticles = getArticles();
         filteredArticles = currentArticles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
@@ -125,6 +122,33 @@ public class B52Reader {
         backgroundArticleIndex = 1;
         Timer backgroundTasksTimer = new Timer(2000, actionEvent -> handleBackgroundTasks());
         backgroundTasksTimer.start();
+    }
+
+    private List<Article> getArticles() {
+        List<Article> articles = new ArrayList<>();
+
+        try {
+            //ArticleSource articleSource = new NrcScienceArticleSource();
+
+            //ArticleSource articleSource = new RssArticleSource("ACM Software",
+            //                                                   new URL("https://cacm.acm.org/browse-by-subject/software.rss"),
+            //                                                   new Author(4, "ACM"));
+
+            ArticleSource articleSource = new RssArticleSource("The Verge",
+                                                               new URL("https://www.theverge.com/rss/index.xml"),
+                                                               new Author(5, "The Verge"));
+
+            //ArticleSource articleSource = new TestDataArticleSource();
+
+            Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
+            Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
+
+            articles = articleSource.getArticles(storedArticlesMap, storedAuthorsMap);
+        } catch (MalformedURLException e) {
+            logger.error("Exception while getting articles.", e);
+        }
+
+        return articles;
     }
 
     private void handleBackgroundTasks() {

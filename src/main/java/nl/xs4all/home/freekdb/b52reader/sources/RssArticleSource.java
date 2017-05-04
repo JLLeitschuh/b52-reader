@@ -4,7 +4,7 @@
  */
 
 
-package nl.xs4all.home.freekdb.b52reader.sources.acm;
+package nl.xs4all.home.freekdb.b52reader.sources;
 
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -21,38 +21,53 @@ import java.util.Map;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
-import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Communications of the ACM: Software article source (https://cacm.acm.org/).
+ * Generic article source that fetches data from an rss feed.
  */
-public class AcmSoftwareArticleSource implements ArticleSource {
-    private static final Logger logger = LogManager.getLogger(AcmSoftwareArticleSource.class);
+public class RssArticleSource implements ArticleSource {
+    private static final Logger logger = LogManager.getLogger(RssArticleSource.class);
+
+    private final URL feedUrl;
+    private final String feedName;
+    private final Author defaultAuthor;
+
+    public RssArticleSource(String feedName, URL feedUrl, Author defaultAuthor) {
+        this.feedUrl = feedUrl;
+        this.feedName = feedName;
+        this.defaultAuthor = defaultAuthor;
+    }
 
     @Override
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         List<Article> newArticles = new ArrayList<>();
 
         try {
-            URL feedUrl = new URL("https://cacm.acm.org/browse-by-subject/software.rss");
             SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
-
-            Author defaultAuthor = new Author(4, "ACM");
 
             for (SyndEntry entry : feed.getEntries()) {
                 String url = entry.getLink();
                 String title = entry.getTitle();
-                String text = entry.getDescription().getValue();
-                // The author and date fields seem to be empty for all articles.
+
+                String text = entry.getDescription() != null
+                        ? entry.getDescription().getValue()
+                        // The Verge: titleEx == title //: entry.getTitleEx() != null ? entry.getTitleEx().getValue() : "";
+                        : "";
+
+                Author entryAuthor = entry.getAuthor() != null ? new Author(-1, entry.getAuthor()) : null;
+                Date dateTime = entry.getPublishedDate() != null ? entry.getPublishedDate() : new Date();
 
                 // We create new article objects, because we want to be able to compare the articles in memory to the
                 // stored articles to see whether an update of a stored article is needed.
-                Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-                Article article = new Article(-1 - newArticles.size(), url, author, title, new Date(), text, 1234);
+                Author author = entryAuthor != null
+                        ? entryAuthor
+                        : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
+
+                Article article = new Article(-1 - newArticles.size(), url, author, title, dateTime, text, 1234);
 
                 // If there is previous data available for this article, copy the fields that are managed by the B52 reader.
                 if (previousArticlesMap.containsKey(url)) {
@@ -66,10 +81,11 @@ public class AcmSoftwareArticleSource implements ArticleSource {
                 newArticles.add(article);
             }
         } catch (FeedException | IOException e) {
-            logger.error("Exception while fetching articles from RSS feed.", e);
+            logger.error("Exception while fetching articles from an RSS feed.", e);
         }
 
-        logger.info("Fetched {} from the ACM Software rss feed.", Utilities.countAndWord(newArticles.size(), "article"));
+        logger.info("Fetched {} from the {} rss feed.", Utilities.countAndWord(newArticles.size(), "article"),
+                    feedName);
 
         return newArticles;
     }
