@@ -63,7 +63,7 @@ public class PersistencyHandler {
 
             statement = databaseConnection.createStatement();
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while initializing the database connection.", e);
             result = false;
         }
 
@@ -90,7 +90,7 @@ public class PersistencyHandler {
                 logger.info("Created the article database table.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while creating the database tables.", e);
         }
     }
 
@@ -128,7 +128,7 @@ public class PersistencyHandler {
 
             logger.info("Read {} from the database.", Utilities.countAndWord(storedArticles.size(), "article"));
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while reading authors and articles from the database.", e);
         }
     }
 
@@ -177,7 +177,7 @@ public class PersistencyHandler {
 
                 logger.info("Wrote {} to the database.", Utilities.countAndWord(newAuthors.size(), "new author"));
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.error("Exception while inserting authors into the database.", e);
             }
         }
     }
@@ -197,7 +197,7 @@ public class PersistencyHandler {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while reading authors from the database.", e);
         }
     }
 
@@ -252,7 +252,7 @@ public class PersistencyHandler {
 
             logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), "article"));
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while updating authors in the database.", e);
         }
     }
 
@@ -290,7 +290,7 @@ public class PersistencyHandler {
 
             logger.info("Wrote {} to the database.", Utilities.countAndWord(newArticles.size(), "new article"));
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while inserting articles into the database.", e);
         }
     }
 
@@ -300,7 +300,7 @@ public class PersistencyHandler {
         try {
             databaseConnection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while closing the database connection.", e);
             result = false;
         }
 
@@ -336,7 +336,7 @@ public class PersistencyHandler {
                               "true, false, false, 6" +
                               ")");
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while inserting test data into the database.", e);
         }
     }
 
@@ -355,7 +355,7 @@ public class PersistencyHandler {
                 storedAuthorsMap.clear();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while deleting authors and articles from the database.", e);
         }
 
         logger.info("Removed all authors and articles from the database.");
@@ -377,7 +377,7 @@ public class PersistencyHandler {
                 printResultSet(articlesResultSet);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while reading authors and articles from the database.", e);
         }
     }
 
@@ -396,7 +396,7 @@ public class PersistencyHandler {
                 firstRecord = false;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while printing database records.", e);
         }
     }
 }

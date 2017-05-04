@@ -66,7 +66,7 @@ public class AcmSoftwareArticleSource implements ArticleSource {
                 newArticles.add(article);
             }
         } catch (FeedException | IOException e) {
-            e.printStackTrace();
+            logger.error("Exception while fetching articles from RSS feed.", e);
         }
 
         logger.info("Fetched {} from the ACM Software rss feed.", Utilities.countAndWord(newArticles.size(), "article"));

@@ -14,7 +14,12 @@ import java.util.Objects;
 
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Article {
+    private static final Logger logger = LogManager.getLogger(Article.class);
+
     private int id;
     private String url;
     private Author author;
@@ -66,7 +71,7 @@ public class Article {
             article.setStarred(resultSet.getBoolean("starred"));
             article.setArchived(resultSet.getBoolean("archived"));
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Exception while creating an article from a database record.", e);
         }
 
         return article;

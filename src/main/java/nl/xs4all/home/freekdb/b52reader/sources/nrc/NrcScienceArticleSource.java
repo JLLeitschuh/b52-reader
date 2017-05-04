@@ -62,7 +62,7 @@ public class NrcScienceArticleSource implements ArticleSource {
                 newArticles.add(article);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Exception while fetching articles from web site.", e);
         }
 
         logger.info("Fetched {} from the NRC website.", Utilities.countAndWord(newArticles.size(), "article"));

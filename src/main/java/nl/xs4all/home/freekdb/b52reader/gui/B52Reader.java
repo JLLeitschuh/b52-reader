@@ -35,14 +35,20 @@ import nl.xs4all.home.freekdb.b52reader.gui.djnativeswing.JWebBrowserPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.sources.acm.AcmSoftwareArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
-// todo: Replace all calls to e.printStackTrace() with logging.
+// todo: Add The Verge article source (https://www.theverge.com/mobile/rss/index.xml).
+
+// todo: Fix SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+//       mvn dependency:tree
+//       com.rometools:rome:jar:1.7.2:compile -> org.jdom:jdom2:jar:2.0.6:compile -> org.slf4j:slf4j-api:jar:1.7.16:compile
+
+// todo: Make it possible to combine multiple article sources.
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
@@ -81,8 +87,8 @@ public class B52Reader {
         Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
         Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
         //currentArticles = new NrcScienceArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
-        currentArticles = new AcmSoftwareArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
-        //currentArticles = new TestDataArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
+        //currentArticles = new AcmSoftwareArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
+        currentArticles = new TestDataArticleSource().getArticles(storedArticlesMap, storedAuthorsMap);
 
         filteredArticles = currentArticles;
 
