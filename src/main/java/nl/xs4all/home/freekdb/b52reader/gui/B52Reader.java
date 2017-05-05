@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,7 +40,10 @@ import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.CombinationArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,7 +54,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 //       mvn dependency:tree
 //       com.rometools:rome:jar:1.7.2:compile -> org.jdom:jdom2:jar:2.0.6:compile -> org.slf4j:slf4j-api:jar:1.7.16:compile
 
-// todo: Make it possible to combine multiple article sources.
+// todo: Solve exception while updating articles (PersistencyHandler.updateExistingArticles): "Exception while updating authors in the database."
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
@@ -86,7 +90,7 @@ public class B52Reader {
     private void createAndShowApplication() {
         initializeDatabase();
 
-        currentArticles = getArticles();
+        currentArticles = getArticles(Arrays.asList("nrc", "test"));
         filteredArticles = currentArticles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
@@ -124,26 +128,36 @@ public class B52Reader {
         backgroundTasksTimer.start();
     }
 
-    private List<Article> getArticles() {
+    private List<Article> getArticles(List<String> articleSourceIds) {
         List<Article> articles = new ArrayList<>();
 
         try {
-            //ArticleSource articleSource = new NrcScienceArticleSource();
+            List<ArticleSource> articleSources = new ArrayList<>();
 
-            //ArticleSource articleSource = new RssArticleSource("ACM Software",
-            //                                                   new URL("https://cacm.acm.org/browse-by-subject/software.rss"),
-            //                                                   new Author(4, "ACM"));
+            if (articleSourceIds.contains("nrc")) {
+                articleSources.add(new NrcScienceArticleSource());
+            }
 
-            ArticleSource articleSource = new RssArticleSource("The Verge",
-                                                               new URL("https://www.theverge.com/rss/index.xml"),
-                                                               new Author(5, "The Verge"));
+            if (articleSourceIds.contains("acm")) {
+                articleSources.add(new RssArticleSource("ACM Software",
+                                                        new URL("https://cacm.acm.org/browse-by-subject/software.rss"),
+                                                        new Author(4, "ACM")));
+            }
 
-            //ArticleSource articleSource = new TestDataArticleSource();
+            if (articleSourceIds.contains("verge")) {
+                articleSources.add(new RssArticleSource("The Verge",
+                                                        new URL("https://www.theverge.com/rss/index.xml"),
+                                                        new Author(5, "The Verge")));
+            }
+
+            if (articleSourceIds.contains("test")) {
+                articleSources.add(new TestDataArticleSource());
+            }
 
             Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
             Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
 
-            articles = articleSource.getArticles(storedArticlesMap, storedAuthorsMap);
+            articles = new CombinationArticleSource(articleSources).getArticles(storedArticlesMap, storedAuthorsMap);
         } catch (MalformedURLException e) {
             logger.error("Exception while getting articles.", e);
         }

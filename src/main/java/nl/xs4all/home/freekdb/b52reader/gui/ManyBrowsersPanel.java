@@ -55,7 +55,7 @@ class ManyBrowsersPanel extends JPanel {
                 makeBrowserPanelVisible(url);
             }
         } else {
-            logger.info("Create a new browser for {}", url);
+            logger.debug("Create a new browser for {}", url);
 
             Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
             hideAllBrowserPanels();
@@ -68,7 +68,7 @@ class ManyBrowsersPanel extends JPanel {
             browserPanels.add(browserPanel);
             urlToBrowserPanels.put(url, browserPanel);
 
-            logger.info("{} the browser for {}", makeBrowserVisible ? "Show" : "Add", url);
+            logger.debug("{} a browser for {}", makeBrowserVisible ? "Show" : "Add", url);
 
             add(browserPanel, BorderLayout.CENTER);
             validate();
@@ -134,14 +134,14 @@ class ManyBrowsersPanel extends JPanel {
             public void loadingProgressChanged(WebBrowserEvent webBrowserEvent) {
                 super.loadingProgressChanged(webBrowserEvent);
 
-                logger.info("[{}] Changed loading progress: {}", partUrl, webBrowser.getLoadingProgress());
+                logger.trace("[{}] Changed loading progress: {}", partUrl, webBrowser.getLoadingProgress());
             }
 
             @Override
             public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
                 super.locationChanged(webBrowserNavigationEvent);
 
-                logger.info("[{}] Location changed: {}", partUrl, webBrowserNavigationEvent.getNewResourceLocation());
+                logger.trace("[{}] Location changed: {}", partUrl, webBrowserNavigationEvent.getNewResourceLocation());
             }
         });
 
