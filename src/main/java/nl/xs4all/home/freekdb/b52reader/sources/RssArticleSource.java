@@ -67,7 +67,7 @@ public class RssArticleSource implements ArticleSource {
                         ? entryAuthor
                         : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
 
-                Article article = new Article(-1 - newArticles.size(), url, author, title, dateTime, text, 1234);
+                Article article = new Article(-1 - newArticles.size(), url, null, author, title, dateTime, text, 1234);
 
                 // If there is previous data available for this article, copy the fields that are managed by the B52 reader.
                 if (previousArticlesMap.containsKey(url)) {

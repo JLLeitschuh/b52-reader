@@ -48,7 +48,8 @@ public class NrcScienceArticleSource implements ArticleSource {
                 // We create new article objects, because we want to be able to compare the articles in memory to the
                 // stored articles to see whether an update of a stored article is needed.
                 Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-                Article article = new Article(-1 - newArticles.size(), url, author, title, new Date(), text, 1234);
+                Article article = new Article(-1 - newArticles.size(), url, "nrc", author, title, new Date(),
+                                              text, 1234);
 
                 // If there is previous data available for this article, copy the fields that are managed by the B52 reader.
                 if (previousArticlesMap.containsKey(url)) {

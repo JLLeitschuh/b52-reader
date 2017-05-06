@@ -22,6 +22,7 @@ public class Article {
 
     private int id;
     private String url;
+    private String sourceId;
     private Author author;
     private String title;
     private String normalizedTitle;
@@ -34,9 +35,10 @@ public class Article {
     private boolean read;
     private boolean archived;
 
-    public Article(int id, String url, Author author, String title, Date dateTime, String text, int likes) {
+    public Article(int id, String url, String sourceId, Author author, String title, Date dateTime, String text, int likes) {
         this.id = id;
         this.url = url;
+        this.sourceId = sourceId;
         this.author = author;
         this.title = title;
         this.normalizedTitle = Utilities.normalize(title);
@@ -53,6 +55,7 @@ public class Article {
         try {
             int id = resultSet.getInt("id");
             String url = resultSet.getString("url");
+            // todo: Add sourceId.
 
             int authorId = resultSet.getInt("author_id");
             Author author = authors.stream()
@@ -65,7 +68,7 @@ public class Article {
             String text = resultSet.getString("text");
             int likes = resultSet.getInt("likes");
 
-            article = new Article(id, url, author, title, dateTime, text, likes);
+            article = new Article(id, url, null, author, title, dateTime, text, likes);
 
             article.setRead(resultSet.getBoolean("read"));
             article.setStarred(resultSet.getBoolean("starred"));
@@ -88,6 +91,10 @@ public class Article {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getSourceId() {
+        return sourceId;
     }
 
     public Author getAuthor() {
@@ -164,6 +171,7 @@ public class Article {
 
         return Objects.equals(id, other.id) &&
                Objects.equals(url, other.url) &&
+               Objects.equals(sourceId, other.sourceId) &&
                Objects.equals(author, other.author) &&
                Objects.equals(title, other.title) &&
                Objects.equals(dateTime, other.dateTime) &&
@@ -176,6 +184,6 @@ public class Article {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, author, title, dateTime, text, likes, read, starred, archived);
+        return Objects.hash(id, url, sourceId, author, title, dateTime, text, likes, read, starred, archived);
     }
 }

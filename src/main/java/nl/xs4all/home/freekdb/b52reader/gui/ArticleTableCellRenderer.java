@@ -95,7 +95,7 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
                                                    int row, int column) {
         Article article = (Article) value;
 
-        this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : defaultBackgroundColor);
+        this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : getBackgroundColor(article));
 
         String iconFileName = "32x32-" + (article.isStarred() ? "Full_Star_Yellow" : "Empty_Star") + ".png";
         starredLabel.setIcon(Utilities.getIconResource(iconFileName));
@@ -109,5 +109,11 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         textLabel.setText(article.getText());
 
         return this;
+    }
+
+    private Color getBackgroundColor(Article article) {
+        return "nrc".equals(article.getSourceId()) ? new Color(178, 34, 34)
+                : "test".equals(article.getSourceId()) ? Color.ORANGE
+                : defaultBackgroundColor;
     }
 }
