@@ -16,8 +16,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
@@ -32,10 +34,13 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.TableModel;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.gui.djnativeswing.JWebBrowserPanel;
+import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
+import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
@@ -72,7 +77,8 @@ public class B52Reader {
     private JFrame frame;
     private JTextField filterTextField;
     private JTable table;
-    private ArticlesTableModel tableModel;
+    //private ArticlesTableModel tableModel;
+    private TableModel tableModel;
     private ManyBrowsersPanel manyBrowsersPanel;
 
     public static void main(String[] arguments) {
@@ -104,7 +110,8 @@ public class B52Reader {
 
         manyBrowsersPanel = new ManyBrowsersPanel();
 
-        JTable table = createTable(currentArticles);
+        //JTable table = createTable(currentArticles);
+        JTable table = createSpanTable(currentArticles);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
@@ -226,7 +233,8 @@ public class B52Reader {
                 .filter(article -> !article.isArchived())
                 .collect(Collectors.toList());
 
-        tableModel.setArticles(filteredArticles);
+        // todo: Update the new table model.
+        //tableModel.setArticles(filteredArticles);
 
         frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " + (filteredArticles.size() > 0 ? "1" : "0")
                        + "/" + filteredArticles.size());
@@ -247,6 +255,7 @@ public class B52Reader {
         }
     }
 
+    @SuppressWarnings("unused")
     private JTable createTable(List<Article> articles) {
         ArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
@@ -258,36 +267,19 @@ public class B52Reader {
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().setSelectionInterval(0, 0);
 
+        table.setAutoCreateRowSorter(true);
+
         // todo: table.addKeyListener(new KeyboardShortcutHandler(this));
 
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
-                int selectedArticleIndex = table.getSelectedRow();
-                Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
-
-                if (selectedArticle != null) {
-                    boolean updateArticleList = false;
-
-                    // todo: Get rid of these magic numbers (36 and 60) below.
-                    if (mouseEvent.getX() < 36) {
-                        selectedArticle.setStarred(!selectedArticle.isStarred());
-                        updateArticleList = true;
-                    } else if (mouseEvent.getX() < 60) {
-                        selectedArticle.setRead(!selectedArticle.isRead());
-                        updateArticleList = true;
-                    }
-
-                    if (updateArticleList) {
-                        // todo: Keep selection and scroll location if possible.
-                        filterAndShowArticles();
-                    }
-                }
+                handleTableClick(mouseEvent);
             }
         });
 
         table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedArticleIndex = table.getSelectedRow();
+            int selectedArticleIndex = table.getSelectedRow() / 2;
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
                 Article selectedArticle = filteredArticles.get(selectedArticleIndex);
@@ -299,6 +291,95 @@ public class B52Reader {
             selectArticle(filteredArticles.get(0), 0);
 
         return table;
+    }
+
+    private void handleTableClick(MouseEvent mouseEvent) {
+        int selectedArticleIndex = table.getSelectedRow();
+        Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
+
+        if (selectedArticle != null) {
+            boolean updateArticleList = false;
+
+            // todo: Get rid of these magic numbers (36 and 60) below.
+            if (mouseEvent.getX() < 36) {
+                selectedArticle.setStarred(!selectedArticle.isStarred());
+                updateArticleList = true;
+            } else if (mouseEvent.getX() < 60) {
+                selectedArticle.setRead(!selectedArticle.isRead());
+                updateArticleList = true;
+            }
+
+            if (updateArticleList) {
+                // todo: Keep selection and scroll location if possible.
+                filterAndShowArticles();
+            }
+        }
+    }
+
+    private JTable createSpanTable(List<Article> articles) {
+        tableModel = createSpanTableModel(articles);
+
+        table = new SpanCellTable(tableModel);
+        //table.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
+        table.setRowHeight(21);
+        table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.getSelectionModel().setSelectionInterval(0, 0);
+
+        table.setAutoCreateRowSorter(true);
+
+        // todo: table.addKeyListener(new KeyboardShortcutHandler(this));
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                handleTableClick(mouseEvent);
+            }
+        });
+
+        table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+            int selectedArticleIndex = table.getSelectedRow() / 2;
+
+            if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
+                selectArticle(filteredArticles.get(selectedArticleIndex), selectedArticleIndex);
+            }
+        });
+
+        if (tableModel.getRowCount() > 0)
+            selectArticle(filteredArticles.get(0), 0);
+
+        return table;
+    }
+
+    private TableModel createSpanTableModel(List<Article> articles) {
+        List<String> columnIdentifiers = Arrays.asList("status", "title", "author", "date/time");
+        int[] columnIndices = {0, 1, 2, 3};
+
+        // todo: base the SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
+        SpanCellTableModel tableModel = new SpanCellTableModel(2 * articles.size(), columnIdentifiers.size());
+
+        Vector<Vector<Object>> data = new Vector<>();
+        articles.forEach(article -> {
+            data.add(listToVector(Arrays.asList(
+                    article.isStarred(),
+                    article.getTitle(),
+                    article.getAuthor(),
+                    article.getDateTime()
+            )));
+
+            data.add(listToVector(Collections.singletonList(article.getText())));
+        });
+
+        tableModel.setDataVector(data, listToVector(columnIdentifiers));
+
+        for (int rowIndex = 1; rowIndex < data.size(); rowIndex += 2) {
+            tableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices);
+        }
+
+        return tableModel;
+    }
+
+    private <T> Vector<T> listToVector(List<T> list) {
+        return new Vector<>(list);
     }
 
     private void selectArticle(Article article, int articleIndex) {
