@@ -233,8 +233,9 @@ public class B52Reader {
                 .filter(article -> !article.isArchived())
                 .collect(Collectors.toList());
 
-        // todo: Update the new table model.
         //tableModel.setArticles(filteredArticles);
+        tableModel = createSpanTableModel(filteredArticles);
+        table.setModel(tableModel);
 
         frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " + (filteredArticles.size() > 0 ? "1" : "0")
                        + "/" + filteredArticles.size());
