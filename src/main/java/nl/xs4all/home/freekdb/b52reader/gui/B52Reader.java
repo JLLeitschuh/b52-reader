@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,6 +35,7 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
@@ -49,6 +51,7 @@ import nl.xs4all.home.freekdb.b52reader.sources.CombinationArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource;
+import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,6 +69,9 @@ public class B52Reader {
     private static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
 
     private static final Logger logger = LogManager.getLogger(B52Reader.class);
+
+    private static final Icon STARRED_ICON = Utilities.getIconResource("32x32-Full_Star_Yellow.png");
+    private static final Icon UNSTARRED_ICON = Utilities.getIconResource("32x32-Empty_Star.png");
 
     private PersistencyHandler persistencyHandler;
     private List<Article> currentArticles;
@@ -294,29 +300,6 @@ public class B52Reader {
         return table;
     }
 
-    private void handleTableClick(MouseEvent mouseEvent) {
-        int selectedArticleIndex = table.getSelectedRow();
-        Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
-
-        if (selectedArticle != null) {
-            boolean updateArticleList = false;
-
-            // todo: Get rid of these magic numbers (36 and 60) below.
-            if (mouseEvent.getX() < 36) {
-                selectedArticle.setStarred(!selectedArticle.isStarred());
-                updateArticleList = true;
-            } else if (mouseEvent.getX() < 60) {
-                selectedArticle.setRead(!selectedArticle.isRead());
-                updateArticleList = true;
-            }
-
-            if (updateArticleList) {
-                // todo: Keep selection and scroll location if possible.
-                filterAndShowArticles();
-            }
-        }
-    }
-
     private JTable createSpanTable(List<Article> articles) {
         tableModel = createSpanTableModel(articles);
 
@@ -325,14 +308,21 @@ public class B52Reader {
         table.setRowHeight(21);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().setSelectionInterval(0, 0);
-
         table.setAutoCreateRowSorter(true);
+
+        // todo: Resize small columns.
+        TableColumnModel columnModel = table.getColumnModel();
+        for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
+            columnModel.getColumn(columnIndex).setPreferredWidth(200);
+        }
+
+        table.setPreferredScrollableViewportSize(table.getPreferredSize());
 
         // todo: table.addKeyListener(new KeyboardShortcutHandler(this));
 
         table.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
+            public void mousePressed(MouseEvent mouseEvent) {
                 handleTableClick(mouseEvent);
             }
         });
@@ -352,8 +342,8 @@ public class B52Reader {
     }
 
     private TableModel createSpanTableModel(List<Article> articles) {
-        List<String> columnIdentifiers = Arrays.asList("status", "title", "author", "date/time");
-        int[] columnIndices = {0, 1, 2, 3};
+        List<String> columnIdentifiers = Arrays.asList("starred", "read", "title", "author", "date/time");
+        int[] columnIndices = {0, 1, 2, 3, 4};
 
         // todo: base the SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
         SpanCellTableModel tableModel = new SpanCellTableModel(2 * articles.size(), columnIdentifiers.size());
@@ -361,7 +351,8 @@ public class B52Reader {
         Vector<Vector<Object>> data = new Vector<>();
         articles.forEach(article -> {
             data.add(listToVector(Arrays.asList(
-                    article.isStarred(),
+                    article.isStarred() ? STARRED_ICON : UNSTARRED_ICON,
+                    article.isRead() ? "" : "U",
                     article.getTitle(),
                     article.getAuthor(),
                     article.getDateTime()
@@ -381,6 +372,29 @@ public class B52Reader {
 
     private <T> Vector<T> listToVector(List<T> list) {
         return new Vector<>(list);
+    }
+
+    private void handleTableClick(MouseEvent mouseEvent) {
+        int selectedArticleIndex = table.getSelectedRow() / 2;
+        Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
+
+        if (selectedArticle != null) {
+            int columnIndex = table.columnAtPoint(mouseEvent.getPoint());
+            boolean updateArticleList = false;
+
+            if (columnIndex == 0) {
+                selectedArticle.setStarred(!selectedArticle.isStarred());
+                updateArticleList = true;
+            } else if (columnIndex == 1) {
+                selectedArticle.setRead(!selectedArticle.isRead());
+                updateArticleList = true;
+            }
+
+            if (updateArticleList) {
+                // todo: Keep selection and scroll location if possible.
+                filterAndShowArticles();
+            }
+        }
     }
 
     private void selectArticle(Article article, int articleIndex) {

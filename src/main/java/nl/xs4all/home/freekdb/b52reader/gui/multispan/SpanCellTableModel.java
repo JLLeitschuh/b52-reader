@@ -43,6 +43,11 @@ public class SpanCellTableModel extends DefaultTableModel {
         return tableSpans;
     }
 
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return getValueAt(0, columnIndex).getClass();
+    }
+
     public void setDataVector(Vector newData, Vector columnNames) {
         if (newData == null) {
             throw new IllegalArgumentException("setDataVector() - Null parameter");
