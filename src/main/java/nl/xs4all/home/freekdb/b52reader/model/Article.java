@@ -55,7 +55,7 @@ public class Article {
         try {
             int id = resultSet.getInt("id");
             String url = resultSet.getString("url");
-            // todo: Add sourceId.
+            String sourceId = resultSet.getString("source_id");
 
             int authorId = resultSet.getInt("author_id");
             Author author = authors.stream()
@@ -68,7 +68,7 @@ public class Article {
             String text = resultSet.getString("text");
             int likes = resultSet.getInt("likes");
 
-            article = new Article(id, url, null, author, title, dateTime, text, likes);
+            article = new Article(id, url, sourceId, author, title, dateTime, text, likes);
 
             article.setRead(resultSet.getBoolean("read"));
             article.setStarred(resultSet.getBoolean("starred"));

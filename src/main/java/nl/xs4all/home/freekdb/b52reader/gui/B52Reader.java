@@ -63,7 +63,6 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 //       mvn dependency:tree
 //       com.rometools:rome:jar:1.7.2:compile -> org.jdom:jdom2:jar:2.0.6:compile -> org.slf4j:slf4j-api:jar:1.7.16:compile
 
-// todo: Solve exception during exit (PersistencyHandler.updateExistingArticles): "Exception while updating authors in the database."
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
