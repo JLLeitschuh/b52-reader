@@ -8,6 +8,7 @@ package nl.xs4all.home.freekdb.b52reader.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -73,6 +74,8 @@ public class B52Reader {
     private static final Icon STARRED_ICON = Utilities.getIconResource("32x32-Full_Star_Yellow.png");
     private static final Icon UNSTARRED_ICON = Utilities.getIconResource("32x32-Empty_Star.png");
 
+    private static B52Reader b52Reader = null;
+
     private PersistencyHandler persistencyHandler;
     private List<Article> currentArticles;
     private List<Article> filteredArticles;
@@ -92,7 +95,10 @@ public class B52Reader {
             NativeInterface.open();
         }
 
-        SwingUtilities.invokeLater(() -> new B52Reader().createAndShowApplication());
+        SwingUtilities.invokeLater(() -> {
+            b52Reader = new B52Reader();
+            b52Reader.createAndShowApplication();
+        });
 
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
             NativeInterface.runEventPump();
@@ -102,19 +108,19 @@ public class B52Reader {
     private void createAndShowApplication() {
         initializeDatabase();
 
-        currentArticles = getArticles(Arrays.asList("nrc", "test"));
+        manyBrowsersPanel = new ManyBrowsersPanel();
+    
+        currentArticles = getArticles("nrc", "test");
         filteredArticles = currentArticles;
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setBounds(0, 0, 1920, 1080);
         //frame.setBounds(0, 0, 1024, 768);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
-
-        manyBrowsersPanel = new ManyBrowsersPanel();
 
         //JTable table = createTable(currentArticles);
         JTable table = createSpanTable(currentArticles);
@@ -141,29 +147,30 @@ public class B52Reader {
         backgroundTasksTimer.start();
     }
 
-    private List<Article> getArticles(List<String> articleSourceIds) {
+    private List<Article> getArticles(String... articleSourceIds) {
         List<Article> articles = new ArrayList<>();
 
         try {
+            List<String> sourceIds = Arrays.asList(articleSourceIds);
             List<ArticleSource> articleSources = new ArrayList<>();
 
-            if (articleSourceIds.contains("nrc")) {
+            if (sourceIds.contains("nrc")) {
                 articleSources.add(new NrcScienceArticleSource());
             }
 
-            if (articleSourceIds.contains("acm")) {
+            if (sourceIds.contains("acm")) {
                 articleSources.add(new RssArticleSource("ACM Software",
                                                         new URL("https://cacm.acm.org/browse-by-subject/software.rss"),
                                                         new Author(4, "ACM")));
             }
 
-            if (articleSourceIds.contains("verge")) {
+            if (sourceIds.contains("verge")) {
                 articleSources.add(new RssArticleSource("The Verge",
                                                         new URL("https://www.theverge.com/rss/index.xml"),
                                                         new Author(5, "The Verge")));
             }
 
-            if (articleSourceIds.contains("test")) {
+            if (sourceIds.contains("test")) {
                 articleSources.add(new TestDataArticleSource());
             }
 
@@ -185,7 +192,7 @@ public class B52Reader {
             String url = currentArticles.get(backgroundArticleIndex).getUrl();
             if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
                 logger.debug("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
-                manyBrowsersPanel.showBrowser(url, false);
+                manyBrowsersPanel.showBrowser(url, false, false);
                 backgroundBrowserCount++;
             }
             backgroundArticleIndex++;
@@ -268,7 +275,7 @@ public class B52Reader {
 
         tableModel = new ArticlesTableModel(articles);
 
-        table = new JTable(tableModel);
+        JTable table = new JTable(tableModel);
         table.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
         table.setRowHeight(42);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -403,7 +410,7 @@ public class B52Reader {
 
         selectedArticle = article;
 
-        manyBrowsersPanel.showBrowser(selectedArticle.getUrl(), true);
+        manyBrowsersPanel.showBrowser(selectedArticle.getUrl(), true, false);
     }
 
     // todo: Merge/move this method into the ManyBrowsersPanel class to support different types of embedded browsers.
@@ -435,5 +442,15 @@ public class B52Reader {
         if (persistencyHandler.closeDatabaseConnection()) {
             logger.debug("Closed the database connection.");
         }
+    }
+    
+    public static String getHtmlViaEmbeddedBrowser(String url) {
+        String htmlContent = null;
+        
+        if (b52Reader != null) {
+            htmlContent = b52Reader.manyBrowsersPanel.showBrowser(url, false, true);
+        }
+    
+        return htmlContent;
     }
 }

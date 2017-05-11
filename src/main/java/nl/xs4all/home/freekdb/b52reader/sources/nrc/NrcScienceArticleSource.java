@@ -28,6 +28,8 @@ import org.jsoup.select.Elements;
  * NRC Handelsblad (a Dutch newspaper) article source.
  */
 public class NrcScienceArticleSource implements ArticleSource {
+	private static final String MAIN_NRC_URL = "https://www.nrc.nl/";
+	
     private static final Logger logger = LogManager.getLogger(NrcScienceArticleSource.class);
 
     @Override
@@ -35,13 +37,13 @@ public class NrcScienceArticleSource implements ArticleSource {
         List<Article> newArticles = new ArrayList<>();
 
         try {
-            Document articleListDocument = Jsoup.connect("https://www.nrc.nl/sectie/wetenschap/").get();
+            Document articleListDocument = Jsoup.connect(MAIN_NRC_URL + "sectie/wetenschap/").get();
             Elements articleElements = articleListDocument.select(".nmt-item__link");
 
             Author defaultAuthor = new Author(3, "NRC science");
 
             for (Element articleElement : articleElements) {
-                String url = "https://www.nrc.nl/" + articleElement.attr("href");
+                String url = MAIN_NRC_URL + articleElement.attr("href");
                 String title = articleElement.getElementsByClass("nmt-item__headline").text();
                 String text = articleElement.getElementsByClass("nmt-item__teaser").text();
 

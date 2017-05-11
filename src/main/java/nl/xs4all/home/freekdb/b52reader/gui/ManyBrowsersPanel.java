@@ -34,6 +34,9 @@ class ManyBrowsersPanel extends JPanel {
     private List<JPanel> browserPanels;
     private Map<String, JPanel> urlToBrowserPanels;
     private List<JWebBrowser> webBrowsers;
+    private Map<String, JWebBrowser> urlToWebBrowsers;
+    
+    private String htmlContent;
 
     ManyBrowsersPanel() {
         super(new BorderLayout());
@@ -41,13 +44,14 @@ class ManyBrowsersPanel extends JPanel {
         browserPanels = new ArrayList<>();
         urlToBrowserPanels = new HashMap<>();
         webBrowsers = new ArrayList<>();
+        urlToWebBrowsers = new HashMap<>();
     }
 
     boolean hasBrowserForUrl(String url) {
         return urlToBrowserPanels.containsKey(url);
     }
 
-    void showBrowser(String url, boolean makeBrowserVisible) {
+    String showBrowser(String url, boolean makeBrowserVisible, boolean returnHtml) {
         if (urlToBrowserPanels.containsKey(url)) {
             if (makeBrowserVisible) {
                 logger.info("Show browser for {}", url);
@@ -62,6 +66,7 @@ class ManyBrowsersPanel extends JPanel {
 
             JWebBrowser webBrowser = createWebBrowser(url);
             webBrowsers.add(webBrowser);
+            urlToWebBrowsers.put(url, webBrowser);
 
             JPanel browserPanel = new JPanel(new BorderLayout());
             browserPanel.add(webBrowser, BorderLayout.CENTER);
@@ -78,6 +83,17 @@ class ManyBrowsersPanel extends JPanel {
                 visibleBrowserPanel.ifPresent(panel -> panel.setVisible(true));
             }
         }
+    
+        htmlContent = null;
+        
+        if (returnHtml) {
+            JWebBrowser webBrowser = urlToWebBrowsers.get(url);
+            
+            // todo: Doesn't work? (https://sourceforge.net/p/djproject/discussion/671154/thread/7027b8f9/)
+            webBrowser.runInSequence(() -> htmlContent = webBrowser.getHTMLContent());
+        }
+        
+        return htmlContent;
     }
 
     @SuppressWarnings("unused")
@@ -109,6 +125,7 @@ class ManyBrowsersPanel extends JPanel {
         int browserCount = webBrowsers.size();
 
         webBrowsers.clear();
+        urlToWebBrowsers.clear();
         urlToBrowserPanels.clear();
         browserPanels.clear();
 
