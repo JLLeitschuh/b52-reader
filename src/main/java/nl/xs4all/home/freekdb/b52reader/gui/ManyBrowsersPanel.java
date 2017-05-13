@@ -34,9 +34,10 @@ class ManyBrowsersPanel extends JPanel {
     private List<JPanel> browserPanels;
     private Map<String, JPanel> urlToBrowserPanels;
     private List<JWebBrowser> webBrowsers;
-    private Map<String, JWebBrowser> urlToWebBrowsers;
+//    private Map<String, JWebBrowser> urlToWebBrowsers;
+    private Map<String, String> urlToHtmlContent;
     
-    private String htmlContent;
+//    private String htmlContent;
 
     ManyBrowsersPanel() {
         super(new BorderLayout());
@@ -44,14 +45,23 @@ class ManyBrowsersPanel extends JPanel {
         browserPanels = new ArrayList<>();
         urlToBrowserPanels = new HashMap<>();
         webBrowsers = new ArrayList<>();
-        urlToWebBrowsers = new HashMap<>();
+//        urlToWebBrowsers = new HashMap<>();
+        urlToHtmlContent = new HashMap<>();
     }
 
     boolean hasBrowserForUrl(String url) {
         return urlToBrowserPanels.containsKey(url);
     }
 
-    String showBrowser(String url, boolean makeBrowserVisible, boolean returnHtml) {
+    String getHtmlContent(String url) {
+        return urlToHtmlContent.getOrDefault(url, "");
+    }
+    
+    void clearHtmlContent(String url) {
+        urlToHtmlContent.remove(url);
+    }
+    
+    void showBrowser(String url, boolean makeBrowserVisible, boolean returnHtml) {
         if (urlToBrowserPanels.containsKey(url)) {
             if (makeBrowserVisible) {
                 logger.info("Show browser for {}", url);
@@ -64,9 +74,9 @@ class ManyBrowsersPanel extends JPanel {
             Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
             hideAllBrowserPanels();
 
-            JWebBrowser webBrowser = createWebBrowser(url);
+            JWebBrowser webBrowser = createWebBrowser(url, returnHtml);
             webBrowsers.add(webBrowser);
-            urlToWebBrowsers.put(url, webBrowser);
+//            urlToWebBrowsers.put(url, webBrowser);
 
             JPanel browserPanel = new JPanel(new BorderLayout());
             browserPanel.add(webBrowser, BorderLayout.CENTER);
@@ -84,16 +94,16 @@ class ManyBrowsersPanel extends JPanel {
             }
         }
     
-        htmlContent = null;
-        
-        if (returnHtml) {
-            JWebBrowser webBrowser = urlToWebBrowsers.get(url);
-            
-            // todo: Doesn't work? (https://sourceforge.net/p/djproject/discussion/671154/thread/7027b8f9/)
-            webBrowser.runInSequence(() -> htmlContent = webBrowser.getHTMLContent());
-        }
-        
-        return htmlContent;
+//        htmlContent = null;
+//
+//        if (returnHtml) {
+//            JWebBrowser webBrowser = urlToWebBrowsers.get(url);
+//
+//            // todo: Doesn't work? (https://sourceforge.net/p/djproject/discussion/671154/thread/7027b8f9/)
+//            webBrowser.runInSequence(() -> htmlContent = webBrowser.getHTMLContent());
+//        }
+//
+//        return htmlContent;
     }
 
     @SuppressWarnings("unused")
@@ -125,7 +135,7 @@ class ManyBrowsersPanel extends JPanel {
         int browserCount = webBrowsers.size();
 
         webBrowsers.clear();
-        urlToWebBrowsers.clear();
+//        urlToWebBrowsers.clear();
         urlToBrowserPanels.clear();
         browserPanels.clear();
 
@@ -133,7 +143,7 @@ class ManyBrowsersPanel extends JPanel {
         logger.info("Disposed {} in {} milliseconds.", Utilities.countAndWord(browserCount, "browser"), end - start);
     }
 
-    private JWebBrowser createWebBrowser(String url) {
+    private JWebBrowser createWebBrowser(String url, boolean returnHtml) {
         JWebBrowser webBrowser = new JWebBrowser();
 
         webBrowser.setMenuBarVisible(false);
@@ -146,6 +156,8 @@ class ManyBrowsersPanel extends JPanel {
 
         String partUrl = url.substring(url.lastIndexOf('/') + 1);
 
+        // Keep track of loading progress (https://sourceforge.net/p/djproject/discussion/671154/thread/1d25bf1a/).
+    
         webBrowser.addWebBrowserListener(new WebBrowserAdapter() {
             @Override
             public void loadingProgressChanged(WebBrowserEvent webBrowserEvent) {
@@ -159,6 +171,10 @@ class ManyBrowsersPanel extends JPanel {
                 super.locationChanged(webBrowserNavigationEvent);
 
                 logger.trace("[{}] Location changed: {}", partUrl, webBrowserNavigationEvent.getNewResourceLocation());
+                
+                if (returnHtml) {
+                    urlToHtmlContent.put(url, webBrowser.getHTMLContent());
+                }
             }
         });
 

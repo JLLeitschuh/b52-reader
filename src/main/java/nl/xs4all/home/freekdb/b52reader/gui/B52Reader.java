@@ -64,14 +64,17 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 //       com.rometools:rome:jar:1.7.2:compile -> org.jdom:jdom2:jar:2.0.6:compile -> org.slf4j:slf4j-api:jar:1.7.16:compile
 
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
+
+// todo: Add Javadocs.
+
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
     private static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
 
-    private static final Logger logger = LogManager.getLogger(B52Reader.class);
-
     private static final Icon STARRED_ICON = Utilities.getIconResource("32x32-Full_Star_Yellow.png");
     private static final Icon UNSTARRED_ICON = Utilities.getIconResource("32x32-Empty_Star.png");
+
+    private static final Logger logger = LogManager.getLogger(B52Reader.class);
 
     private static B52Reader b52Reader = null;
 
@@ -129,7 +132,16 @@ public class B52Reader {
 
         frame.addWindowListener(new WindowAdapter() {
             @Override
+			public void windowOpened(WindowEvent windowEvent) {
+				super.windowOpened(windowEvent);
+				
+				// Start some background processing on the EDT? Or on the main thread?
+			}
+	
+            @Override
             public void windowClosing(WindowEvent windowEvent) {
+				super.windowClosing(windowEvent);
+				
                 manyBrowsersPanel.disposeAllBrowsers();
                 saveDataAndCloseDatabase();
             }
@@ -324,7 +336,7 @@ public class B52Reader {
 
         table.setPreferredScrollableViewportSize(table.getPreferredSize());
 
-        // todo: table.addKeyListener(new KeyboardShortcutHandler(this));
+        // todo: Add table.addKeyListener(new KeyboardShortcutHandler(this));
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -420,7 +432,7 @@ public class B52Reader {
         switch (Constants.EMBEDDED_BROWSER_TYPE) {
             case EMBEDDED_BROWSER_DJ_NATIVE_SWING:
                 // Use the JWebBrowser class from the DJ Native Swing library.
-                // todo: cache some embedded browsers (and don't use too much memory).
+                // todo: Cache some embedded browsers (and don't use too much memory).
                 newBrowserPanel = new JWebBrowserPanel(article.getUrl());
                 break;
 
@@ -443,13 +455,16 @@ public class B52Reader {
         }
     }
     
-    public static String getHtmlViaEmbeddedBrowser(String url) {
-        String htmlContent = null;
-        
+    @SuppressWarnings("unused")
+    public static void startLoadingViaEmbeddedBrowser(String url) {
         if (b52Reader != null) {
-            htmlContent = b52Reader.manyBrowsersPanel.showBrowser(url, false, true);
+			b52Reader.manyBrowsersPanel.clearHtmlContent(url);
+            b52Reader.manyBrowsersPanel.showBrowser(url, false, true);
         }
-    
-        return htmlContent;
+        }
+
+    @SuppressWarnings("unused")
+    public static String getHtmlContent(String url) {
+    	return b52Reader != null ? b52Reader.manyBrowsersPanel.getHtmlContent(url) : null;
     }
 }
