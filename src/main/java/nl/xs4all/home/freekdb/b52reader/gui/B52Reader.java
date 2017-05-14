@@ -140,20 +140,13 @@ public class B52Reader {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-        //JTable table = createTable(currentArticles);
-        JTable table = createSpanTable(currentArticles);
+        //table = createTable(currentArticles);
+        table = createSpanTable(currentArticles);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
 
         frame.addWindowListener(new WindowAdapter() {
-            @Override
-			public void windowOpened(WindowEvent windowEvent) {
-				super.windowOpened(windowEvent);
-
-				// Start some background processing on the EDT? Or on the main thread?
-			}
-
             @Override
             public void windowClosing(WindowEvent windowEvent) {
 				super.windowClosing(windowEvent);
@@ -336,18 +329,16 @@ public class B52Reader {
     private JTable createSpanTable(List<Article> articles) {
         tableModel = createSpanTableModel(articles);
 
-        table = new SpanCellTable(tableModel);
+        JTable table = new SpanCellTable(tableModel);
         //table.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
         table.setRowHeight(21);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().setSelectionInterval(0, 0);
         table.setAutoCreateRowSorter(true);
 
-        // todo: Resize small columns.
-        // http://stackoverflow.com/questions/15158653/how-to-set-column-width-in-jtable-jxtable
         TableColumnModel columnModel = table.getColumnModel();
         for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
-            columnModel.getColumn(columnIndex).setPreferredWidth(200);
+            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 1 ? 50 : 800);
         }
 
         table.setPreferredScrollableViewportSize(table.getPreferredSize());
