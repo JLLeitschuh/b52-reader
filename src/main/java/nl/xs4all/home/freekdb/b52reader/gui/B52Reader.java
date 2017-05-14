@@ -63,6 +63,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 // todo: Fix SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 //       mvn dependency:tree
 //       com.rometools:rome:jar:1.7.2:compile -> org.jdom:jdom2:jar:2.0.6:compile -> org.slf4j:slf4j-api:jar:1.7.16:compile
+//       http://stackoverflow.com/questions/7421612/slf4j-failed-to-load-class-org-slf4j-impl-staticloggerbinder
 
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 
@@ -343,6 +344,7 @@ public class B52Reader {
         table.setAutoCreateRowSorter(true);
 
         // todo: Resize small columns.
+        // http://stackoverflow.com/questions/15158653/how-to-set-column-width-in-jtable-jxtable
         TableColumnModel columnModel = table.getColumnModel();
         for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
             columnModel.getColumn(columnIndex).setPreferredWidth(200);
