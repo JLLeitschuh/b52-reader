@@ -46,37 +46,28 @@ public class BackgroundBrowsers {
 
     @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
     public String getHtmlContent(final String url, final int maxWaitTimeMs) {
-        Thread htmlContentThread = new Thread(() -> {
-            try {
-                logger.debug("Launching a background browser for url " + url);
-
-                URL_TO_HTML_CONTENT.remove(url);
-
-                SwingUtilities.invokeAndWait(() -> launchBackgroundBrowser(url));
-
-                logger.debug("Waiting for html content...");
-
-                boolean done = false;
-                int waitCount = 0;
-                int maxWaitCount = maxWaitTimeMs / 100;
-                while (!done && waitCount < maxWaitCount) {
-                    Thread.sleep(100);
-
-                    done = URL_TO_HTML_CONTENT.containsKey(url);
-                    waitCount++;
-                }
-
-                closeBackgroundBrowser(url);
-            } catch (InterruptedException | InvocationTargetException e) {
-                logger.error("Exception while getting html content with a background browser.", e);
-            }
-        });
-
         try {
-            htmlContentThread.start();
-            htmlContentThread.join(maxWaitTimeMs);
-        } catch (InterruptedException e) {
-            logger.error("Exception while waiting for html content from a background browser.", e);
+            logger.debug("Launching a background browser for url " + url);
+
+            URL_TO_HTML_CONTENT.remove(url);
+
+            SwingUtilities.invokeAndWait(() -> launchBackgroundBrowser(url));
+
+            logger.debug("Waiting for html content...");
+
+            boolean done = false;
+            int waitCount = 0;
+            int maxWaitCount = maxWaitTimeMs / 100;
+            while (!done && waitCount < maxWaitCount) {
+                Thread.sleep(100);
+
+                done = URL_TO_HTML_CONTENT.containsKey(url);
+                waitCount++;
+            }
+
+            closeBackgroundBrowser(url);
+        } catch (InterruptedException | InvocationTargetException e) {
+            logger.error("Exception while getting html content with a background browser.", e);
         }
 
         return URL_TO_HTML_CONTENT.get(url);
