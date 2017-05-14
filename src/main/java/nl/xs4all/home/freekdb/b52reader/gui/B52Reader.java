@@ -41,6 +41,7 @@ import javax.swing.table.TableModel;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
+import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.djnativeswing.JWebBrowserPanel;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
@@ -97,25 +98,39 @@ public class B52Reader {
             NativeInterface.open();
         }
 
-        SwingUtilities.invokeLater(() -> {
-            b52Reader = new B52Reader();
-            b52Reader.createAndShowApplication();
-        });
+        b52Reader = new B52Reader();
+        b52Reader.initializeApplication();
+
+        SwingUtilities.invokeLater(() -> b52Reader.completeApplicationGui());
+
+        ObjectHub.getBackgroundBrowsers().closeAllBackgroundBrowsers();
 
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
             NativeInterface.runEventPump();
         }
     }
 
-    private void createAndShowApplication() {
+    /**
+     * Initialize and show enough of the application to fetch articles, possibly using background browsers.
+     */
+    private void initializeApplication() {
         initializeDatabase();
 
-        manyBrowsersPanel = new ManyBrowsersPanel();
-    
-        currentArticles = getArticles("nrc", "test");
-        filteredArticles = currentArticles;
+        JPanel backgroundBrowsersPanel = new JPanel();
+        backgroundBrowsersPanel.setVisible(false);
+        ObjectHub.setBackgroundBrowsersPanel(backgroundBrowsersPanel);
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
+        frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
+        frame.setVisible(true);
+
+        currentArticles = getArticles("nrc", "test");
+        filteredArticles = currentArticles;
+    }
+
+    private void completeApplicationGui() {
+        manyBrowsersPanel = new ManyBrowsersPanel();
+
         frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setBounds(0, 0, 1920, 1080);
         //frame.setBounds(0, 0, 1024, 768);
@@ -134,14 +149,14 @@ public class B52Reader {
             @Override
 			public void windowOpened(WindowEvent windowEvent) {
 				super.windowOpened(windowEvent);
-				
+
 				// Start some background processing on the EDT? Or on the main thread?
 			}
-	
+
             @Override
             public void windowClosing(WindowEvent windowEvent) {
 				super.windowClosing(windowEvent);
-				
+
                 manyBrowsersPanel.disposeAllBrowsers();
                 saveDataAndCloseDatabase();
             }
@@ -149,7 +164,6 @@ public class B52Reader {
 
         frame.getContentPane().add(northPanel, BorderLayout.NORTH);
         frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
-        frame.setVisible(true);
 
         // Start a background timer to initialize and load some browsers in the background.
         backgroundBrowserCount = 0;
