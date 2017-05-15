@@ -17,10 +17,13 @@
 package nl.xs4all.home.freekdb.b52reader.gui.multispan;
 
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+
+import nl.xs4all.home.freekdb.b52reader.model.Article;
 
 /**
  * @version 1.0 11/22/98
@@ -28,7 +31,12 @@ import javax.swing.table.DefaultTableModel;
 public class SpanCellTableModel extends DefaultTableModel {
     private TableSpans tableSpans;
 
-    public SpanCellTableModel(int rowCount, int columnCount) {
+    private List<Article> articles;
+
+    public SpanCellTableModel(List<Article> articles, int columnCount) {
+        this.articles = articles;
+        int rowCount = 2 * articles.size();
+
         Vector names = new Vector(columnCount);
         names.setSize(columnCount);
         setColumnIdentifiers(names);
@@ -128,5 +136,19 @@ public class SpanCellTableModel extends DefaultTableModel {
 
         newRowsAdded(new TableModelEvent(this, row, row,
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+    }
+
+    // todo: Subclass this class and create an ArticleSpanTableModel class?
+    // todo: Contents should be adjusted -> change dataVector or let getValueAt use the list of articles.
+    void setArticles(List<Article> articles) {
+        this.articles = articles;
+
+        fireTableStructureChanged();
+    }
+
+    public Article getArticle(int rowIndex) {
+        return (articles != null && rowIndex >= 0 && rowIndex < articles.size())
+                ? articles.get(rowIndex)
+                : null;
     }
 }

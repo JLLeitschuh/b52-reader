@@ -43,6 +43,7 @@ import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.djnativeswing.JWebBrowserPanel;
+import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanArticleTableCellRenderer;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
@@ -119,7 +120,7 @@ public class B52Reader {
 
         JPanel backgroundBrowsersPanel = new JPanel();
         backgroundBrowsersPanel.setVisible(false);
-        ObjectHub.setBackgroundBrowsersPanel(backgroundBrowsersPanel);
+        ObjectHub.injectBackgroundBrowsersPanel(backgroundBrowsersPanel);
 
         frame = new JFrame(APPLICATION_NAME_AND_VERSION);
         frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
@@ -327,10 +328,12 @@ public class B52Reader {
     }
 
     private JTable createSpanTable(List<Article> articles) {
+        SpanArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
+
         tableModel = createSpanTableModel(articles);
 
         JTable table = new SpanCellTable(tableModel);
-        //table.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
+        table.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
         table.setRowHeight(21);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().setSelectionInterval(0, 0);
@@ -370,8 +373,8 @@ public class B52Reader {
         List<String> columnIdentifiers = Arrays.asList("starred", "read", "title", "author", "date/time");
         int[] columnIndices = {0, 1, 2, 3, 4};
 
-        // todo: base the SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
-        SpanCellTableModel tableModel = new SpanCellTableModel(2 * articles.size(), columnIdentifiers.size());
+        // todo: base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
+        SpanCellTableModel tableModel = new SpanCellTableModel(articles, columnIdentifiers.size());
 
         Vector<Vector<Object>> data = new Vector<>();
         articles.forEach(article -> {
@@ -380,7 +383,7 @@ public class B52Reader {
                     article.isRead() ? "" : "U",
                     article.getTitle(),
                     article.getAuthor(),
-                    article.getDateTime()
+                    Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime())
             )));
 
             data.add(listToVector(Collections.singletonList(article.getText())));

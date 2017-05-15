@@ -14,13 +14,30 @@ import nl.xs4all.home.freekdb.b52reader.backgroundbrowsers.BackgroundBrowsers;
  * Central connection point for general objects.
  */
 public class ObjectHub {
+    /**
+     * The hidden panel in the GUI where the background browsers can be added to.
+     */
     private static JPanel backgroundBrowsersPanel;
+
+    /**
+     * The background browsers handler.
+     */
     private static BackgroundBrowsers backgroundBrowsers;
 
-    public static void setBackgroundBrowsersPanel(JPanel backgroundBrowsersPanel) {
+    /**
+     * Inject the hidden panel in the GUI where the background browsers can be added to.
+     *
+     * @param backgroundBrowsersPanel the panel for the background browsers.
+     */
+    public static void injectBackgroundBrowsersPanel(JPanel backgroundBrowsersPanel) {
         ObjectHub.backgroundBrowsersPanel = backgroundBrowsersPanel;
     }
 
+    /**
+     * Get the background browsers handler.
+     *
+     * @return the background browsers handler.
+     */
     public static BackgroundBrowsers getBackgroundBrowsers() {
         if (backgroundBrowsers == null) {
             backgroundBrowsers = new BackgroundBrowsers(backgroundBrowsersPanel);
