@@ -61,11 +61,6 @@ import org.apache.logging.log4j.Logger;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
-// todo: Fix SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
-//       mvn dependency:tree
-//       com.rometools:rome:jar:1.7.2:compile -> org.jdom:jdom2:jar:2.0.6:compile -> org.slf4j:slf4j-api:jar:1.7.16:compile
-//       http://stackoverflow.com/questions/7421612/slf4j-failed-to-load-class-org-slf4j-impl-staticloggerbinder
-
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 
 // todo: Add Javadocs.
@@ -91,7 +86,6 @@ public class B52Reader {
     private JFrame frame;
     private JTextField filterTextField;
     private JTable table;
-    //private ArticlesTableModel tableModel;
     private TableModel tableModel;
     private ManyBrowsersPanel manyBrowsersPanel;
 
@@ -188,8 +182,8 @@ public class B52Reader {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-        //table = createTable(currentArticles);
-        table = createSpanTable(currentArticles);
+        table = createTable(currentArticles);
+        //table = createSpanTable(currentArticles);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
@@ -250,9 +244,9 @@ public class B52Reader {
                 .filter(article -> !article.isArchived())
                 .collect(Collectors.toList());
 
-        //tableModel.setArticles(filteredArticles);
-        tableModel = createSpanTableModel(filteredArticles);
-        table.setModel(tableModel);
+        ((ArticlesTableModel) tableModel).setArticles(filteredArticles);
+        //tableModel = createSpanTableModel(filteredArticles);
+        //table.setModel(tableModel);
 
         frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " + (filteredArticles.size() > 0 ? "1" : "0")
                        + "/" + filteredArticles.size());
@@ -273,7 +267,6 @@ public class B52Reader {
         }
     }
 
-    @SuppressWarnings("unused")
     private JTable createTable(List<Article> articles) {
         ArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
@@ -297,7 +290,7 @@ public class B52Reader {
         });
 
         table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedArticleIndex = table.getSelectedRow() / 2;
+            int selectedArticleIndex = getSelectedTableRow();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
                 Article selectedArticle = filteredArticles.get(selectedArticleIndex);
@@ -311,10 +304,11 @@ public class B52Reader {
         return table;
     }
 
+    @SuppressWarnings("unused")
     private JTable createSpanTable(List<Article> articles) {
         SpanArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
-        tableModel = createSpanTableModel(articles);
+        //tableModel = createSpanTableModel(articles);
 
         JTable table = new SpanCellTable(tableModel);
         table.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
@@ -340,7 +334,7 @@ public class B52Reader {
         });
 
         table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedArticleIndex = table.getSelectedRow() / 2;
+            int selectedArticleIndex = getSelectedTableRow();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
                 selectArticle(filteredArticles.get(selectedArticleIndex), selectedArticleIndex);
@@ -353,6 +347,7 @@ public class B52Reader {
         return table;
     }
 
+    @SuppressWarnings("unused")
     private TableModel createSpanTableModel(List<Article> articles) {
         List<String> columnIdentifiers = Arrays.asList("starred", "read", "title", "author", "date/time");
         int[] columnIndices = {0, 1, 2, 3, 4};
@@ -387,7 +382,7 @@ public class B52Reader {
     }
 
     private void handleTableClick(MouseEvent mouseEvent) {
-        int selectedArticleIndex = table.getSelectedRow() / 2;
+        int selectedArticleIndex = getSelectedTableRow();
         Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
 
         if (selectedArticle != null) {
@@ -407,6 +402,15 @@ public class B52Reader {
                 filterAndShowArticles();
             }
         }
+    }
+
+    /**
+     * Get the selected table row, with an adjustment for span cell tables if necessary (divided by two).
+     *
+     * @return the selected table row.
+     */
+    private int getSelectedTableRow() {
+        return table.getSelectedRow() / (tableModel instanceof SpanCellTableModel ? 2 : 1);
     }
 
     private void selectArticle(Article article, int articleIndex) {
