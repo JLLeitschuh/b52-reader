@@ -146,7 +146,7 @@ public class SpanCellTableModel extends DefaultTableModel {
         fireTableStructureChanged();
     }
 
-    public Article getArticle(int rowIndex) {
+    Article getArticle(int rowIndex) {
         return (articles != null && rowIndex >= 0 && rowIndex < articles.size())
                 ? articles.get(rowIndex)
                 : null;

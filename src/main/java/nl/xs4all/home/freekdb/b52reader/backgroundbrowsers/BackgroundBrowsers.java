@@ -94,9 +94,25 @@ public class BackgroundBrowsers {
             int waitCount = 0;
             int maxWaitCount = maxWaitTimeMs / 100;
             while (!done && waitCount < maxWaitCount) {
+                //noinspection BusyWait
                 Thread.sleep(100);
 
-                done = URL_TO_HTML_CONTENT.containsKey(url);
+                if (URL_TO_HTML_CONTENT.containsKey(url)) {
+                    // Some systems provide some kind of intermediate "in progress" html content.
+                    if (URL_TO_HTML_CONTENT.get(url).contains("Working...")) {
+                        logger.debug("Working...");
+                        if (waitCount % 10 == 0) {
+                            logger.trace("Refresh html content.");
+    
+                            SwingUtilities.invokeAndWait(() ->
+                                    URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent()));
+                            
+                            logger.trace("Html content: " + URL_TO_HTML_CONTENT.get(url).substring(0, 100));
+                        }
+                    } else {
+                        done = true;
+                    }
+                }
                 waitCount++;
             }
 
@@ -159,7 +175,7 @@ public class BackgroundBrowsers {
                 logger.error("Exception while closing a background browser.", e);
             }
         } else {
-            System.err.println("Error closing background browser: no browser found for url " + url);
+            logger.error("Error closing background browser: no browser found for url {}", url);
         }
     }
 
