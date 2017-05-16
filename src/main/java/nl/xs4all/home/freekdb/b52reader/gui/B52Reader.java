@@ -130,41 +130,13 @@ public class B52Reader {
         filteredArticles = currentArticles;
     }
 
-    private void completeApplicationGui() {
-        manyBrowsersPanel = new ManyBrowsersPanel();
+    private void initializeDatabase() {
+        persistencyHandler = new PersistencyHandler();
 
-        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
-        frame.setBounds(0, 0, 1920, 1080);
-        //frame.setBounds(0, 0, 1024, 768);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.add(createFilterPanel(), BorderLayout.NORTH);
-
-        //table = createTable(currentArticles);
-        table = createSpanTable(currentArticles);
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(new Dimension(10000, 200));
-        northPanel.add(scrollPane, BorderLayout.CENTER);
-
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent windowEvent) {
-				super.windowClosing(windowEvent);
-
-                manyBrowsersPanel.disposeAllBrowsers();
-                saveDataAndCloseDatabase();
-            }
-        });
-
-        frame.getContentPane().add(northPanel, BorderLayout.NORTH);
-        frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
-
-        // Start a background timer to initialize and load some browsers in the background.
-        backgroundBrowserCount = 0;
-        backgroundArticleIndex = 1;
-        Timer backgroundTasksTimer = new Timer(2000, actionEvent -> handleBackgroundTasks());
-        backgroundTasksTimer.start();
+        if (persistencyHandler.initializeDatabaseConnection()) {
+            persistencyHandler.createTablesIfNeeded();
+            persistencyHandler.readAuthorsAndArticles();
+        }
     }
 
     private List<Article> getArticles(String... articleSourceIds) {
@@ -205,29 +177,41 @@ public class B52Reader {
         return articles;
     }
 
-    private void handleBackgroundTasks() {
-        if (backgroundBrowserCount < BACKGROUND_BROWSER_MAX_COUNT && backgroundArticleIndex < currentArticles.size()) {
-            logger.debug("Started with background tasks.");
+    private void completeApplicationGui() {
+        manyBrowsersPanel = new ManyBrowsersPanel();
 
-            String url = currentArticles.get(backgroundArticleIndex).getUrl();
-            if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
-                logger.debug("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
-                manyBrowsersPanel.showBrowser(url, false, false);
-                backgroundBrowserCount++;
+        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+        frame.setBounds(0, 0, 1920, 1080);
+        //frame.setBounds(0, 0, 1024, 768);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        JPanel northPanel = new JPanel(new BorderLayout());
+        northPanel.add(createFilterPanel(), BorderLayout.NORTH);
+
+        //table = createTable(currentArticles);
+        table = createSpanTable(currentArticles);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(10000, 200));
+        northPanel.add(scrollPane, BorderLayout.CENTER);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+				super.windowClosing(windowEvent);
+
+                manyBrowsersPanel.disposeAllBrowsers();
+                saveDataAndCloseDatabase();
             }
-            backgroundArticleIndex++;
+        });
 
-            logger.debug("Finished with background tasks.");
-        }
-    }
+        frame.getContentPane().add(northPanel, BorderLayout.NORTH);
+        frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
 
-    private void initializeDatabase() {
-        persistencyHandler = new PersistencyHandler();
-
-        if (persistencyHandler.initializeDatabaseConnection()) {
-            persistencyHandler.createTablesIfNeeded();
-            persistencyHandler.readAuthorsAndArticles();
-        }
+        // Start a background timer to initialize and load some browsers in the background.
+        backgroundBrowserCount = 0;
+        backgroundArticleIndex = 1;
+        Timer backgroundTasksTimer = new Timer(2000, actionEvent -> handleBackgroundTasks());
+        backgroundTasksTimer.start();
     }
 
     private JPanel createFilterPanel() {
@@ -434,6 +418,30 @@ public class B52Reader {
         manyBrowsersPanel.showBrowser(selectedArticle.getUrl(), true, false);
     }
 
+    private void saveDataAndCloseDatabase() {
+        persistencyHandler.saveAuthorsAndArticles(currentArticles);
+
+        if (persistencyHandler.closeDatabaseConnection()) {
+            logger.debug("Closed the database connection.");
+        }
+    }
+
+    private void handleBackgroundTasks() {
+        if (backgroundBrowserCount < BACKGROUND_BROWSER_MAX_COUNT && backgroundArticleIndex < currentArticles.size()) {
+            logger.debug("Started with background tasks.");
+
+            String url = currentArticles.get(backgroundArticleIndex).getUrl();
+            if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
+                logger.debug("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
+                manyBrowsersPanel.showBrowser(url, false, false);
+                backgroundBrowserCount++;
+            }
+            backgroundArticleIndex++;
+
+            logger.debug("Finished with background tasks.");
+        }
+    }
+
     // todo: Merge/move this method into the ManyBrowsersPanel class to support different types of embedded browsers.
     @SuppressWarnings("unused")
     private JPanel createNewBrowserPanel(Article article) {
@@ -457,14 +465,6 @@ public class B52Reader {
         return newBrowserPanel;
     }
 
-    private void saveDataAndCloseDatabase() {
-        persistencyHandler.saveAuthorsAndArticles(currentArticles);
-
-        if (persistencyHandler.closeDatabaseConnection()) {
-            logger.debug("Closed the database connection.");
-        }
-    }
-    
     @SuppressWarnings("unused")
     public static void startLoadingViaEmbeddedBrowser(String url) {
         if (b52Reader != null) {
