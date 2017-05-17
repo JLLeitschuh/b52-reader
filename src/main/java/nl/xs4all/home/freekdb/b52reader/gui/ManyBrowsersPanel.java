@@ -69,8 +69,6 @@ class ManyBrowsersPanel extends JPanel {
                 makeBrowserPanelVisible(url);
             }
         } else {
-            logger.debug("Create a new browser for {}", url);
-
             Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
             hideAllBrowserPanels();
 

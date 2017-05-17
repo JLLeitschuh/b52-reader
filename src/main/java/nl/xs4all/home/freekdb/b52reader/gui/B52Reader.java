@@ -65,6 +65,19 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
 // todo: Add Javadocs.
 
+// todo: Issue with some part of the program or a library accessing the clipboard while IntelliJ items are there ->
+//       Exception "java.lang.ClassNotFoundException: com/intellij/codeInsight/editorActions/FoldingData"while
+//                  constructing DataFlavor for: application/x-java-jvm-local-object[]ref;
+//                  class=com.intellij.codeInsight.editorActions.FoldingData
+//       While running dj-nativeswing-swt NativeInterface.initialize method?
+//       - SWTNativeInterface.(In|Out)Process.initialize()
+//       - NativeSwing.loadClipboardDebuggingProperties()?
+
+/**
+ * The b52-reader main class which initializes the application and launches it.
+ *
+ * mvn exec:java -Dexec.mainClass="nl.xs4all.home.freekdb.b52reader.gui.B52Reader"
+ */
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
     private static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
@@ -98,8 +111,6 @@ public class B52Reader {
         b52Reader.initializeApplication();
 
         SwingUtilities.invokeLater(() -> b52Reader.completeApplicationGui());
-
-        ObjectHub.getBackgroundBrowsers().closeAllBackgroundBrowsers();
 
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
             NativeInterface.runEventPump();
@@ -193,8 +204,7 @@ public class B52Reader {
             public void windowClosing(WindowEvent windowEvent) {
 				super.windowClosing(windowEvent);
 
-                manyBrowsersPanel.disposeAllBrowsers();
-                saveDataAndCloseDatabase();
+                shutdownApplication();
             }
         });
 
@@ -432,18 +442,21 @@ public class B52Reader {
 
     private void handleBackgroundTasks() {
         if (backgroundBrowserCount < BACKGROUND_BROWSER_MAX_COUNT && backgroundArticleIndex < currentArticles.size()) {
-            logger.debug("Started with background tasks.");
-
             String url = currentArticles.get(backgroundArticleIndex).getUrl();
             if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
-                logger.debug("Background: prepare browser " + (backgroundBrowserCount + 1) + " for " + url);
+                logger.debug("Background: prepare browser " + (backgroundBrowserCount + 1) + ".");
                 manyBrowsersPanel.showBrowser(url, false, false);
                 backgroundBrowserCount++;
             }
             backgroundArticleIndex++;
-
-            logger.debug("Finished with background tasks.");
         }
+    }
+
+    private void shutdownApplication() {
+        manyBrowsersPanel.disposeAllBrowsers();
+        saveDataAndCloseDatabase();
+
+        ObjectHub.getBackgroundBrowsers().closeAllBackgroundBrowsers();
     }
 
     // todo: Merge/move this method into the ManyBrowsersPanel class to support different types of embedded browsers.

@@ -185,17 +185,11 @@ public class BackgroundBrowsers {
     public void closeAllBackgroundBrowsers() {
         logger.debug("Closing all background browsers.");
 
-        try {
-            SwingUtilities.invokeAndWait(() -> {
-                webBrowsers.forEach(NSPanelComponent::disposeNativePeer);
+        webBrowsers.forEach(NSPanelComponent::disposeNativePeer);
 
-                URL_TO_WEB_BROWSER.clear();
-                URL_TO_HTML_CONTENT.clear();
-                webBrowsers.clear();
-                backgroundBrowsersPanel.removeAll();
-            });
-        } catch (InterruptedException | InvocationTargetException e) {
-            logger.error("Exception while closing all background browsers.", e);
-        }
+        URL_TO_WEB_BROWSER.clear();
+        URL_TO_HTML_CONTENT.clear();
+        webBrowsers.clear();
+        backgroundBrowsersPanel.removeAll();
     }
 }
