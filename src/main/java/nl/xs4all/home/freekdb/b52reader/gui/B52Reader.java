@@ -13,6 +13,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
@@ -131,7 +134,21 @@ public class B52Reader {
         frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
         frame.setVisible(true);
 
-        currentArticles = getArticles("nrc", "test");
+        String[] sourceIds = {"nrc", "test"};
+
+        try {
+            Properties configuration = new Properties();
+            URL configurationUrl = getClass().getClassLoader().getResource("b52-reader.configuration");
+
+            if (configurationUrl != null) {
+                configuration.load(new FileReader(configurationUrl.getFile()));
+                sourceIds = configuration.getProperty("sourceIds", "nrc,test").split(",");
+            }
+        } catch (IOException e) {
+            logger.error("Exception while reading configuration file.", e);
+        }
+
+        currentArticles = getArticles(sourceIds);
         filteredArticles = currentArticles;
     }
 
@@ -362,7 +379,7 @@ public class B52Reader {
         List<String> columnIdentifiers = Arrays.asList("starred", "read", "title", "author", "date/time");
         int[] columnIndices = {0, 1, 2, 3, 4};
 
-        // todo: base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
+        // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
         SpanCellTableModel tableModel = new SpanCellTableModel(articles, columnIdentifiers.size());
 
         Vector<Vector<Object>> data = new Vector<>();

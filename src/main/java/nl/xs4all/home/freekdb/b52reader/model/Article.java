@@ -80,7 +80,6 @@ public class Article {
         return article;
     }
 
-    @SuppressWarnings("unused")
     public int getId() {
         return id;
     }
@@ -91,6 +90,11 @@ public class Article {
 
     public String getUrl() {
         return url;
+    }
+
+    @SuppressWarnings("unused")
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getSourceId() {
