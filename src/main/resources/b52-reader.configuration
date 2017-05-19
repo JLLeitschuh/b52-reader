@@ -3,3 +3,5 @@ sourceIds=test
 
 # Later add all available article sources with IDs and supporting classes?
 # For example: test=nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource
+
+# todo: Add preferred window size and position.

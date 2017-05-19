@@ -81,7 +81,7 @@ class ManyBrowsersPanel extends JPanel {
             browserPanels.add(browserPanel);
             urlToBrowserPanels.put(url, browserPanel);
 
-            logger.debug("{} a browser for {}", makeBrowserVisible ? "Show" : "Add", url);
+            logger.debug("{} browser for {}", makeBrowserVisible ? "Show" : "Add", url);
 
             add(browserPanel, BorderLayout.CENTER);
             validate();

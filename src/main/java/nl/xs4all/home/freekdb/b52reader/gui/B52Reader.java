@@ -275,10 +275,10 @@ public class B52Reader {
         //tableModel = createSpanTableModel(filteredArticles);
         //table.setModel(tableModel);
 
-        frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " + (filteredArticles.size() > 0 ? "1" : "0")
+        frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " + (!filteredArticles.isEmpty() ? "1" : "0")
                        + "/" + filteredArticles.size());
 
-        if (filteredArticles.size() > 0) {
+        if (!filteredArticles.isEmpty()) {
             boolean selectFirstArticle = true;
             if (previousSelectedArticle != null) {
                 int previousIndex = filteredArticles.indexOf(previousSelectedArticle);
@@ -312,6 +312,8 @@ public class B52Reader {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
+                super.mouseClicked(mouseEvent);
+                
                 handleTableClick(mouseEvent);
             }
         });
@@ -356,6 +358,8 @@ public class B52Reader {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
+                super.mousePressed(mouseEvent);
+                
                 handleTableClick(mouseEvent);
             }
         });
@@ -380,7 +384,7 @@ public class B52Reader {
         int[] columnIndices = {0, 1, 2, 3, 4};
 
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
-        SpanCellTableModel tableModel = new SpanCellTableModel(articles, columnIdentifiers.size());
+        SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnIdentifiers.size());
 
         Vector<Vector<Object>> data = new Vector<>();
         articles.forEach(article -> {
@@ -395,13 +399,13 @@ public class B52Reader {
             data.add(listToVector(Collections.singletonList(article.getText())));
         });
 
-        tableModel.setDataVector(data, listToVector(columnIdentifiers));
+        spanTableModel.setDataVector(data, listToVector(columnIdentifiers));
 
         for (int rowIndex = 1; rowIndex < data.size(); rowIndex += 2) {
-            tableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices);
+            spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices);
         }
 
-        return tableModel;
+        return spanTableModel;
     }
 
     private <T> Vector<T> listToVector(List<T> list) {
@@ -410,17 +414,17 @@ public class B52Reader {
 
     private void handleTableClick(MouseEvent mouseEvent) {
         int selectedArticleIndex = getSelectedTableRow();
-        Article selectedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
+        Article clickedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
 
-        if (selectedArticle != null) {
+        if (clickedArticle != null) {
             int columnIndex = table.columnAtPoint(mouseEvent.getPoint());
             boolean updateArticleList = false;
 
             if (columnIndex == 0) {
-                selectedArticle.setStarred(!selectedArticle.isStarred());
+                clickedArticle.setStarred(!clickedArticle.isStarred());
                 updateArticleList = true;
             } else if (columnIndex == 1) {
-                selectedArticle.setRead(!selectedArticle.isRead());
+                clickedArticle.setRead(!clickedArticle.isRead());
                 updateArticleList = true;
             }
 
