@@ -24,6 +24,12 @@ public class CombinationArticleSource implements ArticleSource {
     }
 
     @Override
+    public String getSourceId() {
+        // We could add the source IDs of the underlying article sources here as well.
+        return "combination";
+    }
+
+    @Override
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         articles.clear();
 

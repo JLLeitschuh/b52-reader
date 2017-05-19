@@ -13,16 +13,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
@@ -42,6 +36,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
@@ -54,9 +49,6 @@ import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.CombinationArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.apache.logging.log4j.LogManager;
@@ -78,7 +70,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
 /**
  * The b52-reader main class which initializes the application and launches it.
- *
+ * <p>
  * mvn exec:java -Dexec.mainClass="nl.xs4all.home.freekdb.b52reader.gui.B52Reader"
  */
 public class B52Reader {
@@ -134,21 +126,7 @@ public class B52Reader {
         frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
         frame.setVisible(true);
 
-        String[] sourceIds = {"nrc", "test"};
-
-        try {
-            Properties configuration = new Properties();
-            URL configurationUrl = getClass().getClassLoader().getResource("b52-reader.configuration");
-
-            if (configurationUrl != null) {
-                configuration.load(new FileReader(configurationUrl.getFile()));
-                sourceIds = configuration.getProperty("sourceIds", "nrc,test").split(",");
-            }
-        } catch (IOException e) {
-            logger.error("Exception while reading configuration file.", e);
-        }
-
-        currentArticles = getArticles(sourceIds);
+        currentArticles = getArticles(Configuration.getSelectedArticleSources());
         filteredArticles = currentArticles;
     }
 
@@ -161,42 +139,11 @@ public class B52Reader {
         }
     }
 
-    private List<Article> getArticles(String... articleSourceIds) {
-        List<Article> articles = new ArrayList<>();
+    private List<Article> getArticles(List<ArticleSource> articleSources) {
+        Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
+        Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
 
-        try {
-            List<String> sourceIds = Arrays.asList(articleSourceIds);
-            List<ArticleSource> articleSources = new ArrayList<>();
-
-            if (sourceIds.contains("nrc")) {
-                articleSources.add(new NrcScienceArticleSource());
-            }
-
-            if (sourceIds.contains("acm")) {
-                articleSources.add(new RssArticleSource("ACM Software",
-                                                        new URL("https://cacm.acm.org/browse-by-subject/software.rss"),
-                                                        new Author(4, "ACM")));
-            }
-
-            if (sourceIds.contains("verge")) {
-                articleSources.add(new RssArticleSource("The Verge",
-                                                        new URL("https://www.theverge.com/rss/index.xml"),
-                                                        new Author(5, "The Verge")));
-            }
-
-            if (sourceIds.contains("test")) {
-                articleSources.add(new TestDataArticleSource());
-            }
-
-            Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
-            Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
-
-            articles = new CombinationArticleSource(articleSources).getArticles(storedArticlesMap, storedAuthorsMap);
-        } catch (MalformedURLException e) {
-            logger.error("Exception while getting articles.", e);
-        }
-
-        return articles;
+        return new CombinationArticleSource(articleSources).getArticles(storedArticlesMap, storedAuthorsMap);
     }
 
     private void completeApplicationGui() {
@@ -219,7 +166,7 @@ public class B52Reader {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-				super.windowClosing(windowEvent);
+                super.windowClosing(windowEvent);
 
                 shutdownApplication();
             }
@@ -313,7 +260,7 @@ public class B52Reader {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 super.mouseClicked(mouseEvent);
-                
+
                 handleTableClick(mouseEvent);
             }
         });
@@ -359,7 +306,7 @@ public class B52Reader {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 super.mousePressed(mouseEvent);
-                
+
                 handleTableClick(mouseEvent);
             }
         });
@@ -506,13 +453,13 @@ public class B52Reader {
     @SuppressWarnings("unused")
     public static void startLoadingViaEmbeddedBrowser(String url) {
         if (b52Reader != null) {
-			b52Reader.manyBrowsersPanel.clearHtmlContent(url);
+            b52Reader.manyBrowsersPanel.clearHtmlContent(url);
             b52Reader.manyBrowsersPanel.showBrowser(url, false, true);
         }
-        }
+    }
 
     @SuppressWarnings("unused")
     public static String getHtmlContent(String url) {
-    	return b52Reader != null ? b52Reader.manyBrowsersPanel.getHtmlContent(url) : null;
+        return b52Reader != null ? b52Reader.manyBrowsersPanel.getHtmlContent(url) : null;
     }
 }

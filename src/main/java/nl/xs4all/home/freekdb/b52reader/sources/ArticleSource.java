@@ -13,5 +13,6 @@ import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 
 public interface ArticleSource {
+    String getSourceId();
     List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap);
 }

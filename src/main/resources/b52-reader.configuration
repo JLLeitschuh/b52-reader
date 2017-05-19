@@ -1,7 +1,7 @@
-#sourceIds=nrc,test
-sourceIds=test
+sourceIds=nrc,test
+#sourceIds=test
 
 # Later add all available article sources with IDs and supporting classes?
-# For example: test=nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource
+source-test=nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource
 
 # todo: Add preferred window size and position.

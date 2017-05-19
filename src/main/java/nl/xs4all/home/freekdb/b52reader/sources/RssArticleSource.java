@@ -32,14 +32,21 @@ import org.apache.logging.log4j.Logger;
 public class RssArticleSource implements ArticleSource {
     private static final Logger logger = LogManager.getLogger(RssArticleSource.class);
 
+    private final String sourceId;
     private final URL feedUrl;
     private final String feedName;
     private final Author defaultAuthor;
 
-    public RssArticleSource(String feedName, URL feedUrl, Author defaultAuthor) {
+    public RssArticleSource(String sourceId, String feedName, URL feedUrl, Author defaultAuthor) {
+        this.sourceId = sourceId;
         this.feedUrl = feedUrl;
         this.feedName = feedName;
         this.defaultAuthor = defaultAuthor;
+    }
+
+    @Override
+    public String getSourceId() {
+        return sourceId;
     }
 
     @Override

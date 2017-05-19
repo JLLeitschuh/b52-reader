@@ -16,14 +16,17 @@ import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 
 public class TestDataArticleSource implements ArticleSource {
-    @Override
-    public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
-        List<Article> articles = new ArrayList<>();
+    private static final String SOURCE_ID = "test";
+
+    private List<Article> articles;
+
+    public TestDataArticleSource() {
+        articles = new ArrayList<>();
 
         articles.add(
                 new Article(1,
                             "http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html",
-                            "test",
+                            SOURCE_ID,
                             new Author(1, "Cara Santa Maria"),
                             "WTF Is String Theory?",
                             new Date(),
@@ -36,7 +39,7 @@ public class TestDataArticleSource implements ArticleSource {
         articles.add(
                 new Article(2,
                             "http://www.haydenplanetarium.org/tyson/read/2007/04/02/the-cosmic-perspective",
-                            "test",
+                            SOURCE_ID,
                             new Author(2, "Neil deGrasse Tyson"),
                             "The Cosmic Perspective",
                             new Date(),
@@ -46,7 +49,15 @@ public class TestDataArticleSource implements ArticleSource {
                             "favorite science rang true.",
                             6)
         );
+    }
 
+    @Override
+    public String getSourceId() {
+        return SOURCE_ID;
+    }
+
+    @Override
+    public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         return articles;
     }
 }

@@ -29,9 +29,15 @@ import org.jsoup.select.Elements;
  * Article source for the science section of NRC Handelsblad (a Dutch newspaper).
  */
 public class NrcScienceArticleSource implements ArticleSource {
-	private static final String MAIN_NRC_URL = "https://www.nrc.nl/";
-	
+    private static final String SOURCE_ID = "nrc";
+    private static final String MAIN_NRC_URL = "https://www.nrc.nl/";
+
     private static final Logger logger = LogManager.getLogger(NrcScienceArticleSource.class);
+
+    @Override
+    public String getSourceId() {
+        return SOURCE_ID;
+    }
 
     @Override
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
@@ -65,7 +71,7 @@ public class NrcScienceArticleSource implements ArticleSource {
                 // We create new article objects, because we want to be able to compare the articles in memory to the
                 // stored articles to see whether an update of a stored article is needed.
                 Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-                Article article = new Article(-1 - newArticles.size(), url, "nrc", author, title, new Date(),
+                Article article = new Article(-1 - newArticles.size(), url, SOURCE_ID, author, title, new Date(),
                                               text, 1234);
 
                 // If there is previous data available for this article, copy the fields that are managed by the B52 reader.
@@ -108,7 +114,7 @@ public class NrcScienceArticleSource implements ArticleSource {
                 // We create new article objects, because we want to be able to compare the articles in memory to the
                 // stored articles to see whether an update of a stored article is needed.
                 Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-                Article article = new Article(-1 - newArticles.size(), url, "nrc", author, title, new Date(),
+                Article article = new Article(-1 - newArticles.size(), url, SOURCE_ID, author, title, new Date(),
                                               text, 1234);
 
                 // If there is previous data available for this article, copy the fields that are managed by the B52 reader.
