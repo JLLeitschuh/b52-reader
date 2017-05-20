@@ -12,6 +12,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -59,13 +62,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
 // todo: Add Javadocs.
 
-// todo: Issue with some part of the program or a library accessing the clipboard while IntelliJ items are there ->
-//       Exception "java.lang.ClassNotFoundException: com/intellij/codeInsight/editorActions/FoldingData"while
-//                  constructing DataFlavor for: application/x-java-jvm-local-object[]ref;
-//                  class=com.intellij.codeInsight.editorActions.FoldingData
-//       While running dj-nativeswing-swt NativeInterface.initialize method?
-//       - SWTNativeInterface.(In|Out)Process.initialize()
-//       - NativeSwing.loadClipboardDebuggingProperties()?
+// todo: Split off code from the B52Reader class (see code-size.txt).
 
 /**
  * The b52-reader main class which initializes the application and launches it.
@@ -97,6 +94,15 @@ public class B52Reader {
     private ManyBrowsersPanel manyBrowsersPanel;
 
     public static void main(String[] arguments) {
+        // Ignore characters written to the standard error stream, since the dj-nativeswing library sometimes has
+        // difficulties with the contents of the clipboard, resulting in ClassNotFoundException-s.
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                // Ignore it.
+            }
+        }));
+
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
             NativeInterface.open();
         }
