@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
@@ -33,15 +34,15 @@ public class RssArticleSource implements ArticleSource {
     private static final Logger logger = LogManager.getLogger(RssArticleSource.class);
 
     private final String sourceId;
-    private final URL feedUrl;
     private final String feedName;
     private final Author defaultAuthor;
+    private final URL feedUrl;
 
-    public RssArticleSource(String sourceId, String feedName, URL feedUrl, Author defaultAuthor) {
+    public RssArticleSource(String sourceId, String feedName, Author defaultAuthor, URL feedUrl) {
         this.sourceId = sourceId;
-        this.feedUrl = feedUrl;
         this.feedName = feedName;
         this.defaultAuthor = defaultAuthor;
+        this.feedUrl = feedUrl;
     }
 
     @Override
@@ -62,10 +63,14 @@ public class RssArticleSource implements ArticleSource {
 
                 String text = entry.getDescription() != null
                         ? entry.getDescription().getValue()
-                        // The Verge: titleEx == title //: entry.getTitleEx() != null ? entry.getTitleEx().getValue() : "";
+                        // The Verge: titleEx == title
+                        // : entry.getTitleEx() != null ? entry.getTitleEx().getValue() : "";
                         : "";
 
-                Author entryAuthor = entry.getAuthor() != null ? new Author(-1, entry.getAuthor()) : null;
+                Author entryAuthor = entry.getAuthor() != null
+                        ? ObjectHub.getPersistencyHandler().getOrCreateAuthor(entry.getAuthor())
+                        : null;
+
                 Date dateTime = entry.getPublishedDate() != null ? entry.getPublishedDate() : new Date();
 
                 // We create new article objects, because we want to be able to compare the articles in memory to the
@@ -74,9 +79,11 @@ public class RssArticleSource implements ArticleSource {
                         ? entryAuthor
                         : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
 
-                Article article = new Article(-1 - newArticles.size(), url, null, author, title, dateTime, text, 1234);
+                Article article = new Article(-1 - newArticles.size(), url, null, author, title, dateTime,
+                                              text, 1234);
 
-                // If there is previous data available for this article, copy the fields that are managed by the B52 reader.
+                // If there is previous data available about this article, copy the fields that are managed by the
+                // B52 reader.
                 if (previousArticlesMap.containsKey(url)) {
                     Article previousArticle = previousArticlesMap.get(url);
 
@@ -91,7 +98,8 @@ public class RssArticleSource implements ArticleSource {
             logger.error("Exception while fetching articles from an RSS feed.", e);
         }
 
-        logger.info("Fetched {} from the {} rss feed.", Utilities.countAndWord(newArticles.size(), "article"),
+        logger.info("Fetched {} from the {} rss feed.",
+                    Utilities.countAndWord(newArticles.size(), "article"),
                     feedName);
 
         return newArticles;

@@ -61,7 +61,7 @@ public class NrcScienceArticleSource implements ArticleSource {
             Document articleListDocument = Jsoup.connect(MAIN_NRC_URL + "sectie/wetenschap/").get();
             Elements articleElements = articleListDocument.select(".nmt-item__link");
 
-            Author defaultAuthor = new Author(3, "NRC science");
+            Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor("NRC science");
 
             for (Element articleElement : articleElements) {
                 String url = MAIN_NRC_URL + articleElement.attr("href");
@@ -104,7 +104,7 @@ public class NrcScienceArticleSource implements ArticleSource {
             Document articleListDocument = Jsoup.parse(htmlContent);
             Elements articleElements = articleListDocument.select(".nmt-item__link");
 
-            Author defaultAuthor = new Author(3, "NRC science");
+            Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor("NRC science");
 
             for (Element articleElement : articleElements) {
                 String url = MAIN_NRC_URL + articleElement.attr("href");

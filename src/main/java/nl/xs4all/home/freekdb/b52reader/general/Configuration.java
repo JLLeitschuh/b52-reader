@@ -9,6 +9,7 @@ package nl.xs4all.home.freekdb.b52reader.general;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +21,6 @@ import java.util.stream.Collectors;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,30 +58,7 @@ public class Configuration {
                 sourceIds.clear();
                 sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(",")));
 
-                String sourcePrefix = "source-";
-                Collections.list(configuration.propertyNames()).forEach(name -> {
-                    if (name instanceof String) {
-                        String propertyName = (String) name;
-                        if (propertyName.startsWith(sourcePrefix)) {
-                            String sourceId = propertyName.substring(sourcePrefix.length());
-                            String articleSourceClassName = configuration.getProperty(propertyName);
-                            allArticleSources.add(createArticleSource(sourceId, articleSourceClassName));
-                        }
-                    }
-                });
-
-                // todo: Add these other article sources to the configuration file as well (including parameters).
-                allArticleSources.add(new NrcScienceArticleSource());
-
-                allArticleSources.add(new RssArticleSource("acm",
-                                                           "ACM Software",
-                                                           new URL("https://cacm.acm.org/browse-by-subject/software.rss"),
-                                                           new Author(4, "ACM")));
-
-                allArticleSources.add(new RssArticleSource("verge",
-                                                           "The Verge",
-                                                           new URL("https://www.theverge.com/rss/index.xml"),
-                                                           new Author(5, "The Verge")));
+                addConfiguredSources(configuration);
             }
         } catch (IOException e) {
             logger.error("Exception while reading the configuration file " + configurationUrl, e);
@@ -92,18 +69,52 @@ public class Configuration {
                 .collect(Collectors.toList());
     }
 
-    private static ArticleSource createArticleSource(String sourceId, String articleSourceClassName) {
+    private static void addConfiguredSources(Properties configuration) {
+        String sourcePrefix = "source-";
+
+        Collections.list(configuration.propertyNames()).forEach(name -> {
+            if (name instanceof String) {
+                String propertyName = (String) name;
+                if (propertyName.startsWith(sourcePrefix)) {
+                    String sourceId = propertyName.substring(sourcePrefix.length());
+                    String articleSourceConfiguration = configuration.getProperty(propertyName);
+
+                    ArticleSource articleSource = createArticleSource(sourceId, articleSourceConfiguration);
+
+                    if (articleSource != null) {
+                        allArticleSources.add(articleSource);
+                    }
+                }
+            }
+        });
+    }
+
+    private static ArticleSource createArticleSource(String sourceId, String articleSourceConfiguration) {
         ArticleSource articleSource = null;
 
         try {
-            Class<?> sourceClass = Class.forName(articleSourceClassName);
-            Object source = sourceClass.getConstructor().newInstance();
+            Object source = null;
+
+            if (articleSourceConfiguration.startsWith("rss|")) {
+                String[] configurationItems = articleSourceConfiguration.split("\\|");
+
+                if (configurationItems.length >= 4) {
+                    String feedName = configurationItems[1];
+                    Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor(configurationItems[2]);
+                    URL feedUrl = new URL(configurationItems[3]);
+
+                    source = new RssArticleSource(sourceId, feedName, defaultAuthor, feedUrl);
+                }
+            } else {
+                Class<?> sourceClass = Class.forName(articleSourceConfiguration);
+                source = sourceClass.getConstructor().newInstance();
+            }
 
             if (source instanceof ArticleSource) {
                 articleSource = (ArticleSource) source;
             }
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException |
-                InvocationTargetException e) {
+                InvocationTargetException | MalformedURLException e) {
             logger.error("Exception while initializing article source " + sourceId + ".", e);
         }
 

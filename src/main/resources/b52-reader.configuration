@@ -1,7 +1,10 @@
 sourceIds=nrc,test
-#sourceIds=test
+#sourceIds=verge,acm
 
 # Later add all available article sources with IDs and supporting classes?
 source-test=nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource
+source-nrc=nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource
+source-verge=rss|The Verge|The Verge|https://www.theverge.com/rss/index.xml
+source-acm=rss|ACM Software|ACM|https://cacm.acm.org/browse-by-subject/software.rss
 
 # todo: Add preferred window size and position.

@@ -133,6 +133,10 @@ public class PersistencyHandler {
         }
     }
 
+    public Author getOrCreateAuthor(String name) {
+        return storedAuthorsMap.getOrDefault(name, new Author(-28, name));
+    }
+
     public void saveAuthorsAndArticles(List<Article> currentArticles) {
         List<Article> newArticles = currentArticles.stream()
                 .filter(article -> !storedArticlesMap.containsKey(article.getUrl()))

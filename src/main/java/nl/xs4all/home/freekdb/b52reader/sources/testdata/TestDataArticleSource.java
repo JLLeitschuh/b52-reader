@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
@@ -27,7 +28,7 @@ public class TestDataArticleSource implements ArticleSource {
                 new Article(1,
                             "http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html",
                             SOURCE_ID,
-                            new Author(1, "Cara Santa Maria"),
+                            ObjectHub.getPersistencyHandler().getOrCreateAuthor("Cara Santa Maria"),
                             "WTF Is String Theory?",
                             new Date(),
                             "Have you ever heard the term string theory and wondered WTF it means? When it comes " +
@@ -40,7 +41,7 @@ public class TestDataArticleSource implements ArticleSource {
                 new Article(2,
                             "http://www.haydenplanetarium.org/tyson/read/2007/04/02/the-cosmic-perspective",
                             SOURCE_ID,
-                            new Author(2, "Neil deGrasse Tyson"),
+                            ObjectHub.getPersistencyHandler().getOrCreateAuthor("Neil deGrasse Tyson"),
                             "The Cosmic Perspective",
                             new Date(),
                             "Long before anyone knew that the universe had a beginning, before we knew that the " +

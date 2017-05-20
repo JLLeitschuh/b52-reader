@@ -133,6 +133,8 @@ public class B52Reader {
     private void initializeDatabase() {
         persistencyHandler = new PersistencyHandler();
 
+        ObjectHub.injectPersistencyHandler(persistencyHandler);
+
         if (persistencyHandler.initializeDatabaseConnection()) {
             persistencyHandler.createTablesIfNeeded();
             persistencyHandler.readAuthorsAndArticles();

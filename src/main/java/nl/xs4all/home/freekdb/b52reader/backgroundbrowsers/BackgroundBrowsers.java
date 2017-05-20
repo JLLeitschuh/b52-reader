@@ -113,7 +113,12 @@ public class BackgroundBrowsers {
                         done = true;
                     }
                 }
+
                 waitCount++;
+            }
+
+            if (URL_TO_HTML_CONTENT.containsKey(url)) {
+                logger.debug("Html content size: {} characters.", URL_TO_HTML_CONTENT.get(url).length());
             }
 
             closeBackgroundBrowser(url);

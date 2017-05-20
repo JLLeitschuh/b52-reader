@@ -9,11 +9,17 @@ package nl.xs4all.home.freekdb.b52reader.general;
 import javax.swing.JPanel;
 
 import nl.xs4all.home.freekdb.b52reader.backgroundbrowsers.BackgroundBrowsers;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 
 /**
  * Central connection point for general objects.
  */
 public class ObjectHub {
+    /**
+     * The persistency handler that enables communication with the database.
+     */
+    private static PersistencyHandler persistencyHandler;
+
     /**
      * The hidden panel in the GUI where the background browsers can be added to.
      */
@@ -23,6 +29,24 @@ public class ObjectHub {
      * The background browsers handler.
      */
     private static BackgroundBrowsers backgroundBrowsers;
+
+    /**
+     * Inject the persistency handler that enables communication with the database.
+     *
+     * @param persistencyHandler the persistency handler.
+     */
+    public static void injectPersistencyHandler(PersistencyHandler persistencyHandler) {
+        ObjectHub.persistencyHandler = persistencyHandler;
+    }
+
+    /**
+     * Get the persistency handler that enables communication with the database.
+     *
+     * @return the persistency handler.
+     */
+    public static PersistencyHandler getPersistencyHandler() {
+        return persistencyHandler;
+    }
 
     /**
      * Inject the hidden panel in the GUI where the background browsers can be added to.
