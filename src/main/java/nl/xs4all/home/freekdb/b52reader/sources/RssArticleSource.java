@@ -50,6 +50,18 @@ public class RssArticleSource implements ArticleSource {
         return sourceId;
     }
 
+    public String getFeedName() {
+        return feedName;
+    }
+
+    public Author getDefaultAuthor() {
+        return defaultAuthor;
+    }
+
+    public URL getFeedUrl() {
+        return feedUrl;
+    }
+
     @Override
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         List<Article> newArticles = new ArrayList<>();

@@ -8,7 +8,6 @@ package nl.xs4all.home.freekdb.b52reader.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -151,9 +150,8 @@ public class B52Reader {
     private void completeApplicationGui() {
         manyBrowsersPanel = new ManyBrowsersPanel();
 
-        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
-        frame.setBounds(0, 0, 1920, 1080);
-        //frame.setBounds(0, 0, 1024, 768);
+        frame.setBounds(Configuration.getFrameBounds());
+        frame.setExtendedState(Configuration.getFrameExtendedState());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JPanel northPanel = new JPanel(new BorderLayout());
@@ -423,6 +421,8 @@ public class B52Reader {
     }
 
     private void shutdownApplication() {
+        Configuration.writeConfiguration(frame.getExtendedState(), frame.getBounds());
+
         manyBrowsersPanel.disposeAllBrowsers();
         saveDataAndCloseDatabase();
 
