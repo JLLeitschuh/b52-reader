@@ -1,0 +1,30 @@
+find . -name '*.java' | xargs wc -l
+
+   200 ./src/main/java/nl/xs4all/home/freekdb/b52reader/backgroundbrowsers/BackgroundBrowsers.java
+   196 ./src/main/java/nl/xs4all/home/freekdb/b52reader/general/Configuration.java
+    30 ./src/main/java/nl/xs4all/home/freekdb/b52reader/general/Constants.java
+    12 ./src/main/java/nl/xs4all/home/freekdb/b52reader/general/EmbeddedBrowserType.java
+    72 ./src/main/java/nl/xs4all/home/freekdb/b52reader/general/ObjectHub.java
+    72 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleFilter.java
+    57 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticlesTableModel.java
+   119 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRenderer.java
+   469 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/B52Reader.java
+    29 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/djnativeswing/JWebBrowserPanel.java
+   193 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/ManyBrowsersPanel.java
+   169 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/DefaultTableSpans.java
+    41 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanArticleTableCellRenderer.java
+   164 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTable.java
+   154 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableModel.java
+   114 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableUI.java
+    37 ./src/main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/TableSpans.java
+   193 ./src/main/java/nl/xs4all/home/freekdb/b52reader/model/Article.java
+    88 ./src/main/java/nl/xs4all/home/freekdb/b52reader/model/Author.java
+   411 ./src/main/java/nl/xs4all/home/freekdb/b52reader/model/database/PersistencyHandler.java
+    18 ./src/main/java/nl/xs4all/home/freekdb/b52reader/sources/ArticleSource.java
+    44 ./src/main/java/nl/xs4all/home/freekdb/b52reader/sources/CombinationArticleSource.java
+   137 ./src/main/java/nl/xs4all/home/freekdb/b52reader/sources/nrc/NrcScienceArticleSource.java
+   119 ./src/main/java/nl/xs4all/home/freekdb/b52reader/sources/RssArticleSource.java
+    64 ./src/main/java/nl/xs4all/home/freekdb/b52reader/sources/testdata/TestDataArticleSource.java
+    34 ./src/main/java/nl/xs4all/home/freekdb/b52reader/utilities/Utilities.java
+
+  3236 total
