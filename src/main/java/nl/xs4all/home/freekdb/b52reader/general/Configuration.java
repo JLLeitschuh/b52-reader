@@ -193,4 +193,8 @@ public class Configuration {
         return "rss|" + rssSource.getFeedName() + "|" + rssSource.getDefaultAuthor().getName() + "|" +
                rssSource.getFeedUrl();
     }
+
+    public static boolean useSpanTable() {
+        return true;
+    }
 }

@@ -140,11 +140,11 @@ public class SpanCellTableModel extends DefaultTableModel {
 
     // todo: Subclass this class and create an ArticleSpanTableModel class?
     // todo: Contents should be adjusted -> change dataVector or let getValueAt use the list of articles.
-    void setArticles(List<Article> articles) {
-        this.articles = articles;
-
-        fireTableStructureChanged();
-    }
+//    void setArticles(List<Article> articles) {
+//        this.articles = articles;
+//
+//        fireTableStructureChanged();
+//    }
 
     Article getArticle(int rowIndex) {
         return (articles != null && rowIndex >= 0 && rowIndex < articles.size())

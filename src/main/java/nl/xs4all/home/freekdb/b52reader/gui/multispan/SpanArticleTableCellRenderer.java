@@ -34,7 +34,7 @@ public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
     }
 
     private Color getBackgroundColor(Article article) {
-        return "nrc".equals(article.getSourceId()) ? new Color(178, 34, 34)
+        return "nrc".equals(article.getSourceId()) ? new Color(144, 238, 144)
                 : "test".equals(article.getSourceId()) ? Color.ORANGE
                 : defaultBackgroundColor;
     }

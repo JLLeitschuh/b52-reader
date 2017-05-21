@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -163,8 +162,8 @@ public class B52Reader {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-        table = createTable(currentArticles);
-        //table = createSpanTable(currentArticles);
+        table = Configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
+
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
@@ -224,9 +223,12 @@ public class B52Reader {
                 .filter(article -> !article.isArchived())
                 .collect(Collectors.toList());
 
-        ((ArticlesTableModel) tableModel).setArticles(filteredArticles);
-        //tableModel = createSpanTableModel(filteredArticles);
-        //table.setModel(tableModel);
+        if (Configuration.useSpanTable()) {
+            tableModel = createSpanTableModel(filteredArticles);
+            table.setModel(tableModel);
+        } else {
+            ((ArticlesTableModel) tableModel).setArticles(filteredArticles);
+        }
 
         frame.setTitle(APPLICATION_NAME_AND_VERSION + " - " + (!filteredArticles.isEmpty() ? "1" : "0")
                        + "/" + filteredArticles.size());
@@ -286,11 +288,10 @@ public class B52Reader {
         return table;
     }
 
-    @SuppressWarnings("unused")
     private JTable createSpanTable(List<Article> articles) {
         SpanArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
-        //tableModel = createSpanTableModel(articles);
+        tableModel = createSpanTableModel(articles);
 
         JTable table = new SpanCellTable(tableModel);
         table.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
@@ -301,7 +302,7 @@ public class B52Reader {
 
         TableColumnModel columnModel = table.getColumnModel();
         for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
-            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 1 ? 50 : 800);
+            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 60 : 800);
         }
 
         table.setPreferredScrollableViewportSize(table.getPreferredSize());
@@ -331,10 +332,10 @@ public class B52Reader {
         return table;
     }
 
-    @SuppressWarnings("unused")
     private TableModel createSpanTableModel(List<Article> articles) {
-        List<String> columnIdentifiers = Arrays.asList("starred", "read", "title", "author", "date/time");
-        int[] columnIndices = {0, 1, 2, 3, 4};
+        List<String> columnIdentifiers = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
+        //int[] columnIndices1 = {0, 1, 2};
+        int[] columnIndices2 = {3, 4, 5};
 
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
         SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnIdentifiers.size());
@@ -342,6 +343,7 @@ public class B52Reader {
         Vector<Vector<Object>> data = new Vector<>();
         articles.forEach(article -> {
             data.add(listToVector(Arrays.asList(
+                    "",
                     article.isStarred() ? STARRED_ICON : UNSTARRED_ICON,
                     article.isRead() ? "" : "U",
                     article.getTitle(),
@@ -349,13 +351,14 @@ public class B52Reader {
                     Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime())
             )));
 
-            data.add(listToVector(Collections.singletonList(article.getText())));
+            data.add(listToVector(Arrays.asList("", "", "", article.getText())));
         });
 
         spanTableModel.setDataVector(data, listToVector(columnIdentifiers));
 
         for (int rowIndex = 1; rowIndex < data.size(); rowIndex += 2) {
-            spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices);
+            //spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices1);
+            spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices2);
         }
 
         return spanTableModel;
