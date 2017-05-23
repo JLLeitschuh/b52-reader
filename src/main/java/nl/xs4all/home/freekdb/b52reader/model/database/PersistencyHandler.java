@@ -35,6 +35,9 @@ import org.apache.logging.log4j.Logger;
  * If performance is not good enough: http://h2database.com/html/performance.html.
  */
 public class PersistencyHandler {
+    /**
+     * Logger for this class.
+     */
     private static final Logger logger = LogManager.getLogger(PersistencyHandler.class);
 
     private Connection databaseConnection;
@@ -258,7 +261,9 @@ public class PersistencyHandler {
 
             preparedStatement.close();
 
-            logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), "article"));
+            if (!updateArticles.isEmpty()) {
+                logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), "article"));
+            }
         } catch (SQLException e) {
             logger.error("Exception while updating articles in the database.", e);
         }
@@ -297,7 +302,9 @@ public class PersistencyHandler {
 
             preparedStatement.close();
 
-            logger.info("Wrote {} to the database.", Utilities.countAndWord(newArticles.size(), "new article"));
+            if (!newArticles.isEmpty()) {
+                logger.info("Wrote {} to the database.", Utilities.countAndWord(newArticles.size(), "new article"));
+            }
         } catch (SQLException e) {
             logger.error("Exception while inserting articles into the database.", e);
         }

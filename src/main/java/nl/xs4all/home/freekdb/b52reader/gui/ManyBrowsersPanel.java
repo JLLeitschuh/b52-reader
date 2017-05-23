@@ -29,6 +29,9 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 // todo: Make this class more generic by supporting different types of embedded browsers.
 public class ManyBrowsersPanel extends JPanel {
+    /**
+     * Logger for this class.
+     */
     private static final Logger logger = LogManager.getLogger(ManyBrowsersPanel.class);
 
     private List<JPanel> browserPanels;

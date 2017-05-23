@@ -32,6 +32,9 @@ import org.apache.logging.log4j.Logger;
  * Configuration functionality.
  */
 public class Configuration {
+    /**
+     * Logger for this class.
+     */
     private static final Logger logger = LogManager.getLogger(Configuration.class);
 
     private static List<ArticleSource> allArticleSources;

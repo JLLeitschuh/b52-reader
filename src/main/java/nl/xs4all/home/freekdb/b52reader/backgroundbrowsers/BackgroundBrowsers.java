@@ -188,9 +188,11 @@ public class BackgroundBrowsers {
      * Close all background browsers that for some reason have not been closed yet.
      */
     public void closeAllBackgroundBrowsers() {
-        logger.debug("Closing all background browsers.");
+        if (!webBrowsers.isEmpty()) {
+            webBrowsers.forEach(NSPanelComponent::disposeNativePeer);
 
-        webBrowsers.forEach(NSPanelComponent::disposeNativePeer);
+            logger.debug("Closed all {} background browsers.", webBrowsers.size());
+        }
 
         URL_TO_WEB_BROWSER.clear();
         URL_TO_HTML_CONTENT.clear();

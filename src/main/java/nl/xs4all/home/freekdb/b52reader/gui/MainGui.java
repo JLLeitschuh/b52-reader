@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
@@ -47,6 +48,10 @@ import org.apache.logging.log4j.Logger;
 
 import static nl.xs4all.home.freekdb.b52reader.general.Constants.BACKGROUND_BROWSER_MAX_COUNT;
 
+// todo: Add Javadocs.
+
+// todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
+
 /**
  * Main class responsible for the GUI.
  */
@@ -54,6 +59,9 @@ public class MainGui {
     private static final Icon STARRED_ICON = Utilities.getIconResource("32x32-Full_Star_Yellow.png");
     private static final Icon UNSTARRED_ICON = Utilities.getIconResource("32x32-Empty_Star.png");
 
+    /**
+     * Logger for this class.
+     */
     private static final Logger logger = LogManager.getLogger(MainGui.class);
 
     private MainCallbacks mainCallbacks;
@@ -74,7 +82,7 @@ public class MainGui {
         this.mainCallbacks = mainCallbacks;
     }
 
-    public void firstGuiInitialization(List<Article> currentArticles) {
+    public void initializeGui(List<Article> currentArticles) {
         this.currentArticles = currentArticles;
         this.filteredArticles = currentArticles;
 
@@ -85,23 +93,36 @@ public class MainGui {
         frame = new JFrame(Constants.APPLICATION_NAME_AND_VERSION);
         frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
         frame.setVisible(true);
-    }
 
-    public void completeGuiInitialization() {
-        manyBrowsersPanel = new ManyBrowsersPanel();
+        // Start a background timer to initialize and load some browsers in the background.
+        backgroundBrowserCount = 0;
+        backgroundArticleIndex = 1;
+        Timer backgroundTasksTimer = new Timer(Constants.BACKGROUND_TIMER_DELAY, actionEvent -> handleBackgroundTasks());
+        backgroundTasksTimer.start();
 
         frame.setBounds(Configuration.getFrameBounds());
         frame.setExtendedState(Configuration.getFrameExtendedState());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        SwingUtilities.invokeLater(() -> finishGuiInitialization(currentArticles));
+    }
+
+    // Some of the following actions need to be performed on the EDT (like showing the first browser when creating
+    // the table).
+    private void finishGuiInitialization(List<Article> currentArticles) {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
+
+        manyBrowsersPanel = new ManyBrowsersPanel();
 
         table = Configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
+
+        frame.getContentPane().add(northPanel, BorderLayout.NORTH);
+        frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
 
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -111,15 +132,6 @@ public class MainGui {
                 frameClosing();
             }
         });
-
-        frame.getContentPane().add(northPanel, BorderLayout.NORTH);
-        frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
-
-        // Start a background timer to initialize and load some browsers in the background.
-        backgroundBrowserCount = 0;
-        backgroundArticleIndex = 1;
-        Timer backgroundTasksTimer = new Timer(2000, actionEvent -> handleBackgroundTasks());
-        backgroundTasksTimer.start();
     }
 
     private JPanel createFilterPanel() {

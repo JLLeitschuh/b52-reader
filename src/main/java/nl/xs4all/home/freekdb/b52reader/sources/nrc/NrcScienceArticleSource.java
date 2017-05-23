@@ -32,6 +32,9 @@ public class NrcScienceArticleSource implements ArticleSource {
     private static final String SOURCE_ID = "nrc";
     private static final String MAIN_NRC_URL = "https://www.nrc.nl/";
 
+    /**
+     * Logger for this class.
+     */
     private static final Logger logger = LogManager.getLogger(NrcScienceArticleSource.class);
 
     @Override

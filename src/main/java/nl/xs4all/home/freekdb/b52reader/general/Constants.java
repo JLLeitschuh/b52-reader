@@ -37,4 +37,9 @@ public class Constants {
      * The maximum number of browsers that are loaded in the background.
      */
     public static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
+
+    /**
+     * The delay in milliseconds between background tasks: preloading browsers.
+     */
+    public static final int BACKGROUND_TIMER_DELAY = 1000;
 }

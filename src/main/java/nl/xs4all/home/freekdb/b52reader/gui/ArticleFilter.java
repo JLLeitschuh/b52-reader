@@ -25,6 +25,9 @@ public class ArticleFilter implements Predicate<Article> {
     private static final String READ_STATE = "read";
     private static final String UNREAD_STATE = "unread";
 
+    /**
+     * Logger for this class.
+     */
     private static final Logger logger = LogManager.getLogger(ArticleFilter.class);
 
     private String normalizedAuthorName;

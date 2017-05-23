@@ -31,6 +31,9 @@ import org.apache.logging.log4j.Logger;
  * Generic article source that fetches data from an rss feed.
  */
 public class RssArticleSource implements ArticleSource {
+    /**
+     * Logger for this class.
+     */
     private static final Logger logger = LogManager.getLogger(RssArticleSource.class);
 
     private final String sourceId;
