@@ -7,6 +7,10 @@
 package nl.xs4all.home.freekdb.b52reader.utilities;
 
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.util.Date;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -30,5 +34,11 @@ public class Utilities {
 
     public static String countAndWord(int count, String word) {
         return count + " " + word + (count != 1 ? "s" : "");
+    }
+
+    public static Date createDate(int year, Month month, int dayOfMonth) {
+        LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, 0, 0);
+
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

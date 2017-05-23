@@ -37,7 +37,7 @@ public class CombinationArticleSource implements ArticleSource {
             articles.addAll(articleSource.getArticles(previousArticlesMap, previousAuthorsMap));
         }
 
-        articles.sort(Comparator.comparing(Article::getDateTime));
+        articles.sort(Comparator.comparing(Article::getDateTime).reversed());
 
         return articles;
     }

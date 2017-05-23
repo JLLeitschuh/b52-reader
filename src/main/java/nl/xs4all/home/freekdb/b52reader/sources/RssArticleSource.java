@@ -37,12 +37,14 @@ public class RssArticleSource implements ArticleSource {
     private final String feedName;
     private final Author defaultAuthor;
     private final URL feedUrl;
+    private final String categoryName;
 
-    public RssArticleSource(String sourceId, String feedName, Author defaultAuthor, URL feedUrl) {
+    public RssArticleSource(String sourceId, String feedName, Author defaultAuthor, URL feedUrl, String categoryName) {
         this.sourceId = sourceId;
         this.feedName = feedName;
         this.defaultAuthor = defaultAuthor;
         this.feedUrl = feedUrl;
+        this.categoryName = categoryName;
     }
 
     @Override
@@ -62,6 +64,10 @@ public class RssArticleSource implements ArticleSource {
         return feedUrl;
     }
 
+    public String getCategoryName() {
+        return categoryName;
+    }
+
     @Override
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         List<Article> newArticles = new ArrayList<>();
@@ -70,41 +76,10 @@ public class RssArticleSource implements ArticleSource {
             SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
 
             for (SyndEntry entry : feed.getEntries()) {
-                String url = entry.getLink();
-                String title = entry.getTitle();
-
-                String text = entry.getDescription() != null
-                        ? entry.getDescription().getValue()
-                        // The Verge: titleEx == title
-                        // : entry.getTitleEx() != null ? entry.getTitleEx().getValue() : "";
-                        : "";
-
-                Author entryAuthor = entry.getAuthor() != null
-                        ? ObjectHub.getPersistencyHandler().getOrCreateAuthor(entry.getAuthor())
-                        : null;
-
-                Date dateTime = entry.getPublishedDate() != null ? entry.getPublishedDate() : new Date();
-
-                // We create new article objects, because we want to be able to compare the articles in memory to the
-                // stored articles to see whether an update of a stored article is needed.
-                Author author = entryAuthor != null
-                        ? entryAuthor
-                        : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-
-                Article article = new Article(-1 - newArticles.size(), url, null, author, title, dateTime,
-                                              text, 1234);
-
-                // If there is previous data available about this article, copy the fields that are managed by the
-                // B52 reader.
-                if (previousArticlesMap.containsKey(url)) {
-                    Article previousArticle = previousArticlesMap.get(url);
-
-                    article.setStarred(previousArticle.isStarred());
-                    article.setRead(previousArticle.isRead());
-                    article.setArchived(previousArticle.isArchived());
+                if (categoryMatches(entry)) {
+                    newArticles.add(createArticle(previousArticlesMap, previousAuthorsMap, entry,
+                                                  -1 - newArticles.size()));
                 }
-
-                newArticles.add(article);
             }
         } catch (FeedException | IOException e) {
             logger.error("Exception while fetching articles from an RSS feed.", e);
@@ -115,5 +90,48 @@ public class RssArticleSource implements ArticleSource {
                     feedName);
 
         return newArticles;
+    }
+
+    private boolean categoryMatches(SyndEntry entry) {
+        return categoryName == null ||
+               entry.getCategories().stream().anyMatch(category -> category.getName().equalsIgnoreCase(categoryName));
+    }
+
+    private Article createArticle(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap,
+                                  SyndEntry entry, int articleId) {
+        String url = entry.getLink();
+        String title = entry.getTitle();
+
+        String text = entry.getDescription() != null
+                ? entry.getDescription().getValue()
+                // The Verge: titleEx == title
+                // : entry.getTitleEx() != null ? entry.getTitleEx().getValue() : "";
+                : "";
+
+        Author entryAuthor = entry.getAuthor() != null
+                ? ObjectHub.getPersistencyHandler().getOrCreateAuthor(entry.getAuthor())
+                : null;
+
+        Date dateTime = entry.getPublishedDate() != null ? entry.getPublishedDate() : new Date();
+
+        // We create new article objects, because we want to be able to compare the articles in memory to the
+        // stored articles to see whether an update of a stored article is needed.
+        Author author = entryAuthor != null
+                ? entryAuthor
+                : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
+
+        Article article = new Article(articleId, url, null, author, title, dateTime, text, 1234);
+
+        // If there is previous data available about this article, copy the fields that are managed by the
+        // B52 reader.
+        if (previousArticlesMap.containsKey(url)) {
+            Article previousArticle = previousArticlesMap.get(url);
+
+            article.setStarred(previousArticle.isStarred());
+            article.setRead(previousArticle.isRead());
+            article.setArchived(previousArticle.isArchived());
+        }
+
+        return article;
     }
 }

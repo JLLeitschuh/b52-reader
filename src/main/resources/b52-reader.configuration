@@ -2,12 +2,13 @@
 
 
 # Selected article sources that will be used by the b52-reader.
-source-ids = nrc,test
+source-ids = nrc-rss,test
 
 
 # All available article sources with IDs and parameters.
-source-test = nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource
 source-nrc = nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource
+source-nrc-rss = rss|NRC|NRC|https://www.nrc.nl/rss/|wetenschap
+source-test = nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource
 source-verge = rss|The Verge|The Verge|https://www.theverge.com/rss/index.xml
 source-acm = rss|ACM Software|ACM|https://cacm.acm.org/browse-by-subject/software.rss
 

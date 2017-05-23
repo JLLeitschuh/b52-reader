@@ -6,8 +6,8 @@
 
 package nl.xs4all.home.freekdb.b52reader.sources.testdata;
 
+import java.time.Month;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +15,7 @@ import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class TestDataArticleSource implements ArticleSource {
     private static final String SOURCE_ID = "test";
@@ -30,7 +31,7 @@ public class TestDataArticleSource implements ArticleSource {
                             SOURCE_ID,
                             ObjectHub.getPersistencyHandler().getOrCreateAuthor("Cara Santa Maria"),
                             "WTF Is String Theory?",
-                            new Date(),
+                            Utilities.createDate(2012, Month.DECEMBER, 17),
                             "Have you ever heard the term string theory and wondered WTF it means? When it comes " +
                             "to theoretical physics, it seems like there are a lot of larger-than-life concepts that " +
                             "have made their way into our everyday conversations.",
@@ -43,7 +44,7 @@ public class TestDataArticleSource implements ArticleSource {
                             SOURCE_ID,
                             ObjectHub.getPersistencyHandler().getOrCreateAuthor("Neil deGrasse Tyson"),
                             "The Cosmic Perspective",
-                            new Date(),
+                            Utilities.createDate(2007, Month.APRIL, 2),
                             "Long before anyone knew that the universe had a beginning, before we knew that the " +
                             "nearest large galaxy lies two and a half million light-years from Earth, before we knew " +
                             "how stars work or whether atoms exist, James Ferguson's enthusiastic introduction to his " +

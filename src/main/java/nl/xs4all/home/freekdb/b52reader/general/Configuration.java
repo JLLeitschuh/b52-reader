@@ -129,8 +129,9 @@ public class Configuration {
                     String feedName = configurationItems[1];
                     Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor(configurationItems[2]);
                     URL feedUrl = new URL(configurationItems[3]);
+                    String categoryName = configurationItems.length >= 5 ? configurationItems[4] : null;
 
-                    source = new RssArticleSource(sourceId, feedName, defaultAuthor, feedUrl);
+                    source = new RssArticleSource(sourceId, feedName, defaultAuthor, feedUrl, categoryName);
                 }
             } else {
                 Class<?> sourceClass = Class.forName(articleSourceConfiguration);
@@ -191,7 +192,7 @@ public class Configuration {
 
     private static String getRssParameters(RssArticleSource rssSource) {
         return "rss|" + rssSource.getFeedName() + "|" + rssSource.getDefaultAuthor().getName() + "|" +
-               rssSource.getFeedUrl();
+               rssSource.getFeedUrl() + (rssSource.getCategoryName() != null ? "|" + rssSource.getCategoryName() : "");
     }
 
     public static boolean useSpanTable() {
