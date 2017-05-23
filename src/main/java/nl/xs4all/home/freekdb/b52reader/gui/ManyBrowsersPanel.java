@@ -34,30 +34,20 @@ public class ManyBrowsersPanel extends JPanel {
     private List<JPanel> browserPanels;
     private Map<String, JPanel> urlToBrowserPanels;
     private List<JWebBrowser> webBrowsers;
-    private Map<String, String> urlToHtmlContent;
-    
+
     public ManyBrowsersPanel() {
         super(new BorderLayout());
 
         browserPanels = new ArrayList<>();
         urlToBrowserPanels = new HashMap<>();
         webBrowsers = new ArrayList<>();
-        urlToHtmlContent = new HashMap<>();
     }
 
-    public boolean hasBrowserForUrl(String url) {
+    boolean hasBrowserForUrl(String url) {
         return urlToBrowserPanels.containsKey(url);
     }
 
-    public String getHtmlContent(String url) {
-        return urlToHtmlContent.getOrDefault(url, "");
-    }
-    
-    public void clearHtmlContent(String url) {
-        urlToHtmlContent.remove(url);
-    }
-    
-    public void showBrowser(String url, boolean makeBrowserVisible, boolean returnHtml) {
+    void showBrowser(String url, boolean makeBrowserVisible) {
         if (urlToBrowserPanels.containsKey(url)) {
             if (makeBrowserVisible) {
                 logger.info("Show browser for {}", url);
@@ -68,7 +58,25 @@ public class ManyBrowsersPanel extends JPanel {
             Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
             hideAllBrowserPanels();
 
-            JWebBrowser webBrowser = createWebBrowser(url, returnHtml);
+
+            // todo: Support different types of embedded browsers.
+//            switch (Constants.EMBEDDED_BROWSER_TYPE) {
+//                case EMBEDDED_BROWSER_DJ_NATIVE_SWING:
+//                    // Use the JWebBrowser class from the DJ Native Swing library.
+//                    newBrowserPanel = new JWebBrowserPanel(article.getUrl());
+//                    break;
+//
+//                case EMBEDDED_BROWSER_PLACEHOLDER:
+//                default:
+//                    // Placeholder for an embedded browser.
+//                    newBrowserPanel = new JPanel();
+//                    newBrowserPanel.add(new JLabel(article.getUrl()));
+//                    break;
+//            }
+
+
+
+            JWebBrowser webBrowser = createWebBrowser(url);
             webBrowsers.add(webBrowser);
 
             JPanel browserPanel = new JPanel(new BorderLayout());
@@ -88,7 +96,7 @@ public class ManyBrowsersPanel extends JPanel {
         }
     }
 
-    public void disposeAllBrowsers() {
+    void disposeAllBrowsers() {
         long start = System.currentTimeMillis();
 
         webBrowsers.forEach(NSPanelComponent::disposeNativePeer);
@@ -103,7 +111,7 @@ public class ManyBrowsersPanel extends JPanel {
         logger.info("Disposed {} in {} milliseconds.", Utilities.countAndWord(browserCount, "browser"), end - start);
     }
 
-    private JWebBrowser createWebBrowser(String url, boolean returnHtml) {
+    private JWebBrowser createWebBrowser(String url) {
         JWebBrowser webBrowser = new JWebBrowser();
 
         webBrowser.setMenuBarVisible(false);
@@ -112,12 +120,12 @@ public class ManyBrowsersPanel extends JPanel {
 
         webBrowser.navigate(url);
 
-        addBrowserListener(url, returnHtml, webBrowser);
+        addBrowserListener(url, webBrowser);
 
         return webBrowser;
     }
 
-    private void addBrowserListener(String url, boolean returnHtml, JWebBrowser webBrowser) {
+    private void addBrowserListener(String url, JWebBrowser webBrowser) {
         String partUrl = url.substring(url.lastIndexOf('/') + 1);
 
         // Keep track of loading progress (https://sourceforge.net/p/djproject/discussion/671154/thread/1d25bf1a/).
@@ -135,10 +143,6 @@ public class ManyBrowsersPanel extends JPanel {
 
                 logger.trace("[{}] Location changed: {}", partUrl,
                              webBrowserNavigationEvent.getNewResourceLocation());
-
-                if (returnHtml) {
-                    urlToHtmlContent.put(url, webBrowser.getHTMLContent());
-                }
             }
         });
     }

@@ -14,6 +14,11 @@ import java.text.SimpleDateFormat;
  */
 public class Constants {
     /**
+     * The name and version of the application.
+     */
+    public static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
+
+    /**
      * The date/time format with day of week, day of month, month name, hours, and minutes. Example: "Mon 15-May 22:28".
      */
     public static final SimpleDateFormat DATE_TIME_FORMAT_LONGER = new SimpleDateFormat("EEE dd-MMM HH:mm");
@@ -27,4 +32,9 @@ public class Constants {
      * The embedded browser type that is currently used.
      */
     public static final EmbeddedBrowserType EMBEDDED_BROWSER_TYPE = EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING;
+
+    /**
+     * The maximum number of browsers that are loaded in the background.
+     */
+    public static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
 }
