@@ -34,18 +34,14 @@ public class ManyBrowsersPanel extends JPanel {
     private List<JPanel> browserPanels;
     private Map<String, JPanel> urlToBrowserPanels;
     private List<JWebBrowser> webBrowsers;
-//    private Map<String, JWebBrowser> urlToWebBrowsers;
     private Map<String, String> urlToHtmlContent;
     
-//    private String htmlContent;
-
     public ManyBrowsersPanel() {
         super(new BorderLayout());
 
         browserPanels = new ArrayList<>();
         urlToBrowserPanels = new HashMap<>();
         webBrowsers = new ArrayList<>();
-//        urlToWebBrowsers = new HashMap<>();
         urlToHtmlContent = new HashMap<>();
     }
 
@@ -74,7 +70,6 @@ public class ManyBrowsersPanel extends JPanel {
 
             JWebBrowser webBrowser = createWebBrowser(url, returnHtml);
             webBrowsers.add(webBrowser);
-//            urlToWebBrowsers.put(url, webBrowser);
 
             JPanel browserPanel = new JPanel(new BorderLayout());
             browserPanel.add(webBrowser, BorderLayout.CENTER);
@@ -91,38 +86,6 @@ public class ManyBrowsersPanel extends JPanel {
                 visibleBrowserPanel.ifPresent(panel -> panel.setVisible(true));
             }
         }
-    
-//        htmlContent = null;
-//
-//        if (returnHtml) {
-//            JWebBrowser webBrowser = urlToWebBrowsers.get(url);
-//
-//            // todo: Doesn't work? (https://sourceforge.net/p/djproject/discussion/671154/thread/7027b8f9/)
-//            webBrowser.runInSequence(() -> htmlContent = webBrowser.getHTMLContent());
-//        }
-//
-//        return htmlContent;
-    }
-
-    @SuppressWarnings("unused")
-    void removeBrowser(String url) {
-        if (urlToBrowserPanels.containsKey(url)) {
-
-            // Dispose (disposeNativePeer) and remove (webBrowsers) the browser too!!!
-
-            JPanel browserPanel = urlToBrowserPanels.remove(url);
-            browserPanels.remove(browserPanel);
-            if (browserPanel.isVisible() && !urlToBrowserPanels.isEmpty()) {
-                // This should not happen. Show another browser before removing the visible one.
-                String randomUrl = urlToBrowserPanels.keySet().iterator().next();
-                makeBrowserPanelVisible(randomUrl);
-            }
-            remove(browserPanel);
-            validate();
-            repaint();
-        } else {
-            logger.error("Browser not found.");
-        }
     }
 
     public void disposeAllBrowsers() {
@@ -133,7 +96,6 @@ public class ManyBrowsersPanel extends JPanel {
         int browserCount = webBrowsers.size();
 
         webBrowsers.clear();
-//        urlToWebBrowsers.clear();
         urlToBrowserPanels.clear();
         browserPanels.clear();
 
@@ -150,12 +112,15 @@ public class ManyBrowsersPanel extends JPanel {
 
         webBrowser.navigate(url);
 
-        // https://sourceforge.net/p/djproject/discussion/671154/thread/1d25bf1a/
+        addBrowserListener(url, returnHtml, webBrowser);
 
+        return webBrowser;
+    }
+
+    private void addBrowserListener(String url, boolean returnHtml, JWebBrowser webBrowser) {
         String partUrl = url.substring(url.lastIndexOf('/') + 1);
 
         // Keep track of loading progress (https://sourceforge.net/p/djproject/discussion/671154/thread/1d25bf1a/).
-    
         webBrowser.addWebBrowserListener(new WebBrowserAdapter() {
             @Override
             public void loadingProgressChanged(WebBrowserEvent webBrowserEvent) {
@@ -168,15 +133,14 @@ public class ManyBrowsersPanel extends JPanel {
             public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
                 super.locationChanged(webBrowserNavigationEvent);
 
-                logger.trace("[{}] Location changed: {}", partUrl, webBrowserNavigationEvent.getNewResourceLocation());
-                
+                logger.trace("[{}] Location changed: {}", partUrl,
+                             webBrowserNavigationEvent.getNewResourceLocation());
+
                 if (returnHtml) {
                     urlToHtmlContent.put(url, webBrowser.getHTMLContent());
                 }
             }
         });
-
-        return webBrowser;
     }
 
     private void hideAllBrowserPanels() {
