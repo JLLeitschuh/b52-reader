@@ -46,8 +46,6 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static nl.xs4all.home.freekdb.b52reader.general.Constants.BACKGROUND_BROWSER_MAX_COUNT;
-
 // todo: Add Javadocs.
 
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
@@ -363,7 +361,9 @@ public class MainGui {
     }
 
     private void handleBackgroundTasks() {
-        if (backgroundBrowserCount < BACKGROUND_BROWSER_MAX_COUNT && backgroundArticleIndex < currentArticles.size()) {
+        if (backgroundBrowserCount < Constants.BACKGROUND_BROWSER_MAX_COUNT &&
+            backgroundArticleIndex < currentArticles.size()) {
+
             String url = currentArticles.get(backgroundArticleIndex).getUrl();
 
             if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
