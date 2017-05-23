@@ -34,7 +34,7 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
     private JLabel textLabel;
 
     // todo: Use layout managers?
-    ArticleTableCellRenderer() {
+    public ArticleTableCellRenderer() {
         super(null);
 
         int starredX = 4;
@@ -86,7 +86,7 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         add(textLabel);
     }
 
-    static void setDefaultBackgroundColor(Color defaultBackgroundColor) {
+    public static void setDefaultBackgroundColor(Color defaultBackgroundColor) {
         ArticleTableCellRenderer.defaultBackgroundColor = defaultBackgroundColor;
     }
 

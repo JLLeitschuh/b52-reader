@@ -28,7 +28,7 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 // todo: Make this class more generic by supporting different types of embedded browsers.
-class ManyBrowsersPanel extends JPanel {
+public class ManyBrowsersPanel extends JPanel {
     private static final Logger logger = LogManager.getLogger(ManyBrowsersPanel.class);
 
     private List<JPanel> browserPanels;
@@ -39,7 +39,7 @@ class ManyBrowsersPanel extends JPanel {
     
 //    private String htmlContent;
 
-    ManyBrowsersPanel() {
+    public ManyBrowsersPanel() {
         super(new BorderLayout());
 
         browserPanels = new ArrayList<>();
@@ -49,19 +49,19 @@ class ManyBrowsersPanel extends JPanel {
         urlToHtmlContent = new HashMap<>();
     }
 
-    boolean hasBrowserForUrl(String url) {
+    public boolean hasBrowserForUrl(String url) {
         return urlToBrowserPanels.containsKey(url);
     }
 
-    String getHtmlContent(String url) {
+    public String getHtmlContent(String url) {
         return urlToHtmlContent.getOrDefault(url, "");
     }
     
-    void clearHtmlContent(String url) {
+    public void clearHtmlContent(String url) {
         urlToHtmlContent.remove(url);
     }
     
-    void showBrowser(String url, boolean makeBrowserVisible, boolean returnHtml) {
+    public void showBrowser(String url, boolean makeBrowserVisible, boolean returnHtml) {
         if (urlToBrowserPanels.containsKey(url)) {
             if (makeBrowserVisible) {
                 logger.info("Show browser for {}", url);
@@ -125,7 +125,7 @@ class ManyBrowsersPanel extends JPanel {
         }
     }
 
-    void disposeAllBrowsers() {
+    public void disposeAllBrowsers() {
         long start = System.currentTimeMillis();
 
         webBrowsers.forEach(NSPanelComponent::disposeNativePeer);

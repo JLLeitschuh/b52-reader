@@ -15,11 +15,11 @@ import nl.xs4all.home.freekdb.b52reader.model.Article;
 public class ArticlesTableModel extends AbstractTableModel {
     private List<Article> articles;
 
-    ArticlesTableModel(List<Article> articles) {
+    public ArticlesTableModel(List<Article> articles) {
         this.articles = articles;
     }
 
-    void setArticles(List<Article> articles) {
+    public void setArticles(List<Article> articles) {
         this.articles = articles;
 
         fireTableStructureChanged();

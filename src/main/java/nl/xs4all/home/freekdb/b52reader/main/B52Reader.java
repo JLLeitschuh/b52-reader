@@ -4,7 +4,7 @@
  */
 
 
-package nl.xs4all.home.freekdb.b52reader.gui;
+package nl.xs4all.home.freekdb.b52reader.main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -38,6 +38,10 @@ import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
+import nl.xs4all.home.freekdb.b52reader.gui.ArticleFilter;
+import nl.xs4all.home.freekdb.b52reader.gui.ArticleTableCellRenderer;
+import nl.xs4all.home.freekdb.b52reader.gui.ArticlesTableModel;
+import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 import nl.xs4all.home.freekdb.b52reader.gui.djnativeswing.JWebBrowserPanel;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanArticleTableCellRenderer;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
@@ -63,7 +67,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 /**
  * The b52-reader main class which initializes the application and launches it.
  * <p>
- * mvn exec:java -Dexec.mainClass="nl.xs4all.home.freekdb.b52reader.gui.B52Reader"
+ * mvn exec:java -Dexec.mainClass="nl.xs4all.home.freekdb.b52reader.main.B52Reader"
  */
 public class B52Reader {
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";

@@ -32,7 +32,7 @@ public class ArticleFilter implements Predicate<Article> {
     private Boolean starred;
     private Boolean read;
 
-    ArticleFilter(String filterText) {
+    public ArticleFilter(String filterText) {
         Arrays.stream(filterText.split(" ")).forEach(filterPart -> {
             if (filterPart.startsWith(AUTHOR_PREFIX) && filterPart.length() > AUTHOR_PREFIX.length()) {
                 normalizedAuthorName = Utilities.normalize(filterPart.substring(AUTHOR_PREFIX.length()));
