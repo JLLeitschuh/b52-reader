@@ -12,9 +12,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -93,14 +90,7 @@ public class B52Reader {
     private ManyBrowsersPanel manyBrowsersPanel;
 
     public static void main(String[] arguments) {
-        // Ignore characters written to the standard error stream, since the dj-nativeswing library sometimes has
-        // difficulties with the contents of the clipboard, resulting in ClassNotFoundException-s.
-        System.setErr(new PrintStream(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                // Ignore it.
-            }
-        }));
+        Utilities.ignoreStandardErrorStream();
 
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
             NativeInterface.open();
@@ -226,6 +216,7 @@ public class B52Reader {
         if (Configuration.useSpanTable()) {
             tableModel = createSpanTableModel(filteredArticles);
             table.setModel(tableModel);
+            setTableColumnWidths(table);
         } else {
             ((ArticlesTableModel) tableModel).setArticles(filteredArticles);
         }
@@ -297,13 +288,14 @@ public class B52Reader {
         table.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
         table.setRowHeight(21);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getSelectionModel().setSelectionInterval(0, 0);
         table.setAutoCreateRowSorter(true);
 
-        TableColumnModel columnModel = table.getColumnModel();
-        for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
-            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 60 : 800);
+        if (tableModel.getRowCount() > 0) {
+            selectArticle(filteredArticles.get(0), 0);
         }
+
+        table.getSelectionModel().setSelectionInterval(0, 0);
+        setTableColumnWidths(table);
 
         table.setPreferredScrollableViewportSize(table.getPreferredSize());
 
@@ -326,10 +318,14 @@ public class B52Reader {
             }
         });
 
-        if (tableModel.getRowCount() > 0)
-            selectArticle(filteredArticles.get(0), 0);
-
         return table;
+    }
+
+    private void setTableColumnWidths(JTable table) {
+        TableColumnModel columnModel = table.getColumnModel();
+        for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
+            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 60 : 800);
+        }
     }
 
     private TableModel createSpanTableModel(List<Article> articles) {
@@ -376,10 +372,10 @@ public class B52Reader {
             int columnIndex = table.columnAtPoint(mouseEvent.getPoint());
             boolean updateArticleList = false;
 
-            if (columnIndex == 0) {
+            if (columnIndex == 1) {
                 clickedArticle.setStarred(!clickedArticle.isStarred());
                 updateArticleList = true;
-            } else if (columnIndex == 1) {
+            } else if (columnIndex == 2) {
                 clickedArticle.setRead(!clickedArticle.isRead());
                 updateArticleList = true;
             }

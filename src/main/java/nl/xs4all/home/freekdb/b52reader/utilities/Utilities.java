@@ -6,6 +6,9 @@
 
 package nl.xs4all.home.freekdb.b52reader.utilities;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -40,5 +43,16 @@ public class Utilities {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, 0, 0);
 
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    public static void ignoreStandardErrorStream() {
+        // Ignore characters written to the standard error stream, since the dj-nativeswing library sometimes has
+        // difficulties with the contents of the clipboard, resulting in ClassNotFoundException-s.
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                // Ignore it.
+            }
+        }));
     }
 }
