@@ -108,8 +108,8 @@ public class B52Reader implements MainCallbacks {
     /**
      * Handle shutdown of the application.
      *
-     * @param frameExtendedState the state of the frame (normal or maximized).
-     * @param frameBounds        the bounds of the frame.
+     * @param frameExtendedState the application window state (normal or maximized).
+     * @param frameBounds        the application window bounds.
      */
     @Override
     public void shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
