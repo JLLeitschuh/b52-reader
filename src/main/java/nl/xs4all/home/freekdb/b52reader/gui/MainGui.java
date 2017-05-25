@@ -164,7 +164,7 @@ public class MainGui {
         Article previousSelectedArticle = selectedArticle;
 
         filteredArticles = currentArticles.stream()
-                .filter(filterTextField != null ? new ArticleFilter(filterTextField.getText()) : article -> true)
+                .filter(new ArticleFilter(filterTextField.getText()))
                 .filter(article -> !article.isArchived())
                 .collect(Collectors.toList());
 
