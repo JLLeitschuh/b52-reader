@@ -15,14 +15,49 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Filters articles using a query syntax inspired by Gmail. The following options are supported:
+ * <ul>
+ * <li>"author:Clara" matches (part of) an author's name (case insensitive);</li>
+ * <li>"title:Cosmic" matches (part of) a title (case insensitive);</li>
+ * <li>"is:starred" matches starred articles, and "is:" also works with unstarred, read, and unread.</li>
+ * </ul>
+ * You can also combine them: "author:Clara is:starred is:read" will show articles by Clara that are starred and read.
+ */
 public class ArticleFilter implements Predicate<Article> {
+    /**
+     * Prefix for filtering on an author's name (case insensitive).
+     */
     private static final String AUTHOR_PREFIX = "author:";
+
+    /**
+     * Prefix for filtering on a title (case insensitive).
+     */
     private static final String TITLE_PREFIX = "title:";
+
+    /**
+     * Prefix for filtering on the article's state: starred or unstarred, and read or unread.
+     */
     private static final String IS_PREFIX = "is:";
 
+    /**
+     * Keyword to filter for starred articles.
+     */
     private static final String STARRED_STATE = "starred";
+
+    /**
+     * Keyword to filter for unstarred articles.
+     */
     private static final String UNSTARRED_STATE = "unstarred";
+
+    /**
+     * Keyword to filter for read articles.
+     */
     private static final String READ_STATE = "read";
+
+    /**
+     * Keyword to filter for unread articles.
+     */
     private static final String UNREAD_STATE = "unread";
 
     /**
@@ -30,11 +65,31 @@ public class ArticleFilter implements Predicate<Article> {
      */
     private static final Logger logger = LogManager.getLogger(ArticleFilter.class);
 
+    /**
+     * The normalized author name (lower case and accents removed) or null (to match all authors).
+     */
     private String normalizedAuthorName;
+
+    /**
+     * The normalized title (lower case and accents removed) or null (to match all titles).
+     */
     private String normalizedTitle;
+
+    /**
+     * Whether articles should be starred (true), unstarred (false), or both states are good (null).
+     */
     private Boolean starred;
+
+    /**
+     * Whether articles should be read (true), unread (false), or both states are good (null).
+     */
     private Boolean read;
 
+    /**
+     * Construct and initialize an article filter.
+     *
+     * @param filterText the filter text that will be parsed for one or more filter parts.
+     */
     public ArticleFilter(String filterText) {
         Arrays.stream(filterText.split(" ")).forEach(filterPart -> {
             if (filterPart.startsWith(AUTHOR_PREFIX) && filterPart.length() > AUTHOR_PREFIX.length()) {
@@ -57,6 +112,12 @@ public class ArticleFilter implements Predicate<Article> {
         });
     }
 
+    /**
+     * Test whether a specified article matches the filter.
+     *
+     * @param article the article to match against the filter.
+     * @return whether the article matches the filter.
+     */
     @Override
     public boolean test(Article article) {
         boolean authorOk = normalizedAuthorName == null
