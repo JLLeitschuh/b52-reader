@@ -62,7 +62,7 @@ public class ManyBrowsersPanel extends JPanel {
             hideAllBrowserPanels();
 
 
-            // todo: Support different types of embedded browsers.
+            // todo: Support different types of embedded browsers. Create abstract EmbeddedBrowserPanel class?
 //            switch (Constants.EMBEDDED_BROWSER_TYPE) {
 //                case EMBEDDED_BROWSER_DJ_NATIVE_SWING:
 //                    // Use the JWebBrowser class from the DJ Native Swing library.
@@ -121,9 +121,9 @@ public class ManyBrowsersPanel extends JPanel {
         webBrowser.setButtonBarVisible(false);
         webBrowser.setLocationBarVisible(false);
 
-        webBrowser.navigate(url);
-
         addBrowserListener(url, webBrowser);
+
+        webBrowser.navigate(url);
 
         return webBrowser;
     }

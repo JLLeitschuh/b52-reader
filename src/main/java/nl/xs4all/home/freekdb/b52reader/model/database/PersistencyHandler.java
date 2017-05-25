@@ -30,6 +30,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * todo: define constants for table (and column) names?
+ * <p>
  * Enable storage of articles and authors in an H2 database.
  * <p>
  * If performance is not good enough: http://h2database.com/html/performance.html.

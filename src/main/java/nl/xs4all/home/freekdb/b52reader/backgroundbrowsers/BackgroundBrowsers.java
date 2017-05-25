@@ -141,6 +141,16 @@ public class BackgroundBrowsers {
         webBrowser.setButtonBarVisible(false);
         webBrowser.setLocationBarVisible(false);
 
+        addBrowserListener(url, webBrowser);
+
+        URL_TO_WEB_BROWSER.put(url, webBrowser);
+        webBrowsers.add(webBrowser);
+        backgroundBrowsersPanel.add(webBrowser);
+
+        webBrowser.navigate(url);
+    }
+
+    private void addBrowserListener(String url, JWebBrowser webBrowser) {
         webBrowser.addWebBrowserListener(new WebBrowserAdapter() {
             @Override
             public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
@@ -149,12 +159,6 @@ public class BackgroundBrowsers {
                 URL_TO_HTML_CONTENT.put(url, webBrowser.getHTMLContent());
             }
         });
-
-        URL_TO_WEB_BROWSER.put(url, webBrowser);
-        webBrowsers.add(webBrowser);
-        backgroundBrowsersPanel.add(webBrowser);
-
-        webBrowser.navigate(url);
     }
 
     /**
