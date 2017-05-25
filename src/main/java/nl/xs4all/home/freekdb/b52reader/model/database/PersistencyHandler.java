@@ -147,7 +147,7 @@ public class PersistencyHandler {
                 .filter(article -> !storedArticlesMap.containsKey(article.getUrl()))
                 .collect(Collectors.toList());
 
-        if (newArticles.size() > 0) {
+        if (!newArticles.isEmpty()) {
             List<Author> newAuthors = newArticles.stream()
                     .map(Article::getAuthor)
                     .distinct()
@@ -167,7 +167,7 @@ public class PersistencyHandler {
     }
 
     private void saveNewAuthors(List<Author> newAuthors) {
-        if (newAuthors.size() > 0) {
+        if (!newAuthors.isEmpty()) {
             try {
                 String insertQuery = "insert into author(name) values (?)";
                 PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery);
@@ -251,7 +251,7 @@ public class PersistencyHandler {
                 }
             }
 
-            if (updateArticles.size() > 0) {
+            if (!updateArticles.isEmpty()) {
                 int[] results = preparedStatement.executeBatch();
                 for (int articleIndex = 0; articleIndex < results.length; articleIndex++) {
                     int result = results[articleIndex];
