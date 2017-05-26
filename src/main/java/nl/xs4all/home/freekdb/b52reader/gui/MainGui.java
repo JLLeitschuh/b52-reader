@@ -150,11 +150,11 @@ public class MainGui {
     /**
      * Create a minimal version of the GUI to be able to start the background tasks timer.
      *
-     * @param currentArticles the list of current articles to show in the GUI.
+     * @param articles the list of current articles to show in the GUI.
      */
-    public void initializeGui(List<Article> currentArticles) {
-        this.currentArticles = currentArticles;
-        this.filteredArticles = currentArticles;
+    public void initializeGui(List<Article> articles) {
+        this.currentArticles = articles;
+        this.filteredArticles = articles;
 
         // Start a background timer to initialize and load some browsers in the background.
         backgroundBrowserCount = 0;
@@ -285,17 +285,17 @@ public class MainGui {
 
         tableModel = new ArticlesTableModel(articles);
 
-        JTable table = new JTable(tableModel);
-        table.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
-        table.setRowHeight(42);
-        table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getSelectionModel().setSelectionInterval(0, 0);
+        JTable customRendererTable = new JTable(tableModel);
+        customRendererTable.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
+        customRendererTable.setRowHeight(42);
+        customRendererTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        customRendererTable.getSelectionModel().setSelectionInterval(0, 0);
 
-        table.setAutoCreateRowSorter(true);
+        customRendererTable.setAutoCreateRowSorter(true);
 
-        // todo: table.addKeyListener(new KeyboardShortcutHandler(this));
+        // todo: customRendererTable.addKeyListener(new KeyboardShortcutHandler(this));
 
-        table.addMouseListener(new MouseAdapter() {
+        customRendererTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 super.mouseClicked(mouseEvent);
@@ -304,19 +304,20 @@ public class MainGui {
             }
         });
 
-        table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+        customRendererTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
             int selectedArticleIndex = getSelectedTableRow();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
-                Article selectedArticle = filteredArticles.get(selectedArticleIndex);
-                selectArticle(selectedArticle, selectedArticleIndex);
+                Article article = filteredArticles.get(selectedArticleIndex);
+                selectArticle(article, selectedArticleIndex);
             }
         });
 
-        if (tableModel.getRowCount() > 0)
+        if (tableModel.getRowCount() > 0) {
             selectArticle(filteredArticles.get(0), 0);
+        }
 
-        return table;
+        return customRendererTable;
     }
 
     /**
@@ -330,24 +331,24 @@ public class MainGui {
 
         tableModel = createSpanTableModel(articles);
 
-        JTable table = new SpanCellTable(tableModel);
-        table.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
-        table.setRowHeight(21);
-        table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setAutoCreateRowSorter(true);
+        JTable spanTable = new SpanCellTable(tableModel);
+        spanTable.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
+        spanTable.setRowHeight(21);
+        spanTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        spanTable.setAutoCreateRowSorter(true);
 
         if (tableModel.getRowCount() > 0) {
             selectArticle(filteredArticles.get(0), 0);
         }
 
-        table.getSelectionModel().setSelectionInterval(0, 0);
-        setTableColumnWidths(table);
+        spanTable.getSelectionModel().setSelectionInterval(0, 0);
+        setTableColumnWidths(spanTable);
 
-        table.setPreferredScrollableViewportSize(table.getPreferredSize());
+        spanTable.setPreferredScrollableViewportSize(spanTable.getPreferredSize());
 
-        // todo: Add table.addKeyListener(new KeyboardShortcutHandler(this));
+        // todo: Add spanTable.addKeyListener(new KeyboardShortcutHandler(this));
 
-        table.addMouseListener(new MouseAdapter() {
+        spanTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 super.mousePressed(mouseEvent);
@@ -356,7 +357,7 @@ public class MainGui {
             }
         });
 
-        table.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+        spanTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
             int selectedArticleIndex = getSelectedTableRow();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
@@ -364,7 +365,7 @@ public class MainGui {
             }
         });
 
-        return table;
+        return spanTable;
     }
 
     /**
