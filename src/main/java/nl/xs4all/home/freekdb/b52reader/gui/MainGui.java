@@ -88,8 +88,13 @@ public class MainGui {
     private Article selectedArticle;
 
     /**
+     * Timer for the background tasks: loading browsers.
+     */
+    private Timer backgroundTasksTimer;
+
+    /**
      * Article index for next article to load in the background.
-     *
+     * <p>
      * todo: Should we load articles from the filtered articles list (instead of from all current articles list).
      */
     private int backgroundArticleIndex;
@@ -146,7 +151,7 @@ public class MainGui {
         frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
-    
+
     /**
      * Create a minimal version of the GUI to be able to start the background tasks timer.
      *
@@ -156,11 +161,15 @@ public class MainGui {
         this.currentArticles = articles;
         this.filteredArticles = articles;
 
+        // todo: The timer seems to run only once?!? Perhaps because handleBackgroundTasks now changes the table model?
         // Start a background timer to initialize and load some browsers in the background.
-        backgroundBrowserCount = 0;
-        backgroundArticleIndex = 1;
-        Timer backgroundTasksTimer = new Timer(Constants.BACKGROUND_TIMER_DELAY, actionEvent -> handleBackgroundTasks());
-        backgroundTasksTimer.start();
+        SwingUtilities.invokeLater(() -> {
+            backgroundBrowserCount = 0;
+            backgroundArticleIndex = 1;
+            backgroundTasksTimer = new Timer(Constants.BACKGROUND_TIMER_DELAY, actionEvent -> handleBackgroundTasks());
+            //backgroundTasksTimer.setInitialDelay(0);
+            backgroundTasksTimer.start();
+        });
 
         frame.setBounds(Configuration.getFrameBounds());
         frame.setExtendedState(Configuration.getFrameExtendedState());
@@ -385,9 +394,9 @@ public class MainGui {
         Vector<Vector<Object>> data = new Vector<>();
         articles.forEach(article -> {
             data.add(listToVector(Arrays.asList(
-                    "",
+                    manyBrowsersPanel.hasBrowserForUrl(article.getUrl()) ? "fetched" : "",
                     article.isStarred() ? STARRED_ICON : UNSTARRED_ICON,
-                    article.isRead() ? "" : "U",
+                    article.isRead() ? "" : "unread",
                     article.getTitle(),
                     article.getAuthor(),
                     Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime())
@@ -410,7 +419,7 @@ public class MainGui {
      * Convert a list to a vector.
      *
      * @param list the list to convert.
-     * @param <T> the type of list items.
+     * @param <T>  the type of the list items.
      * @return the vector with the same items as are in the list.
      */
     private <T> Vector<T> listToVector(List<T> list) {
@@ -426,7 +435,7 @@ public class MainGui {
         TableColumnModel columnModel = table.getColumnModel();
 
         for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
-            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 60 : 800);
+            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 100 : 800);
         }
     }
 
@@ -470,7 +479,7 @@ public class MainGui {
     /**
      * Select a specific article and show the embedded browser with that article.
      *
-     * @param article the article to select.
+     * @param article      the article to select.
      * @param articleIndex the index of the article (to show in the window title).
      */
     private void selectArticle(Article article, int articleIndex) {
@@ -487,6 +496,8 @@ public class MainGui {
      * yet).
      */
     private void handleBackgroundTasks() {
+        logger.debug("Handle background tasks - delay: {} milliseconds.", backgroundTasksTimer.getDelay());
+
         if (backgroundBrowserCount < Constants.BACKGROUND_BROWSER_MAX_COUNT &&
             backgroundArticleIndex < currentArticles.size()) {
 
@@ -500,6 +511,18 @@ public class MainGui {
 
             backgroundArticleIndex++;
         }
+
+//        if (Configuration.useSpanTable()) {
+//            logger.debug("Check fetched status for {} rows.", tableModel.getRowCount() / 2);
+//
+//            for (int rowIndex = 0; rowIndex < tableModel.getRowCount(); rowIndex += 2) {
+//                if (manyBrowsersPanel.hasBrowserForUrl(currentArticles.get(rowIndex).getUrl()) &&
+//                        Objects.equals(tableModel.getValueAt(rowIndex, 0), "")) {
+//                    tableModel.setValueAt("fetched", rowIndex, 0);
+//                    logger.debug("Set column 0 for row {} to fetched.", rowIndex);
+//                }
+//            }
+//        }
     }
 
     /**

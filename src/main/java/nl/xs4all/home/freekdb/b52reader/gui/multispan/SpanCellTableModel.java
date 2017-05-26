@@ -25,6 +25,8 @@ import javax.swing.table.DefaultTableModel;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 
+// todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
+
 /**
  * @version 1.0 11/22/98
  */
