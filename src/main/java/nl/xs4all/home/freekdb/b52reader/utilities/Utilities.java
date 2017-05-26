@@ -18,9 +18,17 @@ import java.util.Date;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import nl.xs4all.home.freekdb.b52reader.model.Article;
 import org.apache.commons.lang3.StringUtils;
 
 public class Utilities {
+    /**
+     * Private constructor to hide the implicit public one.
+     */
+    private Utilities() {
+        // Should not be called.
+    }
+    
     public static String normalize(String text) {
         return StringUtils.stripAccents(text).toLowerCase();
     }
@@ -54,5 +62,19 @@ public class Utilities {
                 // Ignore it.
             }
         }));
+    }
+    
+    /**
+     * If there is previous data available for this article, copy the fields that are managed by the B52 reader.
+     *
+     * @param article         the new article.
+     * @param previousArticle the previous article (or null if not available).
+     */
+    public static void copyPreviousDataIfAvailable(Article article, Article previousArticle) {
+        if (previousArticle != null) {
+            article.setStarred(previousArticle.isStarred());
+            article.setRead(previousArticle.isRead());
+            article.setArchived(previousArticle.isArchived());
+        }
     }
 }

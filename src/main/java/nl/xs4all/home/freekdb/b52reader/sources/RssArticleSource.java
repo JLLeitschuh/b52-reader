@@ -125,15 +125,7 @@ public class RssArticleSource implements ArticleSource {
 
         Article article = new Article(articleId, url, null, author, title, dateTime, text, 1234);
 
-        // If there is previous data available about this article, copy the fields that are managed by the
-        // B52 reader.
-        if (previousArticlesMap.containsKey(url)) {
-            Article previousArticle = previousArticlesMap.get(url);
-
-            article.setStarred(previousArticle.isStarred());
-            article.setRead(previousArticle.isRead());
-            article.setArchived(previousArticle.isArchived());
-        }
+        Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));
 
         return article;
     }

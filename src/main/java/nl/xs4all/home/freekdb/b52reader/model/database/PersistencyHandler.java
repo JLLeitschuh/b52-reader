@@ -7,7 +7,6 @@
 package nl.xs4all.home.freekdb.b52reader.model.database;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -101,35 +101,42 @@ public class PersistencyHandler {
     }
 
     private boolean tableExists(String tableName) throws SQLException {
-        DatabaseMetaData metaData = databaseConnection.getMetaData();
-
-        return metaData.getTables(null, null, tableName.toUpperCase(), null).next();
+        boolean result;
+        
+        try (ResultSet tables = databaseConnection.getMetaData().getTables(null, null,
+                                                                           tableName.toUpperCase(), null)) {
+            result = tables.next();
+        }
+    
+        return result;
     }
 
     public void readAuthorsAndArticles() {
         try {
             storedAuthors = new ArrayList<>();
             storedAuthorsMap = new HashMap<>();
-            ResultSet authorsResultSet = statement.executeQuery("select distinct * from author");
-            while (authorsResultSet.next()) {
-                int id = authorsResultSet.getInt("id");
-                String name = authorsResultSet.getString("name");
-                Author author = new Author(id, name);
-
-                storedAuthors.add(author);
-                storedAuthorsMap.put(name, author);
+            try (ResultSet authorsResultSet = statement.executeQuery("select distinct * from author")) {
+                while (authorsResultSet.next()) {
+                    int id = authorsResultSet.getInt("id");
+                    String name = authorsResultSet.getString("name");
+                    Author author = new Author(id, name);
+        
+                    storedAuthors.add(author);
+                    storedAuthorsMap.put(name, author);
+                }
             }
 
             logger.info("Read {} from the database.", Utilities.countAndWord(storedAuthors.size(), "author"));
 
             storedArticles = new ArrayList<>();
             storedArticlesMap = new HashMap<>();
-            ResultSet articlesResultSet = statement.executeQuery("select distinct * from article");
-            while (articlesResultSet.next()) {
-                Article article = Article.createArticleFromDatabase(articlesResultSet, storedAuthors);
-
-                storedArticles.add(article);
-                storedArticlesMap.put(article.getUrl(), article);
+            try (ResultSet articlesResultSet = statement.executeQuery("select distinct * from article")) {
+                while (articlesResultSet.next()) {
+                    Article article = Article.createArticleFromDatabase(articlesResultSet, storedAuthors);
+        
+                    storedArticles.add(article);
+                    storedArticlesMap.put(article.getUrl(), article);
+                }
             }
 
             logger.info("Read {} from the database.", Utilities.countAndWord(storedArticles.size(), "article"));
@@ -169,23 +176,21 @@ public class PersistencyHandler {
     private void saveNewAuthors(List<Author> newAuthors) {
         if (!newAuthors.isEmpty()) {
             try {
-                String insertQuery = "insert into author(name) values (?)";
-                PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery);
-
-                for (Author newAuthor : newAuthors) {
-                    preparedStatement.setString(1, newAuthor.getName());
-                    preparedStatement.addBatch();
-                }
-
-                int[] results = preparedStatement.executeBatch();
-                for (int authorIndex = 0; authorIndex < results.length; authorIndex++) {
-                    int result = results[authorIndex];
-                    if (result != 1) {
-                        logger.error("Error writing author {} to the database.", newAuthors.get(authorIndex));
+                final String insertQuery = "insert into author(name) values (?)";
+                try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery)) {
+                    for (Author newAuthor : newAuthors) {
+                        preparedStatement.setString(1, newAuthor.getName());
+                        preparedStatement.addBatch();
+                    }
+    
+                    int[] results = preparedStatement.executeBatch();
+                    for (int authorIndex = 0; authorIndex < results.length; authorIndex++) {
+                        int result = results[authorIndex];
+                        if (result != 1) {
+                            logger.error("Error writing author {} to the database.", newAuthors.get(authorIndex));
+                        }
                     }
                 }
-
-                preparedStatement.close();
 
                 logger.info("Wrote {} to the database.", Utilities.countAndWord(newAuthors.size(), "new author"));
             } catch (SQLException e) {
@@ -198,8 +203,7 @@ public class PersistencyHandler {
         Map<String, Author> authorsMap = authors.stream()
                 .collect(Collectors.toMap(Author::getName, Function.identity()));
 
-        try {
-            ResultSet authorsResultSet = statement.executeQuery("select distinct * from author");
+        try (ResultSet authorsResultSet = statement.executeQuery("select distinct * from author")) {
             while (authorsResultSet.next()) {
                 int id = authorsResultSet.getInt("id");
                 String name = authorsResultSet.getString("name");
@@ -231,7 +235,7 @@ public class PersistencyHandler {
                 existingArticle.setId(storedArticle.getId());
                 existingArticle.setDateTime(storedArticle.getDateTime());
 
-                if (!existingArticle.equals(storedArticle)) {
+                if (!Objects.equals(existingArticle, storedArticle)) {
                     preparedStatement.setString(1, existingArticle.getUrl());
                     preparedStatement.setString(2, existingArticle.getSourceId());
                     preparedStatement.setInt(3, existingArticle.getAuthor().getId());
@@ -382,17 +386,19 @@ public class PersistencyHandler {
     @SuppressWarnings("unused")
     public void readAndPrintAuthorsAndArticles() {
         try {
-            ResultSet authorsResultSet = statement.executeQuery("select * from author");
-            if (authorsResultSet.next()) {
-                logger.info("");
-                logger.info("Authors:");
-                printResultSet(authorsResultSet);
+            try (ResultSet authorsResultSet = statement.executeQuery("select * from author")) {
+                if (authorsResultSet.next()) {
+                    logger.info("");
+                    logger.info("Authors:");
+                    printResultSet(authorsResultSet);
+                }
             }
 
-            ResultSet articlesResultSet = statement.executeQuery("select * from article");
-            if (articlesResultSet.next()) {
-                logger.info("Articles:");
-                printResultSet(articlesResultSet);
+            try (ResultSet articlesResultSet = statement.executeQuery("select * from article")) {
+                if (articlesResultSet.next()) {
+                    logger.info("Articles:");
+                    printResultSet(articlesResultSet);
+                }
             }
         } catch (SQLException e) {
             logger.error("Exception while reading authors and articles from the database.", e);
