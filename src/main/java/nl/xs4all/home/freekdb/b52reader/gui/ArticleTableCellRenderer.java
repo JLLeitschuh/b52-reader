@@ -86,7 +86,7 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         add(textLabel);
     }
 
-    public static void setDefaultBackgroundColor(Color defaultBackgroundColor) {
+    static void setDefaultBackgroundColor(Color defaultBackgroundColor) {
         ArticleTableCellRenderer.defaultBackgroundColor = defaultBackgroundColor;
     }
 

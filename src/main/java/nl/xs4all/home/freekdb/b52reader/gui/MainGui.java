@@ -46,15 +46,20 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// todo: Add Javadocs.
-
 // todo: Embedded browser (JWebBrowser) does not resize when application window is resized after initial view?
 
 /**
  * Main class responsible for the GUI.
  */
 public class MainGui {
+    /**
+     * Icon for starred articles.
+     */
     private static final Icon STARRED_ICON = Utilities.getIconResource("32x32-Full_Star_Yellow.png");
+
+    /**
+     * Icon for unstarred articles.
+     */
     private static final Icon UNSTARRED_ICON = Utilities.getIconResource("32x32-Empty_Star.png");
 
     /**
@@ -62,24 +67,77 @@ public class MainGui {
      */
     private static final Logger logger = LogManager.getLogger(MainGui.class);
 
+    /**
+     * Handler for the callback functions of the main program.
+     */
     private MainCallbacks mainCallbacks;
 
+    /**
+     * Current articles read from the configured article sources.
+     */
     private List<Article> currentArticles;
+
+    /**
+     * Filtered articles: all articles from <code>currentArticles</code> that match the filter (all if filter is empty).
+     */
     private List<Article> filteredArticles;
+
+    /**
+     * Selected article (from the article table).
+     */
     private Article selectedArticle;
+
+    /**
+     * Article index for next article to load in the background.
+     *
+     * todo: Should we load articles from the filtered articles list (instead of from all current articles list).
+     */
     private int backgroundArticleIndex;
+
+    /**
+     * Number of browsers loaded in the background.
+     */
     private int backgroundBrowserCount;
 
+    /**
+     * Frame: the application window.
+     */
     private JFrame frame;
+
+    /**
+     * Text field for filtering articles.
+     */
     private JTextField filterTextField;
+
+    /**
+     * Table showing all (filtered) articles.
+     */
     private JTable table;
+
+    /**
+     * Table model for the article table.
+     */
     private TableModel tableModel;
+
+    /**
+     * Panel with many embedded browsers, of which only one can be visible.
+     */
     private ManyBrowsersPanel manyBrowsersPanel;
 
+    /**
+     * Construct the main GUI object: set the main callbacks handler.
+     *
+     * @param mainCallbacks the main callbacks handler.
+     */
     public MainGui(MainCallbacks mainCallbacks) {
         this.mainCallbacks = mainCallbacks;
     }
 
+    /**
+     * Create a minimal version of the GUI to be able to start the background tasks timer.
+     *
+     * @param currentArticles the list of current articles to show in the GUI.
+     */
     public void initializeGui(List<Article> currentArticles) {
         this.currentArticles = currentArticles;
         this.filteredArticles = currentArticles;
@@ -102,36 +160,48 @@ public class MainGui {
         frame.setExtendedState(Configuration.getFrameExtendedState());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        SwingUtilities.invokeLater(() -> finishGuiInitialization(currentArticles));
+        SwingUtilities.invokeLater(this::finishGuiInitialization);
     }
 
-    // Some of the following actions need to be performed on the EDT (like showing the first browser when creating
-    // the table).
-    private void finishGuiInitialization(List<Article> currentArticles) {
-        JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.add(createFilterPanel(), BorderLayout.NORTH);
+    /**
+     * Finish the initialization of the GUI. Make sure to call this method from the EDT (event dispatch thread), since
+     * some of the  actions need to be performed from the EDT (like showing the first browser when creating the table).
+     */
+    private void finishGuiInitialization() {
+        if (SwingUtilities.isEventDispatchThread()) {
+            JPanel northPanel = new JPanel(new BorderLayout());
+            northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-        manyBrowsersPanel = new ManyBrowsersPanel();
+            manyBrowsersPanel = new ManyBrowsersPanel();
 
-        table = Configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
+            table = Configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(new Dimension(10000, 200));
-        northPanel.add(scrollPane, BorderLayout.CENTER);
+            JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new Dimension(10000, 200));
+            northPanel.add(scrollPane, BorderLayout.CENTER);
 
-        frame.getContentPane().add(northPanel, BorderLayout.NORTH);
-        frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
+            frame.getContentPane().add(northPanel, BorderLayout.NORTH);
+            frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
 
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent windowEvent) {
-                super.windowClosing(windowEvent);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent windowEvent) {
+                    super.windowClosing(windowEvent);
 
-                frameClosing();
-            }
-        });
+                    frameClosing();
+                }
+            });
+        } else {
+            logger.error("The MainGui.finishGuiInitialization method should be called from the EDT (event dispatch " +
+                         "thread).");
+        }
     }
 
+    /**
+     * Create the panel with the filter field (for filtering articles).
+     *
+     * @return the panel with the filter field.
+     */
     private JPanel createFilterPanel() {
         JPanel filterPanel = new JPanel();
         filterPanel.add(new JLabel("Filter:"));
@@ -160,6 +230,9 @@ public class MainGui {
         return filterPanel;
     }
 
+    /**
+     * Filter the articles and update the GUI.
+     */
     private void filterAndShowArticles() {
         Article previousSelectedArticle = selectedArticle;
 
@@ -195,6 +268,12 @@ public class MainGui {
         }
     }
 
+    /**
+     * Create the GUI table with the custom article renderer and the corresponding data model.
+     *
+     * @param articles the (filtered) articles to show in the table.
+     * @return the GUI table with the custom article renderer.
+     */
     private JTable createTable(List<Article> articles) {
         ArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
@@ -234,6 +313,12 @@ public class MainGui {
         return table;
     }
 
+    /**
+     * Create the GUI span table with the corresponding data model.
+     *
+     * @param articles the (filtered) articles to show in the table.
+     * @return the GUI span table.
+     */
     private JTable createSpanTable(List<Article> articles) {
         SpanArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
@@ -276,6 +361,12 @@ public class MainGui {
         return table;
     }
 
+    /**
+     * Create the span table model.
+     *
+     * @param articles the (filtered) articles to put in the table model.
+     * @return the GUI span table model.
+     */
     private TableModel createSpanTableModel(List<Article> articles) {
         List<String> columnIdentifiers = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
         //int[] columnIndices1 = {0, 1, 2};
@@ -308,17 +399,35 @@ public class MainGui {
         return spanTableModel;
     }
 
+    /**
+     * Convert a list to a vector.
+     *
+     * @param list the list to convert.
+     * @param <T> the type of list items.
+     * @return the vector with the same items as are in the list.
+     */
     private <T> Vector<T> listToVector(List<T> list) {
         return new Vector<>(list);
     }
 
+    /**
+     * Set the column widths for the specified table.
+     *
+     * @param table the GUI table with the articles.
+     */
     private void setTableColumnWidths(JTable table) {
         TableColumnModel columnModel = table.getColumnModel();
+
         for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
             columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 60 : 800);
         }
     }
 
+    /**
+     * Handle a click event in the GUI table: show the selected article and/or toggle the starred & read fields.
+     *
+     * @param mouseEvent the mouse event (to determine the column index).
+     */
     private void handleTableClick(MouseEvent mouseEvent) {
         int selectedArticleIndex = getSelectedTableRow();
         Article clickedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
@@ -351,6 +460,12 @@ public class MainGui {
         return table.getSelectedRow() / (tableModel instanceof SpanCellTableModel ? 2 : 1);
     }
 
+    /**
+     * Select a specific article and show the embedded browser with that article.
+     *
+     * @param article the article to select.
+     * @param articleIndex the index of the article (to show in the window title).
+     */
     private void selectArticle(Article article, int articleIndex) {
         String articleCounterAndSize = (articleIndex + 1) + "/" + filteredArticles.size();
         frame.setTitle(Constants.APPLICATION_NAME_AND_VERSION + " - " + articleCounterAndSize);
@@ -360,6 +475,10 @@ public class MainGui {
         manyBrowsersPanel.showBrowser(selectedArticle.getUrl(), true);
     }
 
+    /**
+     * Handle background tasks: create an embedded browser (if we do not have created the maximum number of browsers
+     * yet).
+     */
     private void handleBackgroundTasks() {
         if (backgroundBrowserCount < Constants.BACKGROUND_BROWSER_MAX_COUNT &&
             backgroundArticleIndex < currentArticles.size()) {
@@ -376,6 +495,9 @@ public class MainGui {
         }
     }
 
+    /**
+     * Handle the frame closing event: shutdown the application.
+     */
     private void frameClosing() {
         manyBrowsersPanel.disposeAllBrowsers();
 

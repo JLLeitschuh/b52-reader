@@ -27,6 +27,8 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
+// todo: Add Javadocs.
+
 // todo: Make this class more generic by supporting different types of embedded browsers.
 public class ManyBrowsersPanel extends JPanel {
     /**
