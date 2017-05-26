@@ -18,25 +18,32 @@ public class ObjectHub {
     /**
      * The persistency handler that enables communication with the database.
      */
-    private static PersistencyHandler persistencyHandler;
+    private static PersistencyHandler persistencyHandler = null;
 
     /**
      * The hidden panel in the GUI where the background browsers can be added to.
      */
-    private static JPanel backgroundBrowsersPanel;
+    private static JPanel backgroundBrowsersPanel = null;
 
     /**
      * The background browsers handler.
      */
-    private static BackgroundBrowsers backgroundBrowsers;
-
+    private static BackgroundBrowsers backgroundBrowsers = null;
+    
+    /**
+     * Private constructor to hide the implicit public one.
+     */
+    private ObjectHub() {
+        // Should not be called.
+    }
+    
     /**
      * Inject the persistency handler that enables communication with the database.
      *
-     * @param persistencyHandler the persistency handler.
+     * @param handler the persistency handler.
      */
-    public static void injectPersistencyHandler(PersistencyHandler persistencyHandler) {
-        ObjectHub.persistencyHandler = persistencyHandler;
+    public static void injectPersistencyHandler(PersistencyHandler handler) {
+        ObjectHub.persistencyHandler = handler;
     }
 
     /**
@@ -51,10 +58,10 @@ public class ObjectHub {
     /**
      * Inject the hidden panel in the GUI where the background browsers can be added to.
      *
-     * @param backgroundBrowsersPanel the panel for the background browsers.
+     * @param panel the panel for the background browsers.
      */
-    public static void injectBackgroundBrowsersPanel(JPanel backgroundBrowsersPanel) {
-        ObjectHub.backgroundBrowsersPanel = backgroundBrowsersPanel;
+    public static void injectBackgroundBrowsersPanel(JPanel panel) {
+        ObjectHub.backgroundBrowsersPanel = panel;
     }
 
     /**
