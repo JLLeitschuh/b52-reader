@@ -44,52 +44,13 @@ public class NrcScienceArticleSource implements ArticleSource {
 
     @Override
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
-        boolean useBackgroundBrowser = !previousArticlesMap.isEmpty();
-    
-        return getArticlesWithJsoupConnect(useBackgroundBrowser, previousArticlesMap, previousAuthorsMap);
-    }
-
-    private List<Article> getArticlesWithJsoupConnect(boolean useBackgroundBrowser,
-                                                      Map<String, Article> previousArticlesMap,
-                                                      Map<String, Author> previousAuthorsMap) {
         List<Article> newArticles = new ArrayList<>();
-        Document articleListDocument = null;
-
-        try {
-            if (useBackgroundBrowser) {
-                String htmlContent = ObjectHub.getBackgroundBrowsers().getHtmlContent(MAIN_NRC_URL + "sectie/wetenschap/");
-
-                if (htmlContent != null) {
-                    articleListDocument = Jsoup.parse(htmlContent);
-                }
-            }
-            else {
-                articleListDocument = Jsoup.connect(MAIN_NRC_URL + "sectie/wetenschap/").get();
-            }
-        } catch (IOException e) {
-            logger.error("Exception while fetching articles from web site.", e);
-        }
+    
+        Document articleListDocument = getArticleListDocument(MAIN_NRC_URL + "sectie/wetenschap/",
+                                                              !previousArticlesMap.isEmpty());
 
         if (articleListDocument != null) {
-            Elements articleElements = articleListDocument.select(".nmt-item__link");
-
-            Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor("NRC science");
-
-            for (Element articleElement : articleElements) {
-                String url = MAIN_NRC_URL + articleElement.attr("href");
-                String title = articleElement.getElementsByClass("nmt-item__headline").text();
-                String text = articleElement.getElementsByClass("nmt-item__teaser").text();
-
-                // We create new article objects, because we want to be able to compare the articles in memory to the
-                // stored articles to see whether an update of a stored article is needed.
-                Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-                Article article = new Article(-1 - newArticles.size(), url, SOURCE_ID, author, title, new Date(),
-                                              text, 1234);
-
-                Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));
-
-                newArticles.add(article);
-            }
+            parseArticles(previousArticlesMap, previousAuthorsMap, newArticles, articleListDocument);
         }
 
         logger.info("Fetched {} from the NRC website.", Utilities.countAndWord(newArticles.size(), "article"));
@@ -97,4 +58,46 @@ public class NrcScienceArticleSource implements ArticleSource {
         return newArticles;
     }
 
+    private Document getArticleListDocument(String url, boolean useBackgroundBrowser) {
+        Document articleListDocument = null;
+
+        try {
+            if (useBackgroundBrowser) {
+                String htmlContent = ObjectHub.getBackgroundBrowsers().getHtmlContent(url);
+
+                if (htmlContent != null) {
+                    articleListDocument = Jsoup.parse(htmlContent);
+                }
+            }
+            else {
+                articleListDocument = Jsoup.connect(url).get();
+            }
+        } catch (IOException e) {
+            logger.error("Exception while fetching articles from web site.", e);
+        }
+
+        return articleListDocument;
+    }
+    
+    private void parseArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap,
+                               List<Article> newArticles, Document articleListDocument) {
+        Elements articleElements = articleListDocument.select(".nmt-item__link");
+        Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor("NRC science");
+
+        for (Element articleElement : articleElements) {
+            String url = MAIN_NRC_URL + articleElement.attr("href");
+            String title = articleElement.getElementsByClass("nmt-item__headline").text();
+            String text = articleElement.getElementsByClass("nmt-item__teaser").text();
+
+            // We create a new article object even if it is already stored, because we want to be able to compare the
+            // articles in memory to the stored article to see whether an update of a stored article is needed.
+            Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
+            Article article = new Article(-1 - newArticles.size(), url, SOURCE_ID, author, title, new Date(),
+                    text, 1234);
+
+            Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));
+
+            newArticles.add(article);
+        }
+    }
 }
