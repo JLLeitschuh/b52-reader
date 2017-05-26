@@ -13,7 +13,7 @@ import java.util.Objects;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class Author {
-    private int id;
+    private Integer id;
     private final String name;
     private final String normalizedName;
 
@@ -63,7 +63,7 @@ public class Author {
 
     @Override
     public String toString() {
-        return "[" + id + "] " + name;
+        return name;
     }
 
     @Override
