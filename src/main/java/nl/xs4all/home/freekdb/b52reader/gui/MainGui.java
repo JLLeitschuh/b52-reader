@@ -134,14 +134,10 @@ public class MainGui {
     }
 
     /**
-     * Create a minimal version of the GUI to be able to start the background tasks timer.
-     *
-     * @param currentArticles the list of current articles to show in the GUI.
+     * Make sure the background browsers functionality is initialized before fetching articles, since for some article
+     * sources a background browser is used to retrieve the list of articles.
      */
-    public void initializeGui(List<Article> currentArticles) {
-        this.currentArticles = currentArticles;
-        this.filteredArticles = currentArticles;
-
+    public void initializeBackgroundBrowsersPanel() {
         JPanel backgroundBrowsersPanel = new JPanel();
         backgroundBrowsersPanel.setVisible(false);
         ObjectHub.injectBackgroundBrowsersPanel(backgroundBrowsersPanel);
@@ -149,6 +145,16 @@ public class MainGui {
         frame = new JFrame(Constants.APPLICATION_NAME_AND_VERSION);
         frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
         frame.setVisible(true);
+    }
+    
+    /**
+     * Create a minimal version of the GUI to be able to start the background tasks timer.
+     *
+     * @param currentArticles the list of current articles to show in the GUI.
+     */
+    public void initializeGui(List<Article> currentArticles) {
+        this.currentArticles = currentArticles;
+        this.filteredArticles = currentArticles;
 
         // Start a background timer to initialize and load some browsers in the background.
         backgroundBrowserCount = 0;

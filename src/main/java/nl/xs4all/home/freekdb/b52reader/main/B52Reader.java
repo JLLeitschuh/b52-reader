@@ -73,9 +73,12 @@ public class B52Reader implements MainCallbacks {
     private void createAndLaunchApplication() {
         initializeDatabase();
 
+        MainGui mainGui = new MainGui(this);
+        mainGui.initializeBackgroundBrowsersPanel();
+        
         currentArticles = getArticles(Configuration.getSelectedArticleSources());
 
-        new MainGui(this).initializeGui(currentArticles);
+        mainGui.initializeGui(currentArticles);
     }
 
     /**
