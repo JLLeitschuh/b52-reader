@@ -14,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
@@ -88,11 +89,6 @@ public class MainGui {
     private Article selectedArticle;
 
     /**
-     * Timer for the background tasks: loading browsers.
-     */
-    private Timer backgroundTasksTimer;
-
-    /**
      * Article index for next article to load in the background.
      * <p>
      * todo: Should we load articles from the filtered articles list (instead of from all current articles list).
@@ -161,15 +157,12 @@ public class MainGui {
         this.currentArticles = articles;
         this.filteredArticles = articles;
 
-        // todo: The timer seems to run only once?!? Perhaps because handleBackgroundTasks now changes the table model?
         // Start a background timer to initialize and load some browsers in the background.
-        SwingUtilities.invokeLater(() -> {
-            backgroundBrowserCount = 0;
-            backgroundArticleIndex = 1;
-            backgroundTasksTimer = new Timer(Constants.BACKGROUND_TIMER_DELAY, actionEvent -> handleBackgroundTasks());
-            //backgroundTasksTimer.setInitialDelay(0);
-            backgroundTasksTimer.start();
-        });
+        backgroundBrowserCount = 0;
+        backgroundArticleIndex = 1;
+        Timer backgroundTasksTimer = new Timer(Constants.BACKGROUND_TIMER_DELAY, actionEvent -> handleBackgroundTasks());
+        backgroundTasksTimer.setInitialDelay(500);
+        backgroundTasksTimer.start();
 
         frame.setBounds(Configuration.getFrameBounds());
         frame.setExtendedState(Configuration.getFrameExtendedState());
@@ -496,7 +489,7 @@ public class MainGui {
      * yet).
      */
     private void handleBackgroundTasks() {
-        logger.debug("Handle background tasks - delay: {} milliseconds.", backgroundTasksTimer.getDelay());
+        logger.debug("Handle background tasks.");
 
         if (backgroundBrowserCount < Constants.BACKGROUND_BROWSER_MAX_COUNT &&
             backgroundArticleIndex < currentArticles.size()) {
@@ -512,17 +505,17 @@ public class MainGui {
             backgroundArticleIndex++;
         }
 
-//        if (Configuration.useSpanTable()) {
-//            logger.debug("Check fetched status for {} rows.", tableModel.getRowCount() / 2);
-//
-//            for (int rowIndex = 0; rowIndex < tableModel.getRowCount(); rowIndex += 2) {
-//                if (manyBrowsersPanel.hasBrowserForUrl(currentArticles.get(rowIndex).getUrl()) &&
-//                        Objects.equals(tableModel.getValueAt(rowIndex, 0), "")) {
-//                    tableModel.setValueAt("fetched", rowIndex, 0);
-//                    logger.debug("Set column 0 for row {} to fetched.", rowIndex);
-//                }
-//            }
-//        }
+        if (Configuration.useSpanTable()) {
+            logger.debug("Check fetched status for {} rows.", tableModel.getRowCount() / 2);
+
+            for (int rowIndex = 0; rowIndex < tableModel.getRowCount() / 2; rowIndex++) {
+                if (manyBrowsersPanel.hasBrowserForUrl(currentArticles.get(rowIndex).getUrl()) &&
+                    Objects.equals(tableModel.getValueAt(rowIndex * 2, 0), "")) {
+                    tableModel.setValueAt("fetched", rowIndex * 2, 0);
+                    logger.debug("Set column 0 for row {} to fetched.", rowIndex);
+                }
+            }
+        }
     }
 
     /**
