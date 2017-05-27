@@ -21,6 +21,9 @@ import javax.swing.ImageIcon;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Utility methods for the entire application.
+ */
 public class Utilities {
     /**
      * Private constructor to hide the implicit public one.
