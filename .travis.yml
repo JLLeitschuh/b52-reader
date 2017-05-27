@@ -1,0 +1,25 @@
+# Project: B52 reader (https://github.com/FreekDB/b52-reader).
+# License: Apache version 2 (https://www.apache.org/licenses/LICENSE-2.0).
+
+# Travis CI configuration for continuous integration. See https://travis-ci.org/ for more information.
+# Author: Freek de Bruijn.
+
+
+language: java
+
+jdk:
+- oraclejdk8
+
+# https://docs.travis-ci.com/user/gui-and-headless-browsers/
+# This could be useful for some type of GUI testing:
+#before_script:
+#- "export DISPLAY=:99.0"
+#- "sh -e /etc/init.d/xvfb start"
+
+# Useful for code coverage?
+#after_success:
+#- mvn clean test jacoco:report coveralls:jacoco
+
+# This could be useful for some type of GUI testing:
+#after_script:
+#- "sh -e /etc/init.d/xvfb stop"
