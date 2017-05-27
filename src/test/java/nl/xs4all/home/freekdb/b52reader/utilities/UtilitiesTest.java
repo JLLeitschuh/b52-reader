@@ -63,7 +63,7 @@ public class UtilitiesTest {
 
     @Test
     public void testCreateDate() {
-        assertEquals(-2761606408000L, Utilities.createDate(1882, Month.JUNE, 28).getTime());
+        assertEquals(-2761603761000L, Utilities.createDate(1882, Month.JUNE, 28).getTime());
     }
 
     @Test

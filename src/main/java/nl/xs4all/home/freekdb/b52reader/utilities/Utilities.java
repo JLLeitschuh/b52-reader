@@ -53,7 +53,7 @@ public class Utilities {
     public static Date createDate(int year, Month month, int dayOfMonth) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, 0, 0);
 
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        return Date.from(localDateTime.atZone(ZoneId.of("Europe/Paris")).toInstant());
     }
 
     public static void ignoreStandardErrorStream() {
