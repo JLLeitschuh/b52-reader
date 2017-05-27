@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/FreekDB/b52-reader.png)](https://travis-ci.org/FreekDB/b52-reader)
+[![Coverage Status](https://coveralls.io/repos/FreekDB/b52-reader/badge.png)](https://coveralls.io/r/FreekDB/b52-reader)
+
+
 # b52-reader
 A fast reader for website articles with good support for searching.
 
