@@ -11,6 +11,7 @@ import java.awt.Rectangle;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.website.ArticleListFetcher;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -245,7 +248,15 @@ public class Configuration {
                 }
             } else {
                 Class<?> sourceClass = Class.forName(sourceConfiguration);
-                source = sourceClass.getConstructor().newInstance();
+
+                if (sourceClass.equals(NrcScienceArticleSource.class)) {
+                    Constructor<?> constructor = sourceClass.getConstructor(ArticleListFetcher.class);
+                    String url = Constants.NRC_MAIN_URL + "sectie/wetenschap/";
+                    ArticleListFetcher fetcher = new ArticleListFetcher(url, url.length() % 2 == 0);
+                    source = constructor.newInstance(fetcher);
+                } else {
+                    source = sourceClass.getConstructor().newInstance();
+                }
             }
 
             if (source instanceof ArticleSource) {

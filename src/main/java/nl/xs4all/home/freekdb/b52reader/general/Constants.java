@@ -42,4 +42,14 @@ public class Constants {
      * The delay in milliseconds between background tasks: preloading browsers.
      */
     public static final int BACKGROUND_TIMER_DELAY = 1000;
+
+    /**
+     * Main URL of the NRC Handelsblad website.
+     */
+    public static final String NRC_MAIN_URL = "https://www.nrc.nl/";
+
+    /**
+     * Article source ID of the NRC Handelsblad website.
+     */
+    public static final String NRC_SOURCE_ID = "nrc";
 }
