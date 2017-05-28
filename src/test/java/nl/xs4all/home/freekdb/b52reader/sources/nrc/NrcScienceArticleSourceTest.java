@@ -63,17 +63,17 @@ public class NrcScienceArticleSourceTest {
     private Document prepareArticleListDocument() {
         Document articleListDocument = new Document(Constants.NRC_MAIN_URL);
 
-        createArticle(articleListDocument, "article-1", "title-1", "text-1");
-        createArticle(articleListDocument, "article-2", "title-2", "text-2");
+        addArticleElement(articleListDocument, "article-1", "title-1", "text-1");
+        addArticleElement(articleListDocument, "article-2", "title-2", "text-2");
 
         return articleListDocument;
     }
 
-    private void createArticle(Document articleListDocument, String relativeUrl, String title, String text) {
-        Element article = articleListDocument.appendElement("article").addClass("nmt-item__link");
-        article.attr("href", relativeUrl);
-        article.appendElement("title").addClass("nmt-item__headline").text(title);
-        article.appendElement("text").addClass("nmt-item__teaser").text(text);
+    private void addArticleElement(Document articleListDocument, String relativeUrl, String title, String text) {
+        Element articleElement = articleListDocument.appendElement("article").addClass("nmt-item__link");
+        articleElement.attr("href", relativeUrl);
+        articleElement.appendElement("title").addClass("nmt-item__headline").text(title);
+        articleElement.appendElement("text").addClass("nmt-item__teaser").text(text);
     }
 
     // todo: Pass a Clock object to the NrcScienceArticleSource class instead of copying date/times here.
