@@ -8,11 +8,7 @@ package nl.xs4all.home.freekdb.b52reader.sources;
 
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.io.FeedException;
-import com.rometools.rome.io.SyndFeedInput;
-import com.rometools.rome.io.XmlReader;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,13 +33,16 @@ public class RssArticleSource implements ArticleSource {
     private static final Logger logger = LogManager.getLogger();
 
     private final String sourceId;
+    private final SyndFeed feed;
     private final String feedName;
     private final Author defaultAuthor;
     private final URL feedUrl;
     private final String categoryName;
 
-    public RssArticleSource(String sourceId, String feedName, Author defaultAuthor, URL feedUrl, String categoryName) {
+    public RssArticleSource(String sourceId, SyndFeed feed, String feedName, Author defaultAuthor, URL feedUrl,
+                            String categoryName) {
         this.sourceId = sourceId;
+        this.feed = feed;
         this.feedName = feedName;
         this.defaultAuthor = defaultAuthor;
         this.feedUrl = feedUrl;
@@ -75,17 +74,11 @@ public class RssArticleSource implements ArticleSource {
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         List<Article> newArticles = new ArrayList<>();
 
-        try {
-            SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
-
-            for (SyndEntry entry : feed.getEntries()) {
-                if (categoryMatches(entry)) {
-                    newArticles.add(createArticle(previousArticlesMap, previousAuthorsMap, entry,
-                                                  -1 - newArticles.size()));
-                }
+        for (SyndEntry entry : feed.getEntries()) {
+            if (categoryMatches(entry)) {
+                newArticles.add(createArticle(previousArticlesMap, previousAuthorsMap, entry,
+                                              -1 - newArticles.size()));
             }
-        } catch (FeedException | IOException e) {
-            logger.error("Exception while fetching articles from an RSS feed.", e);
         }
 
         logger.info("Fetched {} from the {} rss feed.",
@@ -108,7 +101,7 @@ public class RssArticleSource implements ArticleSource {
         String text = entry.getDescription() != null
                 ? entry.getDescription().getValue()
                 // The Verge: titleEx == title
-                // : entry.getTitleEx() != null ? entry.getTitleEx().getValue() : "";
+                // : entry.getTitleEx() != null ? entry.getTitleEx().getValue() : ""
                 : "";
 
         Author entryAuthor = entry.getAuthor() != null

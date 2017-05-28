@@ -6,6 +6,11 @@
 
 package nl.xs4all.home.freekdb.b52reader.general;
 
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
+
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.io.FileReader;
@@ -13,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +39,11 @@ import org.apache.logging.log4j.Logger;
  * Configuration functionality (most settings are stored in and read from the configuration file).
  */
 public class Configuration {
+    /**
+     * Property key for source-ids: the selected article sources that are configured to be read.
+     */
+    private static final String SOURCE_IDS_KEY = "source-ids";
+
     /**
      * Logger for this class.
      */
@@ -59,6 +68,13 @@ public class Configuration {
      * The application window position (from configuration file).
      */
     private static Rectangle frameBounds;
+
+    /**
+     * Private constructor to hide the implicit public one.
+     */
+    private Configuration() {
+        // Should not be called.
+    }
 
     /**
      * Get the selected article sources.
@@ -129,7 +145,7 @@ public class Configuration {
             if (configurationUrl != null) {
                 Properties configuration = new Properties();
 
-                configuration.setProperty("source-ids", sourceIds);
+                configuration.setProperty(SOURCE_IDS_KEY, sourceIds);
 
                 for (ArticleSource articleSource : allArticleSources) {
                     String parameters = articleSource instanceof RssArticleSource
@@ -176,7 +192,7 @@ public class Configuration {
             if (configurationUrl != null) {
                 configuration.load(new FileReader(configurationUrl.getFile()));
 
-                String sourceIdsProperty = configuration.getProperty("source-ids", "nrc,test");
+                String sourceIdsProperty = configuration.getProperty(SOURCE_IDS_KEY, "nrc,test");
                 sourceIds.clear();
                 sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(",")));
 
@@ -208,7 +224,7 @@ public class Configuration {
             if (name instanceof String) {
                 String propertyName = (String) name;
 
-                if (propertyName.startsWith(sourcePrefix) && !propertyName.equals("source-ids")) {
+                if (propertyName.startsWith(sourcePrefix) && !propertyName.equals(SOURCE_IDS_KEY)) {
                     String sourceId = propertyName.substring(sourcePrefix.length());
                     String sourceConfiguration = configuration.getProperty(propertyName);
 
@@ -239,12 +255,7 @@ public class Configuration {
                 String[] configurationItems = sourceConfiguration.split("\\|");
 
                 if (configurationItems.length >= 4) {
-                    String feedName = configurationItems[1];
-                    Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor(configurationItems[2]);
-                    URL feedUrl = new URL(configurationItems[3]);
-                    String categoryName = configurationItems.length >= 5 ? configurationItems[4] : null;
-
-                    source = new RssArticleSource(sourceId, feedName, defaultAuthor, feedUrl, categoryName);
+                    source = constructRssArticleSource(configurationItems, sourceId);
                 }
             } else {
                 Class<?> sourceClass = Class.forName(sourceConfiguration);
@@ -263,11 +274,30 @@ public class Configuration {
                 articleSource = (ArticleSource) source;
             }
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException |
-                InvocationTargetException | MalformedURLException e) {
+                InvocationTargetException e) {
             logger.error("Exception while initializing article source " + sourceId + ".", e);
         }
 
         return articleSource;
+    }
+
+    private static Object constructRssArticleSource(String[] configurationItems, String sourceId) {
+        Object source = null;
+
+        try {
+            String feedName = configurationItems[1];
+            Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor(configurationItems[2]);
+            URL feedUrl = new URL(configurationItems[3]);
+            String categoryName = configurationItems.length >= 5 ? configurationItems[4] : null;
+
+            SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
+
+            source = new RssArticleSource(sourceId, feed, feedName, defaultAuthor, feedUrl, categoryName);
+        } catch (FeedException | IOException e) {
+            logger.error("Exception while fetching articles from an RSS feed.", e);
+        }
+
+        return source;
     }
 
     /**
