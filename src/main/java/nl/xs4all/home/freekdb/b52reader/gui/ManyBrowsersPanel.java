@@ -34,7 +34,7 @@ public class ManyBrowsersPanel extends JPanel {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(ManyBrowsersPanel.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private List<JPanel> browserPanels;
     private Map<String, JPanel> urlToBrowserPanels;

@@ -40,7 +40,7 @@ public class BackgroundBrowsers {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(BackgroundBrowsers.class);
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * The (invisible) panel to which the browsers can be added (to allow them to work).

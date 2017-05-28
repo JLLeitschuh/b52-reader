@@ -66,7 +66,7 @@ public class MainGui {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(MainGui.class);
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * Handler for the callback functions of the main program.

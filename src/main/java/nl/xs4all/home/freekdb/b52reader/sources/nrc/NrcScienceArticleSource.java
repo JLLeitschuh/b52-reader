@@ -35,7 +35,7 @@ public class NrcScienceArticleSource implements ArticleSource {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(NrcScienceArticleSource.class);
+    private static final Logger logger = LogManager.getLogger();
 
     @Override
     public String getSourceId() {

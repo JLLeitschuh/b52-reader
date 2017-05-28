@@ -35,7 +35,7 @@ public class Configuration {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(Configuration.class);
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * Selected article sources (from configuration file).

@@ -63,7 +63,7 @@ public class ArticleFilter implements Predicate<Article> {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(ArticleFilter.class);
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * The normalized author name (lower case and accents removed) or null (to match all authors).

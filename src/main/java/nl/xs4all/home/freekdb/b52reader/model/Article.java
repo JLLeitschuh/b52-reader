@@ -21,7 +21,7 @@ public class Article {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(Article.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private int id;
     private String url;

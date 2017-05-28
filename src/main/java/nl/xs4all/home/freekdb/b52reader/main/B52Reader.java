@@ -36,7 +36,7 @@ public class B52Reader implements MainCallbacks {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(B52Reader.class);
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * Handler for persistency functionality: storing and retrieving data in the database.

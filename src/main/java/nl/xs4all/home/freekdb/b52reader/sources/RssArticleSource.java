@@ -34,7 +34,7 @@ public class RssArticleSource implements ArticleSource {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(RssArticleSource.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final String sourceId;
     private final String feedName;

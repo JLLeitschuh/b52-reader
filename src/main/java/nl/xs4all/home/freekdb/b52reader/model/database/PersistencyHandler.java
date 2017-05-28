@@ -40,7 +40,7 @@ public class PersistencyHandler {
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LogManager.getLogger(PersistencyHandler.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private Connection databaseConnection;
     private Statement statement;
