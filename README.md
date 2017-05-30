@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/FreekDB/b52-reader.svg)](https://travis-ci.org/FreekDB/b52-reader)
-[![Coverage Status](https://coveralls.io/repos/github/FreekDB/b52-reader/badge.svg?branch=master&dummy=no_cache_please_1)](https://coveralls.io/github/FreekDB/b52-reader?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/FreekDB/b52-reader/badge.svg?branch=master&dummy=no_cache_please_2)](https://coveralls.io/github/FreekDB/b52-reader?branch=master)
 
 
 # b52-reader
