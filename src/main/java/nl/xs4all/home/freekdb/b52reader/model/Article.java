@@ -116,10 +116,6 @@ public class Article {
         return normalizedTitle;
     }
 
-    public String getText() {
-        return text;
-    }
-
     public Date getDateTime() {
         return dateTime;
     }
@@ -128,8 +124,16 @@ public class Article {
         this.dateTime = dateTime;
     }
 
+    public String getText() {
+        return text;
+    }
+
     long getWordCount() {
         return titleWordCount + textWordCount;
+    }
+
+    public int getLikes() {
+        return likes;
     }
 
     public boolean isRead() {
@@ -154,10 +158,6 @@ public class Article {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
-    }
-
-    public int getLikes() {
-        return likes;
     }
 
     @Override
