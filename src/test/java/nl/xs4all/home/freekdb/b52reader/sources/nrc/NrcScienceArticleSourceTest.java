@@ -46,10 +46,10 @@ public class NrcScienceArticleSourceTest {
 
     @Test
     public void testGetArticlesNormal() {
-        PersistencyHandler mockedPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
         Author testAuthor = new Author(6, "Test Author");
-        Mockito.when(mockedPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(testAuthor);
-        ObjectHub.injectPersistencyHandler(mockedPersistencyHandler);
+        Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(testAuthor);
+        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         ArticleListFetcher mockFetcher = Mockito.mock(ArticleListFetcher.class);
         Mockito.when(mockFetcher.getArticleListDocument()).thenReturn(prepareArticleListDocument());
@@ -78,11 +78,13 @@ public class NrcScienceArticleSourceTest {
 
     // todo: Pass a Clock object to the NrcScienceArticleSource class instead of copying date/times here.
     private List<Article> prepareExpectedArticles(Author testAuthor, List<Article> actualArticles) {
-        Article article1 = new Article(-1, Constants.NRC_MAIN_URL + "article-1", "nrc", testAuthor,
-                                       "title-1", actualArticles.get(0).getDateTime(), "text-1", 1234);
+        Article article1 = new Article(Constants.NRC_MAIN_URL + "article-1", "nrc", testAuthor,
+                                       "title-1", actualArticles.get(0).getDateTime(), "text-1", 1234,
+                                       -1);
 
-        Article article2 = new Article(-2, Constants.NRC_MAIN_URL + "article-2", "nrc", testAuthor,
-                                       "title-2", actualArticles.get(1).getDateTime(), "text-2", 1234);
+        Article article2 = new Article(Constants.NRC_MAIN_URL + "article-2", "nrc", testAuthor,
+                                       "title-2", actualArticles.get(1).getDateTime(), "text-2", 1234,
+                                       -2);
 
         return new ArrayList<>(Arrays.asList(article1, article2));
     }

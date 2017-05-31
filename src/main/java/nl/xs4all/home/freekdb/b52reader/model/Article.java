@@ -23,23 +23,25 @@ public class Article {
      */
     private static final Logger logger = LogManager.getLogger();
 
-    private int id;
-    private String url;
-    private String sourceId;
-    private Author author;
-    private String title;
-    private String normalizedTitle;
-    private long titleWordCount;
-    private Date dateTime;
-    private String text;
-    private long textWordCount;
-    private int likes;
+    private final String url;
+    private final String sourceId;
+    private final Author author;
+    private final String title;
+    private final String normalizedTitle;
+    private final long titleWordCount;
+    private final Date dateTime;
+    private final String text;
+    private final long textWordCount;
+    private final int likes;
+
+    private int recordId;
+
     private boolean starred;
     private boolean read;
     private boolean archived;
 
-    public Article(int id, String url, String sourceId, Author author, String title, Date dateTime, String text, int likes) {
-        this.id = id;
+    public Article(String url, String sourceId, Author author, String title, Date dateTime, String text, int likes,
+                   int recordId) {
         this.url = url;
         this.sourceId = sourceId;
         this.author = author;
@@ -50,13 +52,14 @@ public class Article {
         this.text = text;
         this.textWordCount = Utilities.calculateWordCount(text);
         this.likes = likes;
+
+        this.recordId = recordId;
     }
 
     public static Article createArticleFromDatabase(ResultSet resultSet, List<Author> authors) {
         Article article = null;
 
         try {
-            int id = resultSet.getInt("id");
             String url = resultSet.getString("url");
             String sourceId = resultSet.getString("source_id");
 
@@ -71,10 +74,12 @@ public class Article {
             String text = resultSet.getString("text");
             int likes = resultSet.getInt("likes");
 
-            article = new Article(id, url, sourceId, author, title, dateTime, text, likes);
+            int recordId = resultSet.getInt("id");
 
-            article.setRead(resultSet.getBoolean("read"));
+            article = new Article(url, sourceId, author, title, dateTime, text, likes, recordId);
+
             article.setStarred(resultSet.getBoolean("starred"));
+            article.setRead(resultSet.getBoolean("read"));
             article.setArchived(resultSet.getBoolean("archived"));
         } catch (SQLException e) {
             logger.error("Exception while creating an article from a database record.", e);
@@ -83,21 +88,8 @@ public class Article {
         return article;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getUrl() {
         return url;
-    }
-
-    @SuppressWarnings("unused")
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public String getSourceId() {
@@ -120,10 +112,6 @@ public class Article {
         return dateTime;
     }
 
-    public void setDateTime(Date dateTime) {
-        this.dateTime = dateTime;
-    }
-
     public String getText() {
         return text;
     }
@@ -136,12 +124,12 @@ public class Article {
         return likes;
     }
 
-    public boolean isRead() {
-        return read;
+    public int getRecordId() {
+        return recordId;
     }
 
-    public void setRead(boolean read) {
-        this.read = read;
+    public void setRecordId(int recordId) {
+        this.recordId = recordId;
     }
 
     public boolean isStarred() {
@@ -150,6 +138,14 @@ public class Article {
 
     public void setStarred(boolean starred) {
         this.starred = starred;
+    }
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
     }
 
     public boolean isArchived() {
@@ -162,35 +158,37 @@ public class Article {
 
     @Override
     public String toString() {
-        return "[" + id + "] Article \"" + title + "\" by " + author;
+        return "[" + recordId + "] Article \"" + title + "\" by " + author;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        if (obj == null || obj.getClass() != getClass()) {
+        if (obj == null || !(obj instanceof Article)) {
             return false;
         }
 
         Article other = (Article) obj;
 
-        return Objects.equals(id, other.id) &&
-               Objects.equals(url, other.url) &&
+        return Objects.equals(url, other.url) &&
                Objects.equals(sourceId, other.sourceId) &&
                Objects.equals(author, other.author) &&
                Objects.equals(title, other.title) &&
                Objects.equals(dateTime, other.dateTime) &&
                Objects.equals(text, other.text) &&
-               Objects.equals(likes, other.likes) &&
+               Objects.equals(likes, other.likes);
+    }
+
+    public boolean metadataEquals(Article other) {
+        return Objects.equals(starred, other.starred) &&
                Objects.equals(read, other.read) &&
-               Objects.equals(starred, other.starred) &&
                Objects.equals(archived, other.archived);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, url, sourceId, author, title, dateTime, text, likes, read, starred, archived);
+    public final int hashCode() {
+        return Objects.hash(url, sourceId, author, title, dateTime, text, likes);
     }
 }

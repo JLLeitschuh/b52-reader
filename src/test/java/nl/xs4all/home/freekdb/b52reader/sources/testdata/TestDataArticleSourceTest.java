@@ -20,9 +20,9 @@ import static org.junit.Assert.assertEquals;
 public class TestDataArticleSourceTest {
     @Test
     public void testGetSourceId() {
-        PersistencyHandler mockedPersistencyHandler = Mockito.mock(PersistencyHandler.class);
-        Mockito.when(mockedPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(null);
-        ObjectHub.injectPersistencyHandler(mockedPersistencyHandler);
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+        Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(null);
+        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         TestDataArticleSource testDataArticleSource = new TestDataArticleSource();
 
@@ -31,9 +31,9 @@ public class TestDataArticleSourceTest {
 
     @Test
     public void testGetArticles() {
-        PersistencyHandler mockedPersistencyHandler = Mockito.mock(PersistencyHandler.class);
-        Mockito.when(mockedPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(null);
-        ObjectHub.injectPersistencyHandler(mockedPersistencyHandler);
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+        Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(null);
+        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         TestDataArticleSource testDataArticleSource = new TestDataArticleSource();
         List<Article> articles = testDataArticleSource.getArticles(null, null);

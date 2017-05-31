@@ -47,7 +47,6 @@ public class PersistencyHandler {
 
     private List<Author> storedAuthors;
     private Map<String, Author> storedAuthorsMap;
-    private List<Article> storedArticles;
     private Map<String, Article> storedArticlesMap;
 
     public Map<String, Author> getStoredAuthorsMap() {
@@ -126,20 +125,20 @@ public class PersistencyHandler {
                 }
             }
 
-            logger.info("Read {} from the database.", Utilities.countAndWord(storedAuthors.size(), "author"));
+            logger.info("Read {} from the database.",
+                        Utilities.countAndWord(storedAuthors.size(), "author"));
 
-            storedArticles = new ArrayList<>();
             storedArticlesMap = new HashMap<>();
             try (ResultSet articlesResultSet = statement.executeQuery("select distinct * from article")) {
                 while (articlesResultSet.next()) {
                     Article article = Article.createArticleFromDatabase(articlesResultSet, storedAuthors);
         
-                    storedArticles.add(article);
                     storedArticlesMap.put(article.getUrl(), article);
                 }
             }
 
-            logger.info("Read {} from the database.", Utilities.countAndWord(storedArticles.size(), "article"));
+            logger.info("Read {} from the database.",
+                        Utilities.countAndWord(storedArticlesMap.size(), "article"));
         } catch (SQLException e) {
             logger.error("Exception while reading authors and articles from the database.", e);
         }
@@ -170,6 +169,7 @@ public class PersistencyHandler {
         List<Article> existingArticles = new ArrayList<>(currentArticles);
         existingArticles.removeAll(newArticles);
         updateExistingArticles(existingArticles);
+
         saveNewArticles(newArticles);
     }
 
@@ -221,7 +221,7 @@ public class PersistencyHandler {
         try {
             String updateQuery = "update article " +
                                  "set url = ?, source_id = ?, author_id = ?, title = ?, date_time = ?, text = ?, " +
-                                 "starred = ?, read = ?, archived = ?, likes = ? " +
+                                 "likes = ?, starred = ?, read = ?, archived = ? " +
                                  "where id = ?";
 
             PreparedStatement preparedStatement = databaseConnection.prepareStatement(updateQuery);
@@ -231,23 +231,22 @@ public class PersistencyHandler {
             for (Article existingArticle : existingArticles) {
                 Article storedArticle = storedArticlesMap.get(existingArticle.getUrl());
 
-                // Copy the id and date/time fields since these will never match the fields of the stored article.
-                existingArticle.setId(storedArticle.getId());
-                existingArticle.setDateTime(storedArticle.getDateTime());
+                // Copy the recordId field since this will never match the field of the stored article.
+                existingArticle.setRecordId(storedArticle.getRecordId());
 
-                if (!Objects.equals(existingArticle, storedArticle)) {
+                if (!Objects.equals(existingArticle, storedArticle) || !existingArticle.metadataEquals(storedArticle)) {
                     preparedStatement.setString(1, existingArticle.getUrl());
                     preparedStatement.setString(2, existingArticle.getSourceId());
                     preparedStatement.setInt(3, existingArticle.getAuthor().getId());
                     preparedStatement.setString(4, existingArticle.getTitle());
                     preparedStatement.setTimestamp(5, new Timestamp(existingArticle.getDateTime().getTime()));
                     preparedStatement.setString(6, existingArticle.getText());
-                    preparedStatement.setBoolean(7, existingArticle.isStarred());
-                    preparedStatement.setBoolean(8, existingArticle.isRead());
-                    preparedStatement.setBoolean(9, existingArticle.isArchived());
-                    preparedStatement.setInt(10, existingArticle.getLikes());
+                    preparedStatement.setInt(7, existingArticle.getLikes());
+                    preparedStatement.setBoolean(8, existingArticle.isStarred());
+                    preparedStatement.setBoolean(9, existingArticle.isRead());
+                    preparedStatement.setBoolean(10, existingArticle.isArchived());
 
-                    preparedStatement.setInt(11, storedArticle.getId());
+                    preparedStatement.setInt(11, storedArticle.getRecordId());
 
                     preparedStatement.addBatch();
 
@@ -327,60 +326,6 @@ public class PersistencyHandler {
         }
 
         return result;
-    }
-
-    @SuppressWarnings("unused")
-    public void insertTestData() {
-        try {
-            statement.execute("insert into author(name) values ('Cara Santa Maria')");
-            statement.execute("insert into author(name) values ('Neil deGrasse Tyson')");
-
-            statement.execute("insert into " +
-                              "article(url, source_id, author_id, title, date_time, text, starred, read, archived, likes) " +
-                              "values (" +
-                              "'http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html', " +
-                              "'test', 1, 'WTF Is String Theory?', null, " +
-                              "'Have you ever heard the term string theory and wondered WTF it means? When it comes " +
-                              "to theoretical physics, it seems like there are a lot of larger-than-life concepts that " +
-                              "have made their way into our everyday conversations.', " +
-                              "false, true, true, 28" +
-                              ")");
-
-            statement.execute("insert into " +
-                              "article(url, author_id, title, date_time, text, starred, read, archived, likes) " +
-                              "values (" +
-                              "'http://www.haydenplanetarium.org/tyson/read/2007/04/02/the-cosmic-perspective', " +
-                              "'test', 2, 'The Cosmic Perspective', null, " +
-                              "'Long before anyone knew that the universe had a beginning, before we knew that the " +
-                              "nearest large galaxy lies two and a half million light-years from Earth, before we knew " +
-                              "how stars work or whether atoms exist, James Ferguson''s enthusiastic introduction to his " +
-                              "favorite science rang true.', " +
-                              "true, false, false, 6" +
-                              ")");
-        } catch (SQLException e) {
-            logger.error("Exception while inserting test data into the database.", e);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void deleteAllAuthorsAndArticles() {
-        try {
-            statement.execute("delete from article");
-            if (storedArticles != null && storedArticlesMap != null) {
-                storedArticles.clear();
-                storedArticlesMap.clear();
-            }
-
-            statement.execute("delete from author");
-            if (storedAuthors != null && storedAuthorsMap != null) {
-                storedAuthors.clear();
-                storedAuthorsMap.clear();
-            }
-        } catch (SQLException e) {
-            logger.error("Exception while deleting authors and articles from the database.", e);
-        }
-
-        logger.info("Removed all authors and articles from the database.");
     }
 
     @SuppressWarnings("unused")

@@ -116,7 +116,7 @@ public class RssArticleSource implements ArticleSource {
                 ? entryAuthor
                 : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
 
-        Article article = new Article(articleId, url, null, author, title, dateTime, text, 1234);
+        Article article = new Article(url, null, author, title, dateTime, text, 1234, articleId);
 
         Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));
 

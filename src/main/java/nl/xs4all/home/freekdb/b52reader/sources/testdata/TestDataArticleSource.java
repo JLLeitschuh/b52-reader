@@ -26,8 +26,7 @@ public class TestDataArticleSource implements ArticleSource {
         articles = new ArrayList<>();
 
         articles.add(
-                new Article(1,
-                            "http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html",
+                new Article("http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html",
                             SOURCE_ID,
                             ObjectHub.getPersistencyHandler().getOrCreateAuthor("Cara Santa Maria"),
                             "WTF Is String Theory?",
@@ -35,12 +34,12 @@ public class TestDataArticleSource implements ArticleSource {
                             "Have you ever heard the term string theory and wondered WTF it means? When it comes " +
                             "to theoretical physics, it seems like there are a lot of larger-than-life concepts that " +
                             "have made their way into our everyday conversations.",
-                            28)
+                            28,
+                            1)
         );
 
         articles.add(
-                new Article(2,
-                            "http://www.haydenplanetarium.org/tyson/read/2007/04/02/the-cosmic-perspective",
+                new Article("http://www.haydenplanetarium.org/tyson/read/2007/04/02/the-cosmic-perspective",
                             SOURCE_ID,
                             ObjectHub.getPersistencyHandler().getOrCreateAuthor("Neil deGrasse Tyson"),
                             "The Cosmic Perspective",
@@ -49,7 +48,8 @@ public class TestDataArticleSource implements ArticleSource {
                             "nearest large galaxy lies two and a half million light-years from Earth, before we knew " +
                             "how stars work or whether atoms exist, James Ferguson's enthusiastic introduction to his " +
                             "favorite science rang true.",
-                            6)
+                            6,
+                            2)
         );
     }
 

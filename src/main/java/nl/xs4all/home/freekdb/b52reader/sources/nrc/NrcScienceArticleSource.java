@@ -73,8 +73,8 @@ public class NrcScienceArticleSource implements ArticleSource {
             // We create a new article object even if it is already stored, because we want to be able to compare the
             // articles in memory to the stored article to see whether an update of a stored article is needed.
             Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-            Article article = new Article(-1 - newArticles.size(), url, Constants.NRC_SOURCE_ID, author, title, new Date(),
-                                          text, 1234);
+            Article article = new Article(url, Constants.NRC_SOURCE_ID, author, title, new Date(), text, 1234,
+                                          -1 - newArticles.size());
 
             Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));
 

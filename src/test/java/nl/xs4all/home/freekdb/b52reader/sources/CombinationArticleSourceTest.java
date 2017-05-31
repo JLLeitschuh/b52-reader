@@ -55,10 +55,10 @@ public class CombinationArticleSourceTest {
         List<Article> articles = new ArrayList<>();
 
         for (int articleIndex = 0; articleIndex < articleCount; articleIndex++) {
-            articles.add(new Article(articleIndex, "https://test.org/article-" + articleIndex, sourceId, testAuthor,
+            articles.add(new Article("https://test.org/article-" + articleIndex, sourceId, testAuthor,
                                      "title-" + articleIndex,
                                      Utilities.createDate(2017, Month.JUNE, articleIndex + 1),
-                                     "text-" + articleIndex, 6 * articleIndex));
+                                     "text-" + articleIndex, 6 * articleIndex, articleIndex));
         }
 
         return createTestArticleSource(sourceId, articles);

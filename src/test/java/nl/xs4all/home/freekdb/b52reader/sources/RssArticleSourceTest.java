@@ -98,9 +98,9 @@ public class RssArticleSourceTest {
     }
 
     private SyndFeed createMockFeed(boolean addExtraFields) {
-        PersistencyHandler mockedPersistencyHandler = Mockito.mock(PersistencyHandler.class);
-        Mockito.when(mockedPersistencyHandler.getOrCreateAuthor(TEST_AUTHOR_2.getName())).thenReturn(TEST_AUTHOR_2);
-        ObjectHub.injectPersistencyHandler(mockedPersistencyHandler);
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+        Mockito.when(mockPersistencyHandler.getOrCreateAuthor(TEST_AUTHOR_2.getName())).thenReturn(TEST_AUTHOR_2);
+        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         SyndFeed mockFeed = Mockito.mock(SyndFeed.class);
         SyndEntry mockEntry1 = Mockito.mock(SyndEntry.class);
@@ -132,12 +132,12 @@ public class RssArticleSourceTest {
                                                   List<Article> actualArticles) {
         List<Article> expectedArticles = new ArrayList<>();
 
-        expectedArticles.add(new Article(-1, null, null, testAuthor, ARTICLE_TITLE_1,
-                                         actualArticles.get(0).getDateTime(), ARTICLE_TEXT, 1234));
+        expectedArticles.add(new Article(null, null, testAuthor, ARTICLE_TITLE_1,
+                                         actualArticles.get(0).getDateTime(), ARTICLE_TEXT, 1234, -1));
 
         if (expectTwoArticles) {
-            expectedArticles.add(new Article(-2, null, null, testAuthor, ARTICLE_TITLE_2,
-                                             actualArticles.get(1).getDateTime(), "", 1234));
+            expectedArticles.add(new Article(null, null, testAuthor, ARTICLE_TITLE_2,
+                                             actualArticles.get(1).getDateTime(), "", 1234, -2));
         }
 
         return expectedArticles;
