@@ -118,7 +118,7 @@ public class PersistencyHandler {
                 while (authorsResultSet.next()) {
                     int id = authorsResultSet.getInt("id");
                     String name = authorsResultSet.getString("name");
-                    Author author = new Author(id, name);
+                    Author author = new Author(name, id);
         
                     storedAuthors.add(author);
                     storedAuthorsMap.put(name, author);
@@ -145,7 +145,7 @@ public class PersistencyHandler {
     }
 
     public Author getOrCreateAuthor(String name) {
-        return storedAuthorsMap.getOrDefault(name, new Author(-28, name));
+        return storedAuthorsMap.getOrDefault(name, new Author(name, -28));
     }
 
     public void saveAuthorsAndArticles(List<Article> currentArticles) {
@@ -209,7 +209,7 @@ public class PersistencyHandler {
                 String name = authorsResultSet.getString("name");
 
                 if (authorsMap.containsKey(name)) {
-                    authorsMap.get(name).setId(id);
+                    authorsMap.get(name).setRecordId(id);
                 }
             }
         } catch (SQLException e) {
@@ -237,7 +237,7 @@ public class PersistencyHandler {
                 if (!Objects.equals(existingArticle, storedArticle) || !existingArticle.metadataEquals(storedArticle)) {
                     preparedStatement.setString(1, existingArticle.getUrl());
                     preparedStatement.setString(2, existingArticle.getSourceId());
-                    preparedStatement.setInt(3, existingArticle.getAuthor().getId());
+                    preparedStatement.setInt(3, existingArticle.getAuthor().getRecordId());
                     preparedStatement.setString(4, existingArticle.getTitle());
                     preparedStatement.setTimestamp(5, new Timestamp(existingArticle.getDateTime().getTime()));
                     preparedStatement.setString(6, existingArticle.getText());
@@ -285,7 +285,7 @@ public class PersistencyHandler {
             for (Article newArticle : newArticles) {
                 preparedStatement.setString(1, newArticle.getUrl());
                 preparedStatement.setString(2, newArticle.getSourceId());
-                preparedStatement.setInt(3, newArticle.getAuthor().getId());
+                preparedStatement.setInt(3, newArticle.getAuthor().getRecordId());
                 preparedStatement.setString(4, newArticle.getTitle());
                 preparedStatement.setTimestamp(5, new Timestamp(newArticle.getDateTime().getTime()));
                 preparedStatement.setString(6, newArticle.getText());

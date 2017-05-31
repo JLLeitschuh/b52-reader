@@ -82,11 +82,11 @@ public class UtilitiesTest {
 
     @Test
     public void testCopyPreviousDataIfAvailableNull() {
-        Article originalArticle = new Article("http://www.nrc.nl/", "nrc", null, "title",
-                                              null, "text", 496, 6);
+        Article originalArticle = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
+                                                      null, "text").likes(496).recordId(6).build();
 
-        Article article = new Article("http://www.nrc.nl/", "nrc", null, "title", null,
-                                      "text", 496, 6);
+        Article article = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
+                                              null, "text").likes(496).recordId(6).build();
 
         Utilities.copyPreviousDataIfAvailable(article, null);
         assertEquals(originalArticle, article);
@@ -94,11 +94,11 @@ public class UtilitiesTest {
 
     @Test
     public void testCopyPreviousDataIfAvailableObject() {
-        Article article = new Article("http://www.nrc.nl/", "nrc", null, "title", null,
-                                      "text", 496, 6);
+        Article article = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
+                                              null, "text").likes(496).recordId(6).build();
 
-        Article previousArticle = new Article("http://www.nrc.nl/", "nrc", null, "title",
-                                              null, "text", 496, 6);
+        Article previousArticle = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
+                                                      null, "text").likes(496).recordId(6).build();
 
         previousArticle.setStarred(!article.isStarred());
         previousArticle.setRead(!article.isRead());

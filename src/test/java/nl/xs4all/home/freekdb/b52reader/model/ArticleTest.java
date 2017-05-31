@@ -32,8 +32,10 @@ public class ArticleTest {
         String url = "www.test.org";
         Date date = Utilities.createDate(2000, Month.JANUARY, 1);
 
-        Article article = new Article(url, "test", null, "Title", date, "text", 1024,
-                                      6);
+        Article article = new Article.Builder(url, "test", null, "Title", date, "text")
+                .likes(1024)
+                .recordId(6)
+                .build();
 
         assertArticle(article, url, null, date, false, false);
     }
@@ -43,8 +45,11 @@ public class ArticleTest {
         String url = "www.test.org";
         Date date = Utilities.createDate(2000, Month.JANUARY, 1);
 
-        Article article = new Article(url, "test", null, "Title", date, "text", 1024,
-                                      6);
+        Article article = new Article.Builder(url, "test", null, "Title", date, "text")
+                .likes(1024)
+                .recordId(6)
+                .build();
+
 
         article.setRecordId(28);
         article.setStarred(true);
@@ -72,8 +77,8 @@ public class ArticleTest {
         Date date = Utilities.createDate(2000, Month.JANUARY, 1);
         ResultSet mockResultSet = prepareResultSet(2, date);
 
-        Author author = new Author(2, "Cara Santa Maria");
-        List<Author> authors = Arrays.asList(new Author(1, "Patrick Süskind"), author);
+        Author author = new Author("Cara Santa Maria", 2);
+        List<Author> authors = Arrays.asList(new Author("Patrick Süskind", 1), author);
 
         Article article = Article.createArticleFromDatabase(mockResultSet, authors);
 
@@ -121,11 +126,15 @@ public class ArticleTest {
 
     @Test
     public void testMetadataEquals() {
-        Article article1 = new Article("url", "test", null, "Title", null, "text",
-                                       1024, 6);
+        Article article1 = new Article.Builder("url", "test", null, "Title", null, "text")
+                .likes(1024)
+                .recordId(6)
+                .build();
 
-        Article article2 = new Article("url", "test", null, "Title", null, "text",
-                                       1024, 6);
+        Article article2 = new Article.Builder("url", "test", null, "Title", null, "text")
+                .likes(1024)
+                .recordId(6)
+                .build();
 
         assertTrue(article1.metadataEquals(article2));
 
@@ -146,9 +155,6 @@ public class ArticleTest {
         EqualsVerifier.forClass(Article.class)
                 .withIgnoredFields("normalizedTitle", "titleWordCount", "textWordCount", "recordId",
                                    "starred", "read", "archived")
-                .withPrefabValues(Author.class,
-                                  new Author(1, "Cara Santa Maria"),
-                                  new Author(2, "Neil deGrasse Tyson"))
                 .verify();
     }
 }

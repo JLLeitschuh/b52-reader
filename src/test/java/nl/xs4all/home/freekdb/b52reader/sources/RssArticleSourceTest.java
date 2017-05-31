@@ -39,8 +39,8 @@ import static org.junit.Assert.assertNull;
 public class RssArticleSourceTest {
     private static final String SOURCE_ID = "test-source-id";
     private static final String FEED_NAME = "Some rss feed";
-    private static final Author TEST_AUTHOR_1 = new Author(6, "Test Author");
-    private static final Author TEST_AUTHOR_2 = new Author(28, "Test Author II");
+    private static final Author TEST_AUTHOR_1 = new Author("Test Author", 6);
+    private static final Author TEST_AUTHOR_2 = new Author("Test Author II", 28);
     private static final String CATEGORY_NAME = "category-name";
     private static final String ARTICLE_TITLE_1 = "entry-title-1";
     private static final String ARTICLE_TITLE_2 = "entry-title-2";
@@ -132,12 +132,22 @@ public class RssArticleSourceTest {
                                                   List<Article> actualArticles) {
         List<Article> expectedArticles = new ArrayList<>();
 
-        expectedArticles.add(new Article(null, null, testAuthor, ARTICLE_TITLE_1,
-                                         actualArticles.get(0).getDateTime(), ARTICLE_TEXT, 1234, -1));
+        Article article = new Article.Builder(null, SOURCE_ID, testAuthor, ARTICLE_TITLE_1,
+                                              actualArticles.get(0).getDateTime(), ARTICLE_TEXT)
+                .likes(1234)
+                .recordId(-1)
+                .build();
+
+        expectedArticles.add(article);
 
         if (expectTwoArticles) {
-            expectedArticles.add(new Article(null, null, testAuthor, ARTICLE_TITLE_2,
-                                             actualArticles.get(1).getDateTime(), "", 1234, -2));
+            article = new Article.Builder(null, SOURCE_ID, testAuthor, ARTICLE_TITLE_2,
+                                          actualArticles.get(1).getDateTime(), "")
+                    .likes(1234)
+                    .recordId(-2)
+                    .build();
+
+            expectedArticles.add(article);
         }
 
         return expectedArticles;

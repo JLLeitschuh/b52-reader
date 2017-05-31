@@ -47,7 +47,7 @@ public class NrcScienceArticleSourceTest {
     @Test
     public void testGetArticlesNormal() {
         PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
-        Author testAuthor = new Author(6, "Test Author");
+        Author testAuthor = new Author("Test Author", 6);
         Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(testAuthor);
         ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
@@ -78,13 +78,17 @@ public class NrcScienceArticleSourceTest {
 
     // todo: Pass a Clock object to the NrcScienceArticleSource class instead of copying date/times here.
     private List<Article> prepareExpectedArticles(Author testAuthor, List<Article> actualArticles) {
-        Article article1 = new Article(Constants.NRC_MAIN_URL + "article-1", "nrc", testAuthor,
-                                       "title-1", actualArticles.get(0).getDateTime(), "text-1", 1234,
-                                       -1);
+        Article article1 = new Article.Builder(Constants.NRC_MAIN_URL + "article-1", "nrc", testAuthor,
+                                              "title-1", actualArticles.get(0).getDateTime(), "text-1")
+                .likes(1234)
+                .recordId(-1)
+                .build();
 
-        Article article2 = new Article(Constants.NRC_MAIN_URL + "article-2", "nrc", testAuthor,
-                                       "title-2", actualArticles.get(1).getDateTime(), "text-2", 1234,
-                                       -2);
+        Article article2 = new Article.Builder(Constants.NRC_MAIN_URL + "article-2", "nrc", testAuthor,
+                                               "title-2", actualArticles.get(1).getDateTime(), "text-2")
+                .likes(1234)
+                .recordId(-2)
+                .build();
 
         return new ArrayList<>(Arrays.asList(article1, article2));
     }

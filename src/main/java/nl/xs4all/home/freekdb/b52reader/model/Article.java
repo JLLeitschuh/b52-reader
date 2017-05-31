@@ -40,20 +40,57 @@ public class Article {
     private boolean read;
     private boolean archived;
 
-    public Article(String url, String sourceId, Author author, String title, Date dateTime, String text, int likes,
-                   int recordId) {
-        this.url = url;
-        this.sourceId = sourceId;
-        this.author = author;
-        this.title = title;
+
+    public static class Builder {
+        private String url;
+        private String sourceId;
+        private Author author;
+        private String title;
+        private Date dateTime;
+        private String text;
+        private int likes;
+        private int recordId;
+
+        public Builder(String url, String sourceId, Author author, String title, Date dateTime, String text) {
+            this.url = url;
+            this.sourceId = sourceId;
+            this.author = author;
+            this.title = title;
+            this.dateTime = dateTime;
+            this.text = text;
+        }
+
+        public Builder likes(int likes) {
+            this.likes = likes;
+
+            return this;
+        }
+
+        public Builder recordId(int recordId) {
+            this.recordId = recordId;
+
+            return this;
+        }
+
+        public Article build() {
+            return new Article(this);
+        }
+    }
+
+
+    private Article(Builder builder) {
+        this.url = builder.url;
+        this.sourceId = builder.sourceId;
+        this.author = builder.author;
+        this.title = builder.title;
         this.normalizedTitle = Utilities.normalize(title);
         this.titleWordCount = Utilities.calculateWordCount(title);
-        this.dateTime = dateTime;
-        this.text = text;
+        this.dateTime = builder.dateTime;
+        this.text = builder.text;
         this.textWordCount = Utilities.calculateWordCount(text);
-        this.likes = likes;
+        this.likes = builder.likes;
 
-        this.recordId = recordId;
+        this.recordId = builder.recordId;
     }
 
     public static Article createArticleFromDatabase(ResultSet resultSet, List<Author> authors) {
@@ -65,7 +102,7 @@ public class Article {
 
             int authorId = resultSet.getInt("author_id");
             Author author = authors.stream()
-                    .filter(anAuthor -> anAuthor.getId() == authorId)
+                    .filter(anAuthor -> anAuthor.getRecordId() == authorId)
                     .findFirst()
                     .orElse(null);
 
@@ -76,7 +113,10 @@ public class Article {
 
             int recordId = resultSet.getInt("id");
 
-            article = new Article(url, sourceId, author, title, dateTime, text, likes, recordId);
+            article = new Article.Builder(url, sourceId, author, title, dateTime, text)
+                    .likes(likes)
+                    .recordId(recordId)
+                    .build();
 
             article.setStarred(resultSet.getBoolean("starred"));
             article.setRead(resultSet.getBoolean("read"));

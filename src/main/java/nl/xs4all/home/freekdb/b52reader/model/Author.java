@@ -6,41 +6,20 @@
 
 package nl.xs4all.home.freekdb.b52reader.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 public class Author {
-    private Integer id;
     private final String name;
     private final String normalizedName;
 
-    private final List<Article> articles = new ArrayList<>();
+    private Integer recordId;
 
-    private long totalWordCount;
-
-    public Author(int id, String name) {
-        this.id = id;
+    public Author(String name, int recordId) {
         this.name = name;
         this.normalizedName = Utilities.normalize(name);
-    }
-
-    @SuppressWarnings("unused")
-    public Author addArticle(Article article) {
-        articles.add(article);
-        totalWordCount += article.getWordCount();
-
-        return this;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        this.recordId = recordId;
     }
 
     public String getName() {
@@ -51,14 +30,12 @@ public class Author {
         return normalizedName;
     }
 
-    @SuppressWarnings("unused")
-    public List<Article> getArticles() {
-        return articles;
+    public int getRecordId() {
+        return recordId;
     }
 
-    @SuppressWarnings("unused")
-    public long getTotalWordCount() {
-        return totalWordCount;
+    public void setRecordId(int recordId) {
+        this.recordId = recordId;
     }
 
     @Override
@@ -67,22 +44,21 @@ public class Author {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        if (obj == null || obj.getClass() != getClass()) {
+        if (obj == null || !(obj instanceof Author)) {
             return false;
         }
 
         Author other = (Author) obj;
 
-        return Objects.equals(id, other.id) &&
-               Objects.equals(name, other.name);
+        return Objects.equals(name, other.name);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
+    public final int hashCode() {
+        return Objects.hash(name);
     }
 }

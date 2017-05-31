@@ -38,7 +38,7 @@ public class CombinationArticleSourceTest {
 
     @Test
     public void testGetArticlesRegular() {
-        Author testAuthor = new Author(6, "Test Author");
+        Author testAuthor = new Author("Test Author", 6);
         int articleCount1 = 2;
         int articleCount2 = 4;
         ArticleSource articleSource1 = createTestArticleSource("test-source-1", articleCount1, testAuthor);
@@ -55,10 +55,15 @@ public class CombinationArticleSourceTest {
         List<Article> articles = new ArrayList<>();
 
         for (int articleIndex = 0; articleIndex < articleCount; articleIndex++) {
-            articles.add(new Article("https://test.org/article-" + articleIndex, sourceId, testAuthor,
-                                     "title-" + articleIndex,
-                                     Utilities.createDate(2017, Month.JUNE, articleIndex + 1),
-                                     "text-" + articleIndex, 6 * articleIndex, articleIndex));
+            Article article = new Article.Builder("https://test.org/article-" + articleIndex, sourceId, testAuthor,
+                                                  "title-" + articleIndex,
+                                                  Utilities.createDate(2017, Month.JUNE, articleIndex + 1),
+                                                  "text-" + articleIndex)
+                    .likes(6 * articleIndex)
+                    .recordId(articleIndex)
+                    .build();
+
+            articles.add(article);
         }
 
         return createTestArticleSource(sourceId, articles);

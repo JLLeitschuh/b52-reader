@@ -12,6 +12,8 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
+// todo: Use Lombok.
+
 /**
  * The b52-reader main class which creates the application and launches it.
  * <p>

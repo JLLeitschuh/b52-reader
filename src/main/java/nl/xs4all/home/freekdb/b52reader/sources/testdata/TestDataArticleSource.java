@@ -26,20 +26,21 @@ public class TestDataArticleSource implements ArticleSource {
         articles = new ArrayList<>();
 
         articles.add(
-                new Article("http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html",
-                            SOURCE_ID,
-                            ObjectHub.getPersistencyHandler().getOrCreateAuthor("Cara Santa Maria"),
-                            "WTF Is String Theory?",
-                            Utilities.createDate(2012, Month.DECEMBER, 17),
-                            "Have you ever heard the term string theory and wondered WTF it means? When it comes " +
-                            "to theoretical physics, it seems like there are a lot of larger-than-life concepts that " +
-                            "have made their way into our everyday conversations.",
-                            28,
-                            1)
+                new Article.Builder("http://www.huffingtonpost.com/2012/12/17/superstring-theory_n_2296195.html",
+                                    SOURCE_ID,
+                                    ObjectHub.getPersistencyHandler().getOrCreateAuthor("Cara Santa Maria"),
+                                    "WTF Is String Theory?",
+                                    Utilities.createDate(2012, Month.DECEMBER, 17),
+                                    "Have you ever heard the term string theory and wondered WTF it means? When it comes " +
+                                    "to theoretical physics, it seems like there are a lot of larger-than-life concepts that " +
+                                    "have made their way into our everyday conversations.")
+                        .likes(28)
+                        .recordId(1)
+                        .build()
         );
 
         articles.add(
-                new Article("http://www.haydenplanetarium.org/tyson/read/2007/04/02/the-cosmic-perspective",
+                new Article.Builder("http://www.haydenplanetarium.org/tyson/read/2007/04/02/the-cosmic-perspective",
                             SOURCE_ID,
                             ObjectHub.getPersistencyHandler().getOrCreateAuthor("Neil deGrasse Tyson"),
                             "The Cosmic Perspective",
@@ -47,9 +48,10 @@ public class TestDataArticleSource implements ArticleSource {
                             "Long before anyone knew that the universe had a beginning, before we knew that the " +
                             "nearest large galaxy lies two and a half million light-years from Earth, before we knew " +
                             "how stars work or whether atoms exist, James Ferguson's enthusiastic introduction to his " +
-                            "favorite science rang true.",
-                            6,
-                            2)
+                            "favorite science rang true.")
+                        .likes(6)
+                        .recordId(2)
+                        .build()
         );
     }
 
