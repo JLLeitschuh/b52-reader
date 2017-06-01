@@ -7,12 +7,16 @@
 package nl.xs4all.home.freekdb.b52reader.general;
 
 import java.awt.Frame;
+import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,7 +42,19 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testInitialize() throws UnsupportedEncodingException {
+    public void testInitializeWithException() {
+        InputStream mockConfigurationInputStream = Mockito.mock(InputStream.class,
+                                                                invocationOnMock -> { throw new IOException(); });
+
+        Configuration.initialize(mockConfigurationInputStream);
+
+        assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
+        assertEquals(Frame.NORMAL, Configuration.getFrameExtendedState());
+        assertNull(Configuration.getFrameBounds());
+    }
+
+    @Test
+    public void testInitializeOnlySourceIds() throws UnsupportedEncodingException {
         String configurationLines = "source-ids = test";
         Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
 
@@ -47,5 +63,15 @@ public class ConfigurationTest {
         assertNull(Configuration.getFrameBounds());
 
         assertTrue(Configuration.useSpanTable());
+    }
+
+    @Test
+    public void testInitializeSourceIdsAndWindowConfiguration() throws UnsupportedEncodingException {
+        String configurationLines = "source-ids = test\nwindow-configuration = maximized;0,0,1280x1024";
+        Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
+
+        assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
+        assertEquals(Frame.MAXIMIZED_BOTH, Configuration.getFrameExtendedState());
+        assertEquals(new Rectangle(0, 0, 1280, 1024), Configuration.getFrameBounds());
     }
 }

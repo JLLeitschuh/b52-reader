@@ -85,6 +85,8 @@ public class Configuration {
     public static void initialize(InputStream configurationInputStream) {
         List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
         allArticleSources = new ArrayList<>();
+        frameExtendedState = Frame.NORMAL;
+        frameBounds = null;
 
         try {
             Properties configuration = new Properties();
@@ -96,9 +98,6 @@ public class Configuration {
             sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(",")));
 
             addConfiguredSources(configuration);
-
-            frameExtendedState = Frame.NORMAL;
-            frameBounds = null;
 
             String windowConfiguration = configuration.getProperty("window-configuration");
 
