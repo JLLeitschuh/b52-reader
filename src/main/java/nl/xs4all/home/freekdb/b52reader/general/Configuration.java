@@ -13,9 +13,9 @@ import com.rometools.rome.io.XmlReader;
 
 import java.awt.Frame;
 import java.awt.Rectangle;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -77,15 +77,54 @@ public class Configuration {
     }
 
     /**
+     * Initialize by reading the configuration data and filling the <code>selectedArticleSources</code> and
+     * <code>allArticleSources</code> lists.
+     *
+     * @param configurationInputStream the input stream that contains the configuration data.
+     */
+    public static void initialize(InputStream configurationInputStream) {
+        List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
+        allArticleSources = new ArrayList<>();
+
+        try {
+            Properties configuration = new Properties();
+
+            configuration.load(configurationInputStream);
+
+            String sourceIdsProperty = configuration.getProperty(SOURCE_IDS_KEY, "nrc,test");
+            sourceIds.clear();
+            sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(",")));
+
+            addConfiguredSources(configuration);
+
+            frameExtendedState = Frame.NORMAL;
+            frameBounds = null;
+
+            String windowConfiguration = configuration.getProperty("window-configuration");
+
+            if (windowConfiguration != null) {
+                frameExtendedState = windowConfiguration.startsWith("maximized") ? Frame.MAXIMIZED_BOTH : Frame.NORMAL;
+
+                if (windowConfiguration.contains(";")) {
+                    String boundsConfiguration = windowConfiguration.substring(windowConfiguration.indexOf(';') + 1);
+                    frameBounds = getBoundsFromConfiguration(boundsConfiguration);
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Exception while reading the configuration data.", e);
+        }
+
+        selectedArticleSources = allArticleSources.stream()
+                .filter(articleSource -> sourceIds.contains(articleSource.getSourceId()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Get the selected article sources.
      *
      * @return the selected article sources.
      */
     public static List<ArticleSource> getSelectedArticleSources() {
-        if (selectedArticleSources == null) {
-            initialize();
-        }
-
         return selectedArticleSources;
     }
 
@@ -95,10 +134,6 @@ public class Configuration {
      * @return the application window state (normal or maximized).
      */
     public static int getFrameExtendedState() {
-        if (selectedArticleSources == null) {
-            initialize();
-        }
-
         return frameExtendedState;
     }
 
@@ -108,10 +143,6 @@ public class Configuration {
      * @return the application window position.
      */
     public static Rectangle getFrameBounds() {
-        if (selectedArticleSources == null) {
-            initialize();
-        }
-
         return frameBounds;
     }
 
@@ -174,42 +205,6 @@ public class Configuration {
     private static String getRssParameters(RssArticleSource rssSource) {
         return "rss|" + rssSource.getFeedName() + "|" + rssSource.getDefaultAuthor().getName() + "|" +
                rssSource.getFeedUrl() + (rssSource.getCategoryName() != null ? "|" + rssSource.getCategoryName() : "");
-    }
-
-    /**
-     * Initialize by reading the configuration file and filling the <code>selectedArticleSources</code> and
-     * <code>allArticleSources</code> lists.
-     */
-    private static void initialize() {
-        URL configurationUrl = Configuration.class.getClassLoader().getResource("b52-reader.configuration");
-
-        List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
-        allArticleSources = new ArrayList<>();
-
-        try {
-            Properties configuration = new Properties();
-
-            if (configurationUrl != null) {
-                configuration.load(new FileReader(configurationUrl.getFile()));
-
-                String sourceIdsProperty = configuration.getProperty(SOURCE_IDS_KEY, "nrc,test");
-                sourceIds.clear();
-                sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(",")));
-
-                addConfiguredSources(configuration);
-
-                String windowConfiguration = configuration.getProperty("window-configuration");
-                String boundsConfiguration = windowConfiguration.substring(windowConfiguration.indexOf(';') + 1);
-                frameExtendedState = windowConfiguration.startsWith("maximized") ? Frame.MAXIMIZED_BOTH : Frame.NORMAL;
-                frameBounds = getBoundsFromConfiguration(boundsConfiguration);
-            }
-        } catch (IOException e) {
-            logger.error("Exception while reading the configuration file " + configurationUrl, e);
-        }
-
-        selectedArticleSources = allArticleSources.stream()
-                .filter(articleSource -> sourceIds.contains(articleSource.getSourceId()))
-                .collect(Collectors.toList());
     }
 
     /**

@@ -161,7 +161,7 @@ public class MainGui {
         backgroundBrowserCount = 0;
         backgroundArticleIndex = 1;
         Timer backgroundTasksTimer = new Timer(Constants.BACKGROUND_TIMER_DELAY, actionEvent -> handleBackgroundTasks());
-        backgroundTasksTimer.setInitialDelay(500);
+        backgroundTasksTimer.setInitialDelay(800);
         backgroundTasksTimer.start();
 
         frame.setBounds(Configuration.getFrameBounds());

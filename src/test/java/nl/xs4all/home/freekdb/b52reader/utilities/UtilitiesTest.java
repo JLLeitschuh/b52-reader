@@ -17,6 +17,7 @@ import nl.xs4all.home.freekdb.b52reader.model.Article;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -27,6 +28,9 @@ public class UtilitiesTest {
     @Test
     public void testPrivateConstructor() throws ReflectiveOperationException {
         Constructor<Utilities> constructor = Utilities.class.getDeclaredConstructor();
+
+        assertFalse(constructor.isAccessible());
+
         constructor.setAccessible(true);
         Utilities instance = constructor.newInstance();
 

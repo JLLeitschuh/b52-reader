@@ -7,6 +7,10 @@
 package nl.xs4all.home.freekdb.b52reader.main;
 
 import java.awt.Rectangle;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +54,8 @@ public class MainApplication implements MainCallbacks {
         MainGui mainGui = new MainGui(this);
         mainGui.initializeBackgroundBrowsersPanel();
 
+        initializeConfiguration();
+
         currentArticles = getArticles(Configuration.getSelectedArticleSources());
 
         mainGui.initializeGui(currentArticles);
@@ -66,6 +72,22 @@ public class MainApplication implements MainCallbacks {
         if (persistencyHandler.initializeDatabaseConnection()) {
             persistencyHandler.createTablesIfNeeded();
             persistencyHandler.readAuthorsAndArticles();
+        }
+    }
+
+    /**
+     * Initialize the configuration with data from the configuration file.
+     */
+    private void initializeConfiguration() {
+        URL configurationUrl = Configuration.class.getClassLoader().getResource("b52-reader.configuration");
+
+        try {
+            if (configurationUrl != null) {
+                InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
+                Configuration.initialize(configurationInputStream);
+            }
+        } catch (FileNotFoundException e) {
+            logger.error("Exception while reading the configuration file " + configurationUrl, e);
         }
     }
 
