@@ -25,10 +25,10 @@ Java 8 desktop application using the Swing library for the GUI and either [DJ Na
 In order to achieve a fast and fluid experience, the b52-reader fetches multiple articles and creates browsers in the background, trying to predict which articles you are most likely to open next.
 
 ## Acknowledgements
-Thanks for developers planetwide for developing great (open source) software. Specifically I would like to thank the following projects:
-- the Java programming language and the JVM;
-- tools: IntelliJ IDEA, git, GitHub, and Maven;
-- libraries: Swing, jsoup, Apache Commons Lang, DJ Native Swing, and SWT;
-- browsers: Chrome and Firefox;
-- operating systems: Windows, Linux, macOS, and Unix;
-- the Internet in general and Stack Overflow in particular!
+Thanks for developers planetwide for developing great ([open source](https://en.wikipedia.org/wiki/Open-source_model)) software. Specifically I would like to thank the following projects:
+- the [Java programming language](http://docs.oracle.com/javase/8/docs/technotes/guides/language/) and the [JVM](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/);
+- tools: [IntelliJ IDEA](https://www.jetbrains.com/idea/), [Git](https://git-scm.com/), [GitHub](https://github.com/), and [Maven](https://maven.apache.org/index.html);
+- libraries: [Swing](http://www.oracle.com/technetwork/java/architecture-142923.html), [DJ Native Swing](https://github.com/Chrriis/DJ-Native-Swing), [SWT](https://www.eclipse.org/swt/), [H2](http://www.h2database.com/html/main.html), [jsoup](https://jsoup.org/), [ROME](https://rometools.github.io/rome/), [Log4j 2](https://logging.apache.org/log4j/2.x/), [Jackson](https://github.com/FasterXML/jackson), [Apache Commons Lang](https://commons.apache.org/proper/commons-lang/), [JUnit 4](http://junit.org/junit4/), [Mockito](http://site.mockito.org/), [EqualsVerifier](http://jqno.nl/equalsverifier/), [Maven Compiler Plugin](https://maven.apache.org/plugins/maven-compiler-plugin/), [JaCoCo](https://github.com/jacoco), [Coveralls](https://coveralls.io/), [Coveralls Maven plugin](https://github.com/trautonen/coveralls-maven-plugin);
+- browsers: [Chrome](https://www.google.com/chrome/) and [Firefox](https://www.mozilla.org/firefox/);
+- operating systems: [Windows](https://www.microsoft.com/windows/), [Linux](https://en.wikipedia.org/wiki/Linux), [macOS](https://www.apple.com/macos/), and [Unix](https://en.wikipedia.org/wiki/Unix);
+- the [Internet](https://en.wikipedia.org/wiki/Internet) in general, and [Google search](https://www.google.com/) & [Stack Overflow](https://stackoverflow.com/) in particular!
