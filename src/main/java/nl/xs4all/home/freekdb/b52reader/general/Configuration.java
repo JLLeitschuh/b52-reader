@@ -196,17 +196,6 @@ public class Configuration {
     }
 
     /**
-     * Get the configuration parameters for an RSS article source.
-     *
-     * @param rssSource the RSS article source.
-     * @return the configuration parameters for an RSS article source.
-     */
-    private static String getRssParameters(RssArticleSource rssSource) {
-        return "rss|" + rssSource.getFeedName() + "|" + rssSource.getDefaultAuthor().getName() + "|" +
-               rssSource.getFeedUrl() + (rssSource.getCategoryName() != null ? "|" + rssSource.getCategoryName() : "");
-    }
-
-    /**
      * Add the configured article sources to the <code>allArticleSources</code> list.
      *
      * @param configuration the configuration properties.
@@ -215,18 +204,16 @@ public class Configuration {
         String sourcePrefix = "source-";
 
         Collections.list(configuration.propertyNames()).forEach(name -> {
-            if (name instanceof String) {
-                String propertyName = (String) name;
+            String propertyName = (String) name;
 
-                if (propertyName.startsWith(sourcePrefix) && !propertyName.equals(SOURCE_IDS_KEY)) {
-                    String sourceId = propertyName.substring(sourcePrefix.length());
-                    String sourceConfiguration = configuration.getProperty(propertyName);
+            if (propertyName.startsWith(sourcePrefix) && !propertyName.equals(SOURCE_IDS_KEY)) {
+                String sourceId = propertyName.substring(sourcePrefix.length());
+                String sourceConfiguration = configuration.getProperty(propertyName);
 
-                    ArticleSource articleSource = createArticleSource(sourceId, sourceConfiguration);
+                ArticleSource articleSource = createArticleSource(sourceId, sourceConfiguration);
 
-                    if (articleSource != null) {
-                        allArticleSources.add(articleSource);
-                    }
+                if (articleSource != null) {
+                    allArticleSources.add(articleSource);
                 }
             }
         });
@@ -243,29 +230,24 @@ public class Configuration {
         ArticleSource articleSource = null;
 
         try {
-            Object source = null;
-
             if (sourceConfiguration.startsWith("rss|")) {
                 String[] configurationItems = sourceConfiguration.split("\\|");
 
                 if (configurationItems.length >= 4) {
-                    source = constructRssArticleSource(configurationItems, sourceId);
+                    articleSource = (ArticleSource) constructRssArticleSource(configurationItems, sourceId);
                 }
             } else {
                 Class<?> sourceClass = Class.forName(sourceConfiguration);
 
                 if (sourceClass.equals(NrcScienceArticleSource.class)) {
+                    // This configuration needs to become more generic: WebSiteArticleSource as a base class?
                     Constructor<?> constructor = sourceClass.getConstructor(ArticleListFetcher.class);
                     String url = Constants.NRC_MAIN_URL + "sectie/wetenschap/";
-                    ArticleListFetcher fetcher = new ArticleListFetcher(url, url.length() % 2 == 0);
-                    source = constructor.newInstance(fetcher);
+                    ArticleListFetcher fetcher = new ArticleListFetcher(url, Constants.GET_ARTICLE_LIST_WITH_BROWSER);
+                    articleSource = (ArticleSource) constructor.newInstance(fetcher);
                 } else {
-                    source = sourceClass.getConstructor().newInstance();
+                    articleSource = (ArticleSource) sourceClass.getConstructor().newInstance();
                 }
-            }
-
-            if (source instanceof ArticleSource) {
-                articleSource = (ArticleSource) source;
             }
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException |
                 InvocationTargetException e) {
@@ -304,5 +286,16 @@ public class Configuration {
         int[] bounds = Arrays.stream(boundsConfiguration.split("[,x]")).mapToInt(Integer::parseInt).toArray();
 
         return new Rectangle(bounds[0], bounds[1], bounds[2], bounds[3]);
+    }
+
+    /**
+     * Get the configuration parameters for an RSS article source.
+     *
+     * @param rssSource the RSS article source.
+     * @return the configuration parameters for an RSS article source.
+     */
+    private static String getRssParameters(RssArticleSource rssSource) {
+        return "rss|" + rssSource.getFeedName() + "|" + rssSource.getDefaultAuthor().getName() + "|" +
+               rssSource.getFeedUrl() + (rssSource.getCategoryName() != null ? "|" + rssSource.getCategoryName() : "");
     }
 }

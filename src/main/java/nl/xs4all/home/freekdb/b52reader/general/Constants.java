@@ -52,4 +52,9 @@ public class Constants {
      * Article source ID of the NRC Handelsblad website.
      */
     public static final String NRC_SOURCE_ID = "nrc";
+
+    /**
+     * Test fetching the html with the list of articles using a background browser.
+     */
+    public static final boolean GET_ARTICLE_LIST_WITH_BROWSER = false;
 }

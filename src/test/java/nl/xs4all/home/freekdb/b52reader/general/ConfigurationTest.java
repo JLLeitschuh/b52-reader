@@ -14,6 +14,11 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.List;
+
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
+import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -44,7 +49,9 @@ public class ConfigurationTest {
     @Test
     public void testInitializeWithException() {
         InputStream mockConfigurationInputStream = Mockito.mock(InputStream.class,
-                                                                invocationOnMock -> { throw new IOException(); });
+                                                                invocationOnMock -> {
+                                                                    throw new IOException();
+                                                                });
 
         Configuration.initialize(mockConfigurationInputStream);
 
@@ -56,6 +63,7 @@ public class ConfigurationTest {
     @Test
     public void testInitializeOnlySourceIds() throws UnsupportedEncodingException {
         String configurationLines = "source-ids = test";
+
         Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
 
         assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
@@ -67,11 +75,38 @@ public class ConfigurationTest {
 
     @Test
     public void testInitializeSourceIdsAndWindowConfiguration() throws UnsupportedEncodingException {
-        String configurationLines = "source-ids = test\nwindow-configuration = maximized;0,0,1280x1024";
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+        Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(null);
+        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
+
+        String configurationLines =
+                "source-ids = nrc\n" +
+                "source-test = nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource\n" +
+                "source-test-invalid = nl.invalid.InvalidTestDataArticleSource\n" +
+                "source-verge = rss|The Verge|The Verge|https://www.theverge.com/rss/index.xml\n" +
+                "source-verge-invalid = rss|The Verge|The Verge|invalid--https://www.theverge.com/rss/index.xml\n" +
+                "source-nrc-rss = rss|NRC|NRC|https://www.nrc.nl/rss/|wetenschap\n" +
+                "source-invalid-rss = rss|invalid\n" +
+                "source-nrc = nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource\n" +
+                "window-configuration = maximized;0,0,1280x1024";
+
+        Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
+
+        List<ArticleSource> selectedArticleSources = Configuration.getSelectedArticleSources();
+        assertEquals(1, selectedArticleSources.size());
+        assertEquals(NrcScienceArticleSource.class, selectedArticleSources.get(0).getClass());
+        assertEquals(Frame.MAXIMIZED_BOTH, Configuration.getFrameExtendedState());
+        assertEquals(new Rectangle(0, 0, 1280, 1024), Configuration.getFrameBounds());
+    }
+
+    @Test
+    public void testInitializeHalfWindowConfiguration() throws UnsupportedEncodingException {
+        String configurationLines = "window-configuration = normal";
+
         Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
 
         assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
-        assertEquals(Frame.MAXIMIZED_BOTH, Configuration.getFrameExtendedState());
-        assertEquals(new Rectangle(0, 0, 1280, 1024), Configuration.getFrameBounds());
+        assertEquals(Frame.NORMAL, Configuration.getFrameExtendedState());
+        assertNull(Configuration.getFrameBounds());
     }
 }
