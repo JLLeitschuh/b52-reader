@@ -6,8 +6,11 @@
 
 package nl.xs4all.home.freekdb.b52reader.gui.multispan;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Map;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -15,7 +18,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 
+@SuppressWarnings("squid:MaximumInheritanceDepth")
 public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
+    private static final Map<String, Color> COLOR_MAP = ImmutableMap.of(
+            "nrc", new Color(144, 238, 144),
+            "test", Color.ORANGE
+    );
+
     private static Color defaultBackgroundColor;
 
     public static void setDefaultBackgroundColor(Color defaultBackgroundColor) {
@@ -34,8 +43,6 @@ public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
     }
 
     private Color getBackgroundColor(Article article) {
-        return "nrc".equals(article.getSourceId()) ? new Color(144, 238, 144)
-                : "test".equals(article.getSourceId()) ? Color.ORANGE
-                : defaultBackgroundColor;
+        return COLOR_MAP.getOrDefault(article.getSourceId(), defaultBackgroundColor);
     }
 }

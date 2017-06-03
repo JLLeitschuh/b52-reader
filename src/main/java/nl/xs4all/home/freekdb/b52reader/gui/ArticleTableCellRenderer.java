@@ -6,9 +6,12 @@
 
 package nl.xs4all.home.freekdb.b52reader.gui;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -22,6 +25,11 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 public class ArticleTableCellRenderer extends JPanel implements TableCellRenderer {
     private static final Font BOLD_FONT = new Font("Calibri", Font.BOLD, 14);
     private static final Font REGULAR_FONT = new Font("Calibri", Font.PLAIN, 14);
+
+    private static final Map<String, Color> COLOR_MAP = ImmutableMap.of(
+            "nrc", new Color(144, 238, 144),
+            "test", Color.ORANGE
+    );
 
     private static Color defaultBackgroundColor;
 
@@ -112,8 +120,6 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
     }
 
     private Color getBackgroundColor(Article article) {
-        return "nrc".equals(article.getSourceId()) ? new Color(144, 238, 144)
-                : "test".equals(article.getSourceId()) ? Color.ORANGE
-                : defaultBackgroundColor;
+        return COLOR_MAP.getOrDefault(article.getSourceId(), defaultBackgroundColor);
     }
 }
