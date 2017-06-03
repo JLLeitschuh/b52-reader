@@ -7,12 +7,19 @@
 package nl.xs4all.home.freekdb.b52reader.general;
 
 import java.awt.Color;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Some general constants.
  */
 public class Constants {
+    /**
+     * Private constructor to hide the implicit public one.
+     */
+    private Constants() {
+        // Should not be called.
+    }
+
     /**
      * The name and version of the application.
      */
@@ -21,7 +28,7 @@ public class Constants {
     /**
      * The date/time format with day of week, day of month, month name, hours, and minutes. Example: "Mon 15-May 22:28".
      */
-    public static final SimpleDateFormat DATE_TIME_FORMAT_LONGER = new SimpleDateFormat("EEE dd-MMM HH:mm");
+    public static final DateTimeFormatter DATE_TIME_FORMAT_LONGER = DateTimeFormatter.ofPattern("EEE dd-MMM HH:mm");
 
     /**
      * Nice light blue color (used for selected rows in the table).

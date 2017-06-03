@@ -239,7 +239,7 @@ public class PersistencyHandler {
                     preparedStatement.setString(2, existingArticle.getSourceId());
                     preparedStatement.setInt(3, existingArticle.getAuthor().getRecordId());
                     preparedStatement.setString(4, existingArticle.getTitle());
-                    preparedStatement.setTimestamp(5, new Timestamp(existingArticle.getDateTime().getTime()));
+                    preparedStatement.setTimestamp(5, Timestamp.from(existingArticle.getDateTime().toInstant()));
                     preparedStatement.setString(6, existingArticle.getText());
                     preparedStatement.setInt(7, existingArticle.getLikes());
                     preparedStatement.setBoolean(8, existingArticle.isStarred());
@@ -287,7 +287,7 @@ public class PersistencyHandler {
                 preparedStatement.setString(2, newArticle.getSourceId());
                 preparedStatement.setInt(3, newArticle.getAuthor().getRecordId());
                 preparedStatement.setString(4, newArticle.getTitle());
-                preparedStatement.setTimestamp(5, new Timestamp(newArticle.getDateTime().getTime()));
+                preparedStatement.setTimestamp(5, Timestamp.from(newArticle.getDateTime().toInstant()));
                 preparedStatement.setString(6, newArticle.getText());
                 preparedStatement.setBoolean(7, newArticle.isStarred());
                 preparedStatement.setBoolean(8, newArticle.isRead());

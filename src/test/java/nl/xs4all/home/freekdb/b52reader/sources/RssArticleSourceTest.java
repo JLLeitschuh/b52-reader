@@ -117,7 +117,7 @@ public class RssArticleSourceTest {
         if (addExtraFields) {
             SyndCategory category = new SyndCategoryImpl();
             category.setName(CATEGORY_NAME);
-            Date date = Utilities.createDate(1882, Month.JUNE, 28);
+            Date date = Date.from(Utilities.createDate(1882, Month.JUNE, 28).toInstant());
 
             Mockito.when(mockEntry1.getCategories()).thenReturn(Collections.singletonList(category));
             Mockito.when(mockEntry1.getAuthor()).thenReturn(TEST_AUTHOR_2.getName());

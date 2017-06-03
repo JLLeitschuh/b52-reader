@@ -8,7 +8,9 @@ package nl.xs4all.home.freekdb.b52reader.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,7 +31,7 @@ public class Article {
     private final String title;
     private final String normalizedTitle;
     private final long titleWordCount;
-    private final Date dateTime;
+    private final ZonedDateTime dateTime;
     private final String text;
     private final long textWordCount;
     private final int likes;
@@ -46,12 +48,12 @@ public class Article {
         private String sourceId;
         private Author author;
         private String title;
-        private Date dateTime;
+        private ZonedDateTime dateTime;
         private String text;
         private int likes;
         private int recordId;
 
-        public Builder(String url, String sourceId, Author author, String title, Date dateTime, String text) {
+        public Builder(String url, String sourceId, Author author, String title, ZonedDateTime dateTime, String text) {
             this.url = url;
             this.sourceId = sourceId;
             this.author = author;
@@ -107,7 +109,8 @@ public class Article {
                     .orElse(null);
 
             String title = resultSet.getString("title");
-            Date dateTime = resultSet.getTimestamp("date_time");
+            Timestamp timestamp = resultSet.getTimestamp("date_time");
+            ZonedDateTime dateTime = ZonedDateTime.ofInstant(timestamp.toInstant(), ZoneOffset.UTC);
             String text = resultSet.getString("text");
             int likes = resultSet.getInt("likes");
 
@@ -148,7 +151,7 @@ public class Article {
         return normalizedTitle;
     }
 
-    public Date getDateTime() {
+    public ZonedDateTime getDateTime() {
         return dateTime;
     }
 

@@ -10,9 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Month;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -30,7 +30,7 @@ public class ArticleTest {
     @Test
     public void testGetters() {
         String url = "www.test.org";
-        Date date = Utilities.createDate(2000, Month.JANUARY, 1);
+        ZonedDateTime date = Utilities.createDate(2000, Month.JANUARY, 1);
 
         Article article = new Article.Builder(url, "test", null, "Title", date, "text")
                 .likes(1024)
@@ -43,7 +43,7 @@ public class ArticleTest {
     @Test
     public void testSetters() {
         String url = "www.test.org";
-        Date date = Utilities.createDate(2000, Month.JANUARY, 1);
+        ZonedDateTime date = Utilities.createDate(2000, Month.JANUARY, 1);
 
         Article article = new Article.Builder(url, "test", null, "Title", date, "text")
                 .likes(1024)
@@ -64,7 +64,7 @@ public class ArticleTest {
 
     @Test
     public void testCreateArticleFromDatabaseNoAuthor() throws SQLException {
-        Date date = Utilities.createDate(2000, Month.JANUARY, 1);
+        ZonedDateTime date = Utilities.createDate(2000, Month.JANUARY, 1);
         ResultSet mockResultSet = prepareResultSet(-1, date);
 
         Article article = Article.createArticleFromDatabase(mockResultSet, new ArrayList<>());
@@ -74,7 +74,7 @@ public class ArticleTest {
 
     @Test
     public void testCreateArticleFromDatabaseWithAuthor() throws SQLException {
-        Date date = Utilities.createDate(2000, Month.JANUARY, 1);
+        ZonedDateTime date = Utilities.createDate(2000, Month.JANUARY, 1);
         ResultSet mockResultSet = prepareResultSet(2, date);
 
         Author author = new Author("Cara Santa Maria", 2);
@@ -97,18 +97,19 @@ public class ArticleTest {
         assertNull(article);
     }
 
-    private ResultSet prepareResultSet(int authorId, Date date) throws SQLException {
+    private ResultSet prepareResultSet(int authorId, ZonedDateTime date) throws SQLException {
         ResultSet mockResultSet = Mockito.mock(ResultSet.class);
 
         Mockito.when(mockResultSet.getInt(Mockito.anyString())).thenReturn(authorId, 1024, 6);
         Mockito.when(mockResultSet.getString(Mockito.anyString())).thenReturn("g.cn", "test", "Title", "text");
-        Mockito.when(mockResultSet.getTimestamp(Mockito.anyString())).thenReturn(new Timestamp(date.getTime()));
+        Mockito.when(mockResultSet.getTimestamp(Mockito.anyString())).thenReturn(Timestamp.from(date.toInstant()));
         Mockito.when(mockResultSet.getBoolean(Mockito.anyString())).thenReturn(true, false, true);
 
         return mockResultSet;
     }
 
-    private void assertArticle(Article article, String url, Author author, Date date, boolean starred, boolean archived) {
+    private void assertArticle(Article article, String url, Author author, ZonedDateTime date, boolean starred,
+                               boolean archived) {
         assertEquals(url, article.getUrl());
         assertEquals("test", article.getSourceId());
         assertEquals(author, article.getAuthor());

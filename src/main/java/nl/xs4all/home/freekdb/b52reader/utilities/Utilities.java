@@ -10,15 +10,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -50,10 +50,9 @@ public class Utilities {
         return count + " " + word + (count != 1 ? "s" : "");
     }
 
-    public static Date createDate(int year, Month month, int dayOfMonth) {
-        LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, 0, 0);
-
-        return Date.from(localDateTime.atZone(ZoneId.of("Europe/Paris")).toInstant());
+    public static ZonedDateTime createDate(int year, Month month, int dayOfMonth) {
+        return ZonedDateTime.of(year, month.getValue(), dayOfMonth, 0, 0, 0, 0,
+                                ZoneOffset.UTC);
     }
 
     public static void ignoreStandardErrorStream() {

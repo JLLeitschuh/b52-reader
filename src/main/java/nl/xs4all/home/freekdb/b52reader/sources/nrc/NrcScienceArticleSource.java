@@ -6,8 +6,9 @@
 
 package nl.xs4all.home.freekdb.b52reader.sources.nrc;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -68,12 +69,13 @@ public class NrcScienceArticleSource implements ArticleSource {
         for (Element articleElement : articleElements) {
             String url = Constants.NRC_MAIN_URL + articleElement.attr("href");
             String title = articleElement.getElementsByClass("nmt-item__headline").text();
+            ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
             String text = articleElement.getElementsByClass("nmt-item__teaser").text();
 
             // We create a new article object even if it is already stored, because we want to be able to compare the
             // articles in memory to the stored article to see whether an update of a stored article is needed.
             Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-            Article article = new Article.Builder(url, Constants.NRC_SOURCE_ID, author, title, new Date(), text)
+            Article article = new Article.Builder(url, Constants.NRC_SOURCE_ID, author, title, zonedDateTime, text)
                     .likes(1234)
                     .recordId(-1 - newArticles.size())
                     .build();

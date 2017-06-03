@@ -10,6 +10,8 @@ import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 
 import java.net.URL;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -109,6 +111,7 @@ public class RssArticleSource implements ArticleSource {
                 : null;
 
         Date dateTime = entry.getPublishedDate() != null ? entry.getPublishedDate() : new Date();
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(dateTime.toInstant(), ZoneOffset.UTC);
 
         // We create new article objects, because we want to be able to compare the articles in memory to the
         // stored articles to see whether an update of a stored article is needed.
@@ -116,7 +119,7 @@ public class RssArticleSource implements ArticleSource {
                 ? entryAuthor
                 : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
 
-        Article article = new Article.Builder(url, sourceId, author, title, dateTime, text)
+        Article article = new Article.Builder(url, sourceId, author, title, zonedDateTime, text)
                 .likes(1234)
                 .recordId(articleId)
                 .build();
