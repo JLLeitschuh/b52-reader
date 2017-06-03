@@ -311,7 +311,11 @@ public class Configuration {
      * @return the configuration parameters for an RSS article source.
      */
     private static String getRssParameters(RssArticleSource rssSource) {
-        return "rss|" + rssSource.getFeedName() + "|" + rssSource.getDefaultAuthor().getName() + "|" +
+        String authorName = rssSource.getDefaultAuthor() != null
+                ? rssSource.getDefaultAuthor().getName()
+                : rssSource.getFeedName();
+
+        return "rss|" + rssSource.getFeedName() + "|" + authorName + "|" +
                rssSource.getFeedUrl() + (rssSource.getCategoryName() != null ? "|" + rssSource.getCategoryName() : "");
     }
 }

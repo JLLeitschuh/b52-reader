@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
@@ -114,20 +115,45 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testWriteConfiguration() {
+    public void testWriteConfiguration() throws UnsupportedEncodingException {
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+        Author firstAuthor = new Author("Bill Hicks", 32);
+        Author[] authors = {null};
+        // Return an author object for the first call to getOrCreateAuthor and keep returning null after that.
+        Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(firstAuthor, authors);
+        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
+
+        String configurationLines =
+                "source-ids = nrc\n" +
+                "source-verge = rss|The Verge|The Verge|https://www.theverge.com/rss/index.xml\n" +
+                "source-nrc-rss = rss|NRC|NRC|https://www.nrc.nl/rss/|wetenschap\n" +
+                "source-nrc = nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource\n" +
+                "window-configuration = maximized;1,2,3x4";
+
+        assertTrue(Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8"))));
+
         OutputStream configurationOutputStream = new ByteArrayOutputStream();
 
-        assertTrue(Configuration.writeConfiguration(configurationOutputStream, Frame.MAXIMIZED_BOTH, null));
+        assertTrue(Configuration.writeConfiguration(configurationOutputStream, Frame.MAXIMIZED_BOTH,
+                                                    new Rectangle(1, 2, 3, 4)));
 
         List<String> actualConfigurationData = Arrays.asList(configurationOutputStream
                                                                      .toString()
                                                                      .split(System.lineSeparator()));
 
-        assertEquals(4, actualConfigurationData.size());
+        assertEquals(7, actualConfigurationData.size());
         assertEquals("#" + Constants.CONFIGURATION_HEADER, actualConfigurationData.get(0));
         assertTrue(actualConfigurationData.get(1).startsWith("#"));
-        assertEquals("source-ids=", actualConfigurationData.get(2));
-        assertEquals("window-configuration=maximized", actualConfigurationData.get(3));
+
+        List<String> expectedSubList = Arrays.asList(
+                "source-ids=nrc",
+                "source-nrc-rss=rss|NRC|Bill Hicks|https\\://www.nrc.nl/rss/|wetenschap",
+                "source-nrc=nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource",
+                "source-verge=rss|The Verge|The Verge|https\\://www.theverge.com/rss/index.xml",
+                "window-configuration=maximized;1,2,3x4"
+        );
+
+        assertEquals(expectedSubList, actualConfigurationData.subList(2, 7));
     }
 
     @Test
@@ -137,7 +163,6 @@ public class ConfigurationTest {
                                                                       throw new IOException();
                                                                   });
 
-        assertFalse(Configuration.writeConfiguration(mockConfigurationOutputStream, Frame.MAXIMIZED_BOTH,
-                                                     new Rectangle(1, 2, 3, 4)));
+        assertFalse(Configuration.writeConfiguration(mockConfigurationOutputStream, Frame.NORMAL, null));
     }
 }
