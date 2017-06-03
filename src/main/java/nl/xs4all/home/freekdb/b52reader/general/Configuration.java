@@ -13,9 +13,9 @@ import com.rometools.rome.io.XmlReader;
 
 import java.awt.Frame;
 import java.awt.Rectangle;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -81,10 +81,14 @@ public class Configuration {
      * <code>allArticleSources</code> lists.
      *
      * @param configurationInputStream the input stream that contains the configuration data.
+     * @return whether the configuration was successfully read.
      */
-    public static void initialize(InputStream configurationInputStream) {
+    public static boolean initialize(InputStream configurationInputStream) {
+        boolean result = true;
+
         List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
         allArticleSources = new ArrayList<>();
+        selectedArticleSources = new ArrayList<>();
         frameExtendedState = Frame.NORMAL;
         frameBounds = null;
 
@@ -109,13 +113,17 @@ public class Configuration {
                     frameBounds = getBoundsFromConfiguration(boundsConfiguration);
                 }
             }
+
+            selectedArticleSources = allArticleSources.stream()
+                    .filter(articleSource -> sourceIds.contains(articleSource.getSourceId()))
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             logger.error("Exception while reading the configuration data.", e);
+
+            result = false;
         }
 
-        selectedArticleSources = allArticleSources.stream()
-                .filter(articleSource -> sourceIds.contains(articleSource.getSourceId()))
-                .collect(Collectors.toList());
+        return result;
     }
 
     /**
@@ -155,28 +163,33 @@ public class Configuration {
     }
 
     /**
-     * Write the application configuration to file.
+     * Write the application configuration to the output stream.
      *
-     * @param frameExtendedState the application window state (normal or maximized).
-     * @param frameBounds        the application window bounds.
+     * @param configurationOutputStream the output stream that will receive the configuration data.
+     * @param frameExtendedState        the application window state (normal or maximized).
+     * @param frameBounds               the application window bounds.
+     * @return whether the configuration was successfully written.
      */
-    public static void writeConfiguration(int frameExtendedState, Rectangle frameBounds) {
-        String sourceIds = selectedArticleSources.stream()
-                .map(ArticleSource::getSourceId)
-                .collect(Collectors.joining(","));
+    public static boolean writeConfiguration(OutputStream configurationOutputStream, int frameExtendedState,
+                                             Rectangle frameBounds) {
+        boolean result = true;
 
-        String windowConfiguration = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : "maximized") + ";" +
-                                     frameBounds.x + "," + frameBounds.y + "," +
-                                     frameBounds.width + "x" + frameBounds.height;
+        String sourceIds = (selectedArticleSources != null)
+                ? selectedArticleSources.stream().map(ArticleSource::getSourceId).collect(Collectors.joining(","))
+                : "";
 
-        URL configurationUrl = Configuration.class.getClassLoader().getResource("b52-reader.configuration");
+        String windowConfiguration = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : "maximized") +
+                                     (frameBounds != null
+                                             ? ";" + frameBounds.x + "," + frameBounds.y + "," +
+                                               frameBounds.width + "x" + frameBounds.height
+                                             : "");
 
         try {
-            if (configurationUrl != null) {
-                Properties configuration = new Properties();
+            Properties configuration = new Properties();
 
-                configuration.setProperty(SOURCE_IDS_KEY, sourceIds);
+            configuration.setProperty(SOURCE_IDS_KEY, sourceIds);
 
+            if (allArticleSources != null) {
                 for (ArticleSource articleSource : allArticleSources) {
                     String parameters = articleSource instanceof RssArticleSource
                             ? getRssParameters((RssArticleSource) articleSource)
@@ -184,15 +197,18 @@ public class Configuration {
 
                     configuration.setProperty("source-" + articleSource.getSourceId(), parameters);
                 }
-
-                configuration.setProperty("window-configuration", windowConfiguration);
-
-                String header = "Configuration file for the b52-reader (https://github.com/FreekDB/b52-reader).";
-                configuration.store(new FileWriter(configurationUrl.getFile()), header);
             }
+
+            configuration.setProperty("window-configuration", windowConfiguration);
+
+            configuration.store(configurationOutputStream, Constants.CONFIGURATION_HEADER);
         } catch (IOException e) {
-            logger.error("Exception while reading the configuration file " + configurationUrl, e);
+            logger.error("Exception while reading the configuration data.", e);
+
+            result = false;
         }
+
+        return result;
     }
 
     /**

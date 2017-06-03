@@ -9,12 +9,15 @@ package nl.xs4all.home.freekdb.b52reader.main;
 import java.awt.Rectangle;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
@@ -79,7 +82,7 @@ public class MainApplication implements MainCallbacks {
      * Initialize the configuration with data from the configuration file.
      */
     private void initializeConfiguration() {
-        URL configurationUrl = Configuration.class.getClassLoader().getResource("b52-reader.configuration");
+        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
 
         try {
             if (configurationUrl != null) {
@@ -112,7 +115,16 @@ public class MainApplication implements MainCallbacks {
      */
     @Override
     public void shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
-        Configuration.writeConfiguration(frameExtendedState, frameBounds);
+        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+
+        try {
+            if (configurationUrl != null) {
+                OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());
+                Configuration.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds);
+            }
+        } catch (FileNotFoundException e) {
+            logger.error("Exception while writing the configuration file " + configurationUrl, e);
+        }
 
         saveDataAndCloseDatabase();
 

@@ -56,5 +56,16 @@ public class Constants {
     /**
      * Test fetching the html with the list of articles using a background browser.
      */
-    public static final boolean GET_ARTICLE_LIST_WITH_BROWSER = false;
+    static final boolean GET_ARTICLE_LIST_WITH_BROWSER = false;
+
+    /**
+     * Name of the configuration file.
+     */
+    public static final String CONFIGURATION_FILE_NAME = "b52-reader.configuration";
+
+    /**
+     * Header for the configuration file.
+     */
+    static final String CONFIGURATION_HEADER = "Configuration file for the b52-reader "
+                                               + "(https://github.com/FreekDB/b52-reader).";
 }

@@ -9,11 +9,14 @@ package nl.xs4all.home.freekdb.b52reader.general;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
@@ -47,24 +50,10 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testInitializeWithException() {
-        InputStream mockConfigurationInputStream = Mockito.mock(InputStream.class,
-                                                                invocationOnMock -> {
-                                                                    throw new IOException();
-                                                                });
-
-        Configuration.initialize(mockConfigurationInputStream);
-
-        assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
-        assertEquals(Frame.NORMAL, Configuration.getFrameExtendedState());
-        assertNull(Configuration.getFrameBounds());
-    }
-
-    @Test
     public void testInitializeOnlySourceIds() throws UnsupportedEncodingException {
         String configurationLines = "source-ids = test";
 
-        Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
+        assertTrue(Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8"))));
 
         assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
         assertEquals(Frame.NORMAL, Configuration.getFrameExtendedState());
@@ -90,7 +79,7 @@ public class ConfigurationTest {
                 "source-nrc = nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource\n" +
                 "window-configuration = maximized;0,0,1280x1024";
 
-        Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
+        assertTrue(Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8"))));
 
         List<ArticleSource> selectedArticleSources = Configuration.getSelectedArticleSources();
         assertEquals(1, selectedArticleSources.size());
@@ -103,10 +92,52 @@ public class ConfigurationTest {
     public void testInitializeHalfWindowConfiguration() throws UnsupportedEncodingException {
         String configurationLines = "window-configuration = normal";
 
-        Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8")));
+        assertTrue(Configuration.initialize(new ByteArrayInputStream(configurationLines.getBytes("UTF-8"))));
 
         assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
         assertEquals(Frame.NORMAL, Configuration.getFrameExtendedState());
         assertNull(Configuration.getFrameBounds());
+    }
+
+    @Test
+    public void testInitializeWithException() {
+        InputStream mockConfigurationInputStream = Mockito.mock(InputStream.class,
+                                                                invocationOnMock -> {
+                                                                    throw new IOException();
+                                                                });
+
+        assertFalse(Configuration.initialize(mockConfigurationInputStream));
+
+        assertEquals(new ArrayList<>(), Configuration.getSelectedArticleSources());
+        assertEquals(Frame.NORMAL, Configuration.getFrameExtendedState());
+        assertNull(Configuration.getFrameBounds());
+    }
+
+    @Test
+    public void testWriteConfiguration() {
+        OutputStream configurationOutputStream = new ByteArrayOutputStream();
+
+        assertTrue(Configuration.writeConfiguration(configurationOutputStream, Frame.MAXIMIZED_BOTH, null));
+
+        List<String> actualConfigurationData = Arrays.asList(configurationOutputStream
+                                                                     .toString()
+                                                                     .split(System.lineSeparator()));
+
+        assertEquals(4, actualConfigurationData.size());
+        assertEquals("#" + Constants.CONFIGURATION_HEADER, actualConfigurationData.get(0));
+        assertTrue(actualConfigurationData.get(1).startsWith("#"));
+        assertEquals("source-ids=", actualConfigurationData.get(2));
+        assertEquals("window-configuration=maximized", actualConfigurationData.get(3));
+    }
+
+    @Test
+    public void testWriteConfigurationWithException() throws IOException {
+        OutputStream mockConfigurationOutputStream = Mockito.mock(OutputStream.class,
+                                                                  invocationOnMock -> {
+                                                                      throw new IOException();
+                                                                  });
+
+        assertFalse(Configuration.writeConfiguration(mockConfigurationOutputStream, Frame.MAXIMIZED_BOTH,
+                                                     new Rectangle(1, 2, 3, 4)));
     }
 }
