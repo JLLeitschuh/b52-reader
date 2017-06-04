@@ -18,11 +18,11 @@ import org.apache.logging.log4j.Logger;
 /**
  * Filters articles using a query syntax inspired by Gmail. The following options are supported:
  * <ul>
- * <li>"author:Clara" matches (part of) an author's name (case insensitive);</li>
+ * <li>"author:Cara" matches (part of) an author's name (case insensitive);</li>
  * <li>"title:Cosmic" matches (part of) a title (case insensitive);</li>
  * <li>"is:starred" matches starred articles, and "is:" also works with unstarred, read, and unread.</li>
  * </ul>
- * You can also combine them: "author:Clara is:starred is:read" will show articles by Clara that are starred and read.
+ * You can also combine them: "author:Cara is:starred is:read" will show articles by Cara that are starred and read.
  */
 public class ArticleFilter implements Predicate<Article> {
     /**
@@ -99,17 +99,24 @@ public class ArticleFilter implements Predicate<Article> {
                 normalizedTitle = Utilities.normalize(filterPart.substring(TITLE_PREFIX.length()));
                 logger.debug("Filter on title: {}", normalizedTitle);
             } else if (filterPart.startsWith(IS_PREFIX) && filterPart.length() > IS_PREFIX.length()) {
-                String state = filterPart.substring(IS_PREFIX.length()).toLowerCase();
-                if (STARRED_STATE.equals(state) || UNSTARRED_STATE.equals(state))
-                    starred = STARRED_STATE.equals(state);
-                if (state.equals(READ_STATE) || UNREAD_STATE.equals(state))
-                    read = READ_STATE.equals(state);
-                logger.debug("Filter on state: {}", state);
+                handleStateFilter(filterPart);
             } else if (!"".equals(filterPart.trim())) {
                 // Incomplete filter parts will be ignored.
                 logger.debug("Filter not understood: {}", filterPart);
             }
         });
+    }
+
+    private void handleStateFilter(String filterPart) {
+        String state = filterPart.substring(IS_PREFIX.length()).toLowerCase();
+
+        if (STARRED_STATE.equals(state) || UNSTARRED_STATE.equals(state)) {
+            starred = STARRED_STATE.equals(state);
+        } else if (READ_STATE.equals(state) || UNREAD_STATE.equals(state)) {
+            read = READ_STATE.equals(state);
+        }
+
+        logger.debug("Filter on state: {}", state);
     }
 
     /**

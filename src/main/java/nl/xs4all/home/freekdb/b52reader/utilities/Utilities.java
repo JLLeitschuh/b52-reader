@@ -33,7 +33,7 @@ public class Utilities {
     }
     
     public static String normalize(String text) {
-        return StringUtils.stripAccents(text).toLowerCase();
+        return text != null ? StringUtils.stripAccents(text).toLowerCase() : null;
     }
 
     public static int calculateWordCount(String text) {
