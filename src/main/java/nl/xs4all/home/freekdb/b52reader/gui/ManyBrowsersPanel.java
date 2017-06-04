@@ -27,7 +27,9 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 // todo: Add Javadocs.
 
-// todo: Make this class more generic by supporting different types of embedded browsers.
+/**
+ * GUI panel which can handle multiple browsers and show one of them.
+ */
 public class ManyBrowsersPanel extends JPanel {
     /**
      * Logger for this class.
@@ -71,23 +73,6 @@ public class ManyBrowsersPanel extends JPanel {
         } else {
             Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
             hideAllBrowserPanels();
-
-
-            // todo: Support different types of embedded browsers. Create abstract EmbeddedBrowserPanel class?
-//            switch (Constants.EMBEDDED_BROWSER_TYPE) {
-//                case EMBEDDED_BROWSER_DJ_NATIVE_SWING:
-//                    // Use the JWebBrowser class from the DJ Native Swing library.
-//                    newBrowserPanel = new JWebBrowserPanel(article.getUrl());
-//                    break;
-//
-//                case EMBEDDED_BROWSER_PLACEHOLDER:
-//                default:
-//                    // Placeholder for an embedded browser.
-//                    newBrowserPanel = new JPanel();
-//                    newBrowserPanel.add(new JLabel(article.getUrl()));
-//                    break;
-//            }
-
 
             JWebBrowser webBrowser = createWebBrowser(url);
             webBrowsers.add(webBrowser);
