@@ -103,7 +103,7 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
                                                    int row, int column) {
         Article article = (Article) value;
 
-        this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : getBackgroundColor(article));
+        this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : getBackgroundColor(article.getSourceId()));
 
         String iconFileName = "32x32-" + (article.isStarred() ? "Full_Star_Yellow" : "Empty_Star") + ".png";
         starredLabel.setIcon(Utilities.getIconResource(iconFileName));
@@ -112,14 +112,18 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         readLabel.setText(article.isRead() ? "R" : "U");
         titleLabel.setText(article.getTitle());
         likesLabel.setText("+" + article.getLikes());
-        authorLabel.setText(article.getAuthor().getName());
-        dateTimeLabel.setText(Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()));
+        authorLabel.setText(article.getAuthor() != null ? article.getAuthor().getName() : "");
+
+        dateTimeLabel.setText(article.getDateTime() != null
+                                      ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime())
+                                      : "");
+
         textLabel.setText(article.getText());
 
         return this;
     }
 
-    private Color getBackgroundColor(Article article) {
-        return COLOR_MAP.getOrDefault(article.getSourceId(), defaultBackgroundColor);
+    private Color getBackgroundColor(String sourceId) {
+        return COLOR_MAP.getOrDefault(sourceId, defaultBackgroundColor);
     }
 }

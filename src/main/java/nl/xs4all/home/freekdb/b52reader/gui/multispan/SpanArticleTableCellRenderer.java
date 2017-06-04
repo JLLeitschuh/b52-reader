@@ -34,15 +34,19 @@ public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
-        Component rendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        Component rendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+                                                                          column);
 
         Article article = ((SpanCellTableModel) table.getModel()).getArticle(row / 2);
-        rendererComponent.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : getBackgroundColor(article));
+
+        rendererComponent.setBackground(isSelected
+                                                ? Constants.NICE_LIGHT_BLUE
+                                                : getBackgroundColor(article.getSourceId()));
 
         return rendererComponent;
     }
 
-    private Color getBackgroundColor(Article article) {
-        return COLOR_MAP.getOrDefault(article.getSourceId(), defaultBackgroundColor);
+    private Color getBackgroundColor(String sourceId) {
+        return COLOR_MAP.getOrDefault(sourceId, defaultBackgroundColor);
     }
 }
