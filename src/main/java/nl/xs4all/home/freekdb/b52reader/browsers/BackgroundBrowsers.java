@@ -4,7 +4,7 @@
  */
 
 
-package nl.xs4all.home.freekdb.b52reader.backgroundbrowsers;
+package nl.xs4all.home.freekdb.b52reader.browsers;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -20,8 +20,6 @@ import org.apache.logging.log4j.Logger;
 
 import chrriis.dj.nativeswing.swtimpl.NSPanelComponent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 /**
  * This class allows invisible browsers to be running in the background to get html content of a specific url.
@@ -43,6 +41,11 @@ public class BackgroundBrowsers {
     private static final Logger logger = LogManager.getLogger();
 
     /**
+     * The browser factory for creating embedded browsers.
+     */
+    private BrowserFactory browserFactory;
+
+    /**
      * The (invisible) panel to which the browsers can be added (to allow them to work).
      */
     private JPanel backgroundBrowsersPanel;
@@ -53,11 +56,13 @@ public class BackgroundBrowsers {
     private List<JWebBrowser> webBrowsers;
 
     /**
-     * Construct a {@link BackgroundBrowsers} object, which can handle multiple browsers.
+     * Construct a {@link BackgroundBrowsers} object, which can handle multiple browsers working in the background.
      *
+     * @param browserFactory          the browser factory for creating embedded browsers.
      * @param backgroundBrowsersPanel the (invisible) panel to which the browsers can be added (to allow them to work).
      */
-    public BackgroundBrowsers(JPanel backgroundBrowsersPanel) {
+    public BackgroundBrowsers(BrowserFactory browserFactory, JPanel backgroundBrowsersPanel) {
+        this.browserFactory = browserFactory;
         this.backgroundBrowsersPanel = backgroundBrowsersPanel;
         this.webBrowsers = new ArrayList<>();
     }
@@ -75,7 +80,7 @@ public class BackgroundBrowsers {
     /**
      * Get the html content for the specified url. The specified maximum wait time in milliseconds is used.
      *
-     * @param url the url for which the html content should be retrieved.
+     * @param url           the url for which the html content should be retrieved.
      * @param maxWaitTimeMs the maximum amount of time to wait (in milliseconds).
      * @return the html content that was retrieved or null.
      */
@@ -103,10 +108,11 @@ public class BackgroundBrowsers {
                         logger.debug("Working...");
                         if (waitCount % 10 == 0) {
                             logger.trace("Refresh html content.");
-    
-                            SwingUtilities.invokeAndWait(() ->
-                                    URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent()));
-                            
+
+                            SwingUtilities.invokeAndWait(
+                                    () -> URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent())
+                            );
+
                             logger.trace("Html content: " + URL_TO_HTML_CONTENT.get(url).substring(0, 100));
                         }
                     } else {
@@ -135,30 +141,15 @@ public class BackgroundBrowsers {
      * @param url the url for which the html content should be retrieved.
      */
     private void launchBackgroundBrowser(String url) {
-        JWebBrowser webBrowser = new JWebBrowser();
-
-        webBrowser.setMenuBarVisible(false);
-        webBrowser.setButtonBarVisible(false);
-        webBrowser.setLocationBarVisible(false);
-
-        addBrowserListener(url, webBrowser);
+        JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
+                browser -> URL_TO_HTML_CONTENT.put(url, ((JWebBrowser) browser).getHTMLContent())
+        );
 
         URL_TO_WEB_BROWSER.put(url, webBrowser);
         webBrowsers.add(webBrowser);
         backgroundBrowsersPanel.add(webBrowser);
 
         webBrowser.navigate(url);
-    }
-
-    private void addBrowserListener(String url, JWebBrowser webBrowser) {
-        webBrowser.addWebBrowserListener(new WebBrowserAdapter() {
-            @Override
-            public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
-                super.locationChanged(webBrowserNavigationEvent);
-
-                URL_TO_HTML_CONTENT.put(url, webBrowser.getHTMLContent());
-            }
-        });
     }
 
     /**

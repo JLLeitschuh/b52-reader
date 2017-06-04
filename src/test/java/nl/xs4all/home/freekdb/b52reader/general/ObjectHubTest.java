@@ -10,7 +10,7 @@ import java.lang.reflect.Constructor;
 
 import javax.swing.JPanel;
 
-import nl.xs4all.home.freekdb.b52reader.backgroundbrowsers.BackgroundBrowsers;
+import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
 
 import org.junit.Test;
 

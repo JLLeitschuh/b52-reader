@@ -8,7 +8,8 @@ package nl.xs4all.home.freekdb.b52reader.general;
 
 import javax.swing.JPanel;
 
-import nl.xs4all.home.freekdb.b52reader.backgroundbrowsers.BackgroundBrowsers;
+import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
+import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 
 /**
@@ -71,7 +72,7 @@ public class ObjectHub {
      */
     public static BackgroundBrowsers getBackgroundBrowsers() {
         if (backgroundBrowsers == null) {
-            backgroundBrowsers = new BackgroundBrowsers(backgroundBrowsersPanel);
+            backgroundBrowsers = new BackgroundBrowsers(new JWebBrowserFactory(), backgroundBrowsersPanel);
         }
 
         return backgroundBrowsers;

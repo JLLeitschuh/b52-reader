@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import javax.swing.JPanel;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.BrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,9 +24,6 @@ import org.apache.logging.log4j.Logger;
 
 import chrriis.dj.nativeswing.swtimpl.NSPanelComponent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserEvent;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 // todo: Add Javadocs.
 
@@ -36,16 +34,27 @@ public class ManyBrowsersPanel extends JPanel {
      */
     private static final Logger logger = LogManager.getLogger();
 
+    /**
+     * The browser factory for creating embedded browsers.
+     */
+    private transient BrowserFactory browserFactory;
+
     private List<JPanel> browserPanels;
     private Map<String, JPanel> urlToBrowserPanels;
     private List<JWebBrowser> webBrowsers;
 
-    public ManyBrowsersPanel() {
+    /**
+     * Construct a {@link ManyBrowsersPanel} object, which can handle multiple browsers and show one of them.
+     *
+     * @param browserFactory the browser factory for creating embedded browsers.
+     */
+    public ManyBrowsersPanel(BrowserFactory browserFactory) {
         super(new BorderLayout());
 
-        browserPanels = new ArrayList<>();
-        urlToBrowserPanels = new HashMap<>();
-        webBrowsers = new ArrayList<>();
+        this.browserFactory = browserFactory;
+        this.browserPanels = new ArrayList<>();
+        this.urlToBrowserPanels = new HashMap<>();
+        this.webBrowsers = new ArrayList<>();
     }
 
     boolean hasBrowserForUrl(String url) {
@@ -80,7 +89,6 @@ public class ManyBrowsersPanel extends JPanel {
 //            }
 
 
-
             JWebBrowser webBrowser = createWebBrowser(url);
             webBrowsers.add(webBrowser);
 
@@ -113,43 +121,21 @@ public class ManyBrowsersPanel extends JPanel {
         browserPanels.clear();
 
         long end = System.currentTimeMillis();
-        logger.info("Disposed {} in {} milliseconds.", Utilities.countAndWord(browserCount, "browser"), end - start);
+        logger.info("Disposed {} in {} milliseconds.",
+                    Utilities.countAndWord(browserCount, "browser"), end - start);
     }
 
     private JWebBrowser createWebBrowser(String url) {
-        JWebBrowser webBrowser = new JWebBrowser();
-
-        webBrowser.setMenuBarVisible(false);
-        webBrowser.setButtonBarVisible(false);
-        webBrowser.setLocationBarVisible(false);
-
-        addBrowserListener(url, webBrowser);
+        JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
+                browser -> {
+                    String partUrl = url.substring(url.lastIndexOf('/') + 1);
+                    logger.trace("[{}] Page loaded.", partUrl);
+                }
+        );
 
         webBrowser.navigate(url);
 
         return webBrowser;
-    }
-
-    private void addBrowserListener(String url, JWebBrowser webBrowser) {
-        String partUrl = url.substring(url.lastIndexOf('/') + 1);
-
-        // Keep track of loading progress (https://sourceforge.net/p/djproject/discussion/671154/thread/1d25bf1a/).
-        webBrowser.addWebBrowserListener(new WebBrowserAdapter() {
-            @Override
-            public void loadingProgressChanged(WebBrowserEvent webBrowserEvent) {
-                super.loadingProgressChanged(webBrowserEvent);
-
-                logger.trace("[{}] Changed loading progress: {}", partUrl, webBrowser.getLoadingProgress());
-            }
-
-            @Override
-            public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
-                super.locationChanged(webBrowserNavigationEvent);
-
-                logger.trace("[{}] Location changed: {}", partUrl,
-                             webBrowserNavigationEvent.getNewResourceLocation());
-            }
-        });
     }
 
     private void hideAllBrowserPanels() {

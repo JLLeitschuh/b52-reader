@@ -34,6 +34,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
@@ -180,7 +181,7 @@ public class MainGui {
             JPanel northPanel = new JPanel(new BorderLayout());
             northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-            manyBrowsersPanel = new ManyBrowsersPanel();
+            manyBrowsersPanel = new ManyBrowsersPanel(new JWebBrowserFactory());
 
             table = Configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
 
