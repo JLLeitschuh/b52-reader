@@ -24,7 +24,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Unit tests for the {@link ObjectHub} class.
+ * Unit tests for the {@link ArticleTableCellRenderer} class.
  */
 public class ArticleTableCellRendererTest {
     @Test
