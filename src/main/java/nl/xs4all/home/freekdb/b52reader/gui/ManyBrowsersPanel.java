@@ -25,8 +25,6 @@ import org.apache.logging.log4j.Logger;
 import chrriis.dj.nativeswing.swtimpl.NSPanelComponent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
-// todo: Add Javadocs.
-
 /**
  * GUI panel which can handle multiple browsers and show one of them.
  */
@@ -41,8 +39,19 @@ public class ManyBrowsersPanel extends JPanel {
      */
     private transient BrowserFactory browserFactory;
 
+    /**
+     * Browser panels that contain embedded browsers.
+     */
     private List<JPanel> browserPanels;
+
+    /**
+     * URLs mapped to browser panels.
+     */
     private Map<String, JPanel> urlToBrowserPanels;
+
+    /**
+     * Embedded web browsers.
+     */
     private List<JWebBrowser> webBrowsers;
 
     /**
@@ -59,10 +68,24 @@ public class ManyBrowsersPanel extends JPanel {
         this.webBrowsers = new ArrayList<>();
     }
 
+    /**
+     * Is there an embedded web browser for a specific URL?
+     *
+     * @param url the URL to check for.
+     * @return whether there is an embedded web browser for the specified URL.
+     */
     boolean hasBrowserForUrl(String url) {
         return urlToBrowserPanels.containsKey(url);
     }
 
+    /**
+     * Create and/or show a web browser for a specific URL. If there is a browser for the URL, it will be made visible
+     * (if <code>makeBrowserVisible</code> is <code>true</code>). Otherwise, a new browser is created and also be made
+     * visible (if <code>makeBrowserVisible</code> is <code>true</code>).
+     *
+     * @param url                the URL the browser should go to.
+     * @param makeBrowserVisible whether to make the browser for this URL visible or not.
+     */
     void showBrowser(String url, boolean makeBrowserVisible) {
         if (urlToBrowserPanels.containsKey(url)) {
             if (makeBrowserVisible) {
@@ -94,6 +117,9 @@ public class ManyBrowsersPanel extends JPanel {
         }
     }
 
+    /**
+     * Dispose of all browsers.
+     */
     void disposeAllBrowsers() {
         long start = System.currentTimeMillis();
 
@@ -105,11 +131,19 @@ public class ManyBrowsersPanel extends JPanel {
         urlToBrowserPanels.clear();
         browserPanels.clear();
 
+        removeAll();
+
         long end = System.currentTimeMillis();
         logger.info("Disposed {} in {} milliseconds.",
                     Utilities.countAndWord(browserCount, "browser"), end - start);
     }
 
+    /**
+     * Create an embedded web browser and go to the specified URL.
+     *
+     * @param url the URL to go to.
+     * @return the embedded web browser.
+     */
     private JWebBrowser createWebBrowser(String url) {
         JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
                 browser -> {
@@ -123,15 +157,19 @@ public class ManyBrowsersPanel extends JPanel {
         return webBrowser;
     }
 
+    /**
+     * Make all browser panels invisible.
+     */
     private void hideAllBrowserPanels() {
         browserPanels.forEach(browserPanel -> browserPanel.setVisible(false));
     }
 
+    /**
+     * Make the browser panel for the specified URL visible.
+     *
+     * @param url the URL for which the browser panel should be shown.
+     */
     private void makeBrowserPanelVisible(String url) {
-        if (urlToBrowserPanels.containsKey(url)) {
-            urlToBrowserPanels.get(url).setVisible(true);
-        } else {
-            logger.error("Browser with url {} not found.", url);
-        }
+        urlToBrowserPanels.get(url).setVisible(true);
     }
 }
