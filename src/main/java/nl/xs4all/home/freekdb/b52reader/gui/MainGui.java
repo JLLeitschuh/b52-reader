@@ -138,15 +138,18 @@ public class MainGui {
     /**
      * Make sure the background browsers functionality is initialized before fetching articles, since for some article
      * sources a background browser is used to retrieve the list of articles.
+     *
+     * @param frame the application frame that will contain the GUI.
      */
-    public void initializeBackgroundBrowsersPanel() {
+    public void initializeBackgroundBrowsersPanel(JFrame frame) {
         JPanel backgroundBrowsersPanel = new JPanel();
         backgroundBrowsersPanel.setVisible(false);
         ObjectHub.injectBackgroundBrowsersPanel(backgroundBrowsersPanel);
 
-        frame = new JFrame(Constants.APPLICATION_NAME_AND_VERSION);
-        frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
-        frame.setVisible(true);
+        this.frame = frame;
+        this.frame.setTitle(Constants.APPLICATION_NAME_AND_VERSION);
+        this.frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
+        this.frame.setVisible(true);
     }
 
     /**
@@ -177,33 +180,28 @@ public class MainGui {
      * some of the  actions need to be performed from the EDT (like showing the first browser when creating the table).
      */
     private void finishGuiInitialization() {
-        if (SwingUtilities.isEventDispatchThread()) {
-            JPanel northPanel = new JPanel(new BorderLayout());
-            northPanel.add(createFilterPanel(), BorderLayout.NORTH);
+        JPanel northPanel = new JPanel(new BorderLayout());
+        northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-            manyBrowsersPanel = new ManyBrowsersPanel(new JWebBrowserFactory());
+        manyBrowsersPanel = new ManyBrowsersPanel(new JWebBrowserFactory());
 
-            table = Configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
+        table = Configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
 
-            JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new Dimension(10000, 200));
-            northPanel.add(scrollPane, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(10000, 200));
+        northPanel.add(scrollPane, BorderLayout.CENTER);
 
-            frame.getContentPane().add(northPanel, BorderLayout.NORTH);
-            frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
+        frame.getContentPane().add(northPanel, BorderLayout.NORTH);
+        frame.getContentPane().add(manyBrowsersPanel, BorderLayout.CENTER);
 
-            frame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent windowEvent) {
-                    super.windowClosing(windowEvent);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                super.windowClosing(windowEvent);
 
-                    frameClosing();
-                }
-            });
-        } else {
-            logger.error("The MainGui.finishGuiInitialization method should be called from the EDT (event dispatch " +
-                         "thread).");
-        }
+                frameClosing();
+            }
+        });
     }
 
     /**

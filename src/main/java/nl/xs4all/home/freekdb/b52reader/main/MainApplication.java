@@ -16,6 +16,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JFrame;
+
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
@@ -55,7 +57,7 @@ public class MainApplication implements MainCallbacks {
         initializeDatabase();
 
         MainGui mainGui = new MainGui(this);
-        mainGui.initializeBackgroundBrowsersPanel();
+        mainGui.initializeBackgroundBrowsersPanel(new JFrame());
 
         initializeConfiguration();
 
