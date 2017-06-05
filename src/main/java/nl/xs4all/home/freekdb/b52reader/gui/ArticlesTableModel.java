@@ -13,7 +13,7 @@ import javax.swing.table.AbstractTableModel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 
 public class ArticlesTableModel extends AbstractTableModel {
-    private List<Article> articles;
+    private transient List<Article> articles;
 
     public ArticlesTableModel(List<Article> articles) {
         this.articles = articles;
@@ -38,10 +38,12 @@ public class ArticlesTableModel extends AbstractTableModel {
         return 1;
     }
 
+    @Override
     public String getColumnName(int columnIndex) {
         return null;
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
@@ -51,6 +53,7 @@ public class ArticlesTableModel extends AbstractTableModel {
         return rowIndex >= 0 && rowIndex < articles.size() && columnIndex == 0 ? articles.get(rowIndex) : null;
     }
 
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         // This should not happen, since the model is read-only.
     }
