@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import nl.xs4all.home.freekdb.b52reader.general.ConfigurationV2;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
 
 import org.junit.Before;
@@ -32,6 +33,7 @@ public class MainGuiTest {
     private JFrame mockFrame;
     private Container mockContentPane;
     private MainCallbacks mockMainCallbacks;
+    private ConfigurationV2 mockConfiguration;
 
     private WindowListener windowListener;
     private boolean shutdownApplicationWasCalled;
@@ -41,6 +43,7 @@ public class MainGuiTest {
         mockFrame = Mockito.mock(JFrame.class);
         mockContentPane = new Container();
         mockMainCallbacks = Mockito.mock(MainCallbacks.class);
+        mockConfiguration = Mockito.mock(ConfigurationV2.class);
 
         Mockito.when(mockFrame.getContentPane()).thenReturn(mockContentPane);
 
@@ -55,7 +58,7 @@ public class MainGuiTest {
     public void testInitializeBackgroundBrowsersPanel() {
         MainGui mainGui = new MainGui(null);
 
-        mainGui.initializeBackgroundBrowsersPanel(mockFrame);
+        mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
 
         assertEquals(1, mockContentPane.getComponentCount());
         assertFalse(mockContentPane.getComponent(0).isVisible());
@@ -65,7 +68,7 @@ public class MainGuiTest {
     public void testInitializeGui() throws InvocationTargetException, InterruptedException {
         MainGui mainGui = new MainGui(mockMainCallbacks);
 
-        mainGui.initializeBackgroundBrowsersPanel(mockFrame);
+        mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
         mainGui.initializeGui(new ArrayList<>());
 
         waitForGuiTasks();
@@ -77,7 +80,7 @@ public class MainGuiTest {
     public void testShutdownApplication() throws InterruptedException, InvocationTargetException {
         MainGui mainGui = new MainGui(mockMainCallbacks);
 
-        mainGui.initializeBackgroundBrowsersPanel(mockFrame);
+        mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
         mainGui.initializeGui(new ArrayList<>());
 
         waitForGuiTasks();

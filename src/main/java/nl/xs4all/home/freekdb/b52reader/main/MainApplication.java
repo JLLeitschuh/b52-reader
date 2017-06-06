@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -18,7 +19,7 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
-import nl.xs4all.home.freekdb.b52reader.general.Configuration;
+import nl.xs4all.home.freekdb.b52reader.general.ConfigurationV2;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
@@ -46,6 +47,11 @@ public class MainApplication implements MainCallbacks {
     private PersistencyHandler persistencyHandler;
 
     /**
+     * Configuration object with data from the configuration file.
+     */
+    private ConfigurationV2 configurationV2;
+
+    /**
      * List of the currently available articles.
      */
     private List<Article> currentArticles;
@@ -56,14 +62,16 @@ public class MainApplication implements MainCallbacks {
     void createAndLaunchApplication() {
         initializeDatabase();
 
-        MainGui mainGui = new MainGui(this);
-        mainGui.initializeBackgroundBrowsersPanel(new JFrame());
+        configurationV2 = initializeConfiguration();
 
-        initializeConfiguration();
+        if (configurationV2 != null) {
+            MainGui mainGui = new MainGui(this);
+            mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configurationV2);
 
-        currentArticles = getArticles(Configuration.getSelectedArticleSources());
+            currentArticles = getArticles(configurationV2.getSelectedArticleSources());
 
-        mainGui.initializeGui(currentArticles);
+            mainGui.initializeGui(currentArticles);
+        }
     }
 
     /**
@@ -83,17 +91,20 @@ public class MainApplication implements MainCallbacks {
     /**
      * Initialize the configuration with data from the configuration file.
      */
-    private void initializeConfiguration() {
-        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+    private ConfigurationV2 initializeConfiguration() {
+        ConfigurationV2 applicationConfiguration = null;
+        URL configurationUrl = ConfigurationV2.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
 
         try {
             if (configurationUrl != null) {
                 InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
-                Configuration.initialize(configurationInputStream);
+                applicationConfiguration = new ConfigurationV2(configurationInputStream);
             }
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             logger.error("Exception while reading the configuration file " + configurationUrl, e);
         }
+
+        return applicationConfiguration;
     }
 
     /**
@@ -117,12 +128,12 @@ public class MainApplication implements MainCallbacks {
      */
     @Override
     public void shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
-        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+        URL configurationUrl = ConfigurationV2.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
 
         try {
             if (configurationUrl != null) {
                 OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());
-                Configuration.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds);
+                configurationV2.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds);
             }
         } catch (FileNotFoundException e) {
             logger.error("Exception while writing the configuration file " + configurationUrl, e);
