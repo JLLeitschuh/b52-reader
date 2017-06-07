@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import nl.xs4all.home.freekdb.b52reader.general.ConfigurationV2;
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
 
 import org.junit.Before;
@@ -33,7 +33,7 @@ public class MainGuiTest {
     private JFrame mockFrame;
     private Container mockContentPane;
     private MainCallbacks mockMainCallbacks;
-    private ConfigurationV2 mockConfiguration;
+    private Configuration mockConfiguration;
 
     private WindowListener windowListener;
     private boolean shutdownApplicationWasCalled;
@@ -43,7 +43,7 @@ public class MainGuiTest {
         mockFrame = Mockito.mock(JFrame.class);
         mockContentPane = new Container();
         mockMainCallbacks = Mockito.mock(MainCallbacks.class);
-        mockConfiguration = Mockito.mock(ConfigurationV2.class);
+        mockConfiguration = Mockito.mock(Configuration.class);
 
         Mockito.when(mockFrame.getContentPane()).thenReturn(mockContentPane);
 

@@ -19,7 +19,7 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
-import nl.xs4all.home.freekdb.b52reader.general.ConfigurationV2;
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
@@ -49,7 +49,7 @@ public class MainApplication implements MainCallbacks {
     /**
      * Configuration object with data from the configuration file.
      */
-    private ConfigurationV2 configurationV2;
+    private Configuration configuration;
 
     /**
      * List of the currently available articles.
@@ -62,13 +62,13 @@ public class MainApplication implements MainCallbacks {
     void createAndLaunchApplication() {
         initializeDatabase();
 
-        configurationV2 = initializeConfiguration();
+        configuration = initializeConfiguration();
 
-        if (configurationV2 != null) {
+        if (configuration != null) {
             MainGui mainGui = new MainGui(this);
-            mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configurationV2);
+            mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
 
-            currentArticles = getArticles(configurationV2.getSelectedArticleSources());
+            currentArticles = getArticles(configuration.getSelectedArticleSources());
 
             mainGui.initializeGui(currentArticles);
         }
@@ -91,14 +91,14 @@ public class MainApplication implements MainCallbacks {
     /**
      * Initialize the configuration with data from the configuration file.
      */
-    private ConfigurationV2 initializeConfiguration() {
-        ConfigurationV2 applicationConfiguration = null;
-        URL configurationUrl = ConfigurationV2.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+    private Configuration initializeConfiguration() {
+        Configuration applicationConfiguration = null;
+        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
 
         try {
             if (configurationUrl != null) {
                 InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
-                applicationConfiguration = new ConfigurationV2(configurationInputStream);
+                applicationConfiguration = new Configuration(configurationInputStream);
             }
         } catch (IOException e) {
             logger.error("Exception while reading the configuration file " + configurationUrl, e);
@@ -128,13 +128,13 @@ public class MainApplication implements MainCallbacks {
      */
     @Override
     public void shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
-        URL configurationUrl = ConfigurationV2.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
 
         try {
             if (configurationUrl != null) {
                 OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());
 
-                if (!configurationV2.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds)) {
+                if (!configuration.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds)) {
                     logger.error("Error while writing the configuration file " + configurationUrl);
                 }
             }

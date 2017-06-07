@@ -35,7 +35,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
-import nl.xs4all.home.freekdb.b52reader.general.ConfigurationV2;
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanArticleTableCellRenderer;
@@ -129,7 +129,7 @@ public class MainGui {
     /**
      * todo
      */
-    private ConfigurationV2 configurationV2;
+    private Configuration configuration;
 
     /**
      * Construct the main GUI object: set the main callbacks handler.
@@ -145,9 +145,9 @@ public class MainGui {
      * sources a background browser is used to retrieve the list of articles.
      *
      * @param frame the application frame that will contain the GUI.
-     * @param configurationV2 todo
+     * @param configuration todo
      */
-    public void initializeBackgroundBrowsersPanel(JFrame frame, ConfigurationV2 configurationV2) {
+    public void initializeBackgroundBrowsersPanel(JFrame frame, Configuration configuration) {
         JPanel backgroundBrowsersPanel = new JPanel();
         backgroundBrowsersPanel.setVisible(false);
         ObjectHub.injectBackgroundBrowsersPanel(backgroundBrowsersPanel);
@@ -157,7 +157,7 @@ public class MainGui {
         this.frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
         this.frame.setVisible(true);
 
-        this.configurationV2 = configurationV2;
+        this.configuration = configuration;
     }
 
     /**
@@ -176,8 +176,8 @@ public class MainGui {
         backgroundTasksTimer.setInitialDelay(800);
         backgroundTasksTimer.start();
 
-        frame.setBounds(configurationV2.getFrameBounds());
-        frame.setExtendedState(configurationV2.getFrameExtendedState());
+        frame.setBounds(configuration.getFrameBounds());
+        frame.setExtendedState(configuration.getFrameExtendedState());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         SwingUtilities.invokeLater(this::finishGuiInitialization);
@@ -193,7 +193,7 @@ public class MainGui {
 
         manyBrowsersPanel = new ManyBrowsersPanel(new JWebBrowserFactory());
 
-        table = configurationV2.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
+        table = configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
@@ -256,7 +256,7 @@ public class MainGui {
                 .filter(article -> !article.isArchived())
                 .collect(Collectors.toList());
 
-        if (configurationV2.useSpanTable()) {
+        if (configuration.useSpanTable()) {
             tableModel = createSpanTableModel(filteredArticles);
             table.setModel(tableModel);
             setTableColumnWidths(table);
@@ -512,7 +512,7 @@ public class MainGui {
             backgroundArticleIndex++;
         }
 
-        if (configurationV2.useSpanTable()) {
+        if (configuration.useSpanTable()) {
             logger.debug("Check fetched status for {} rows.", tableModel.getRowCount() / 2);
 
             for (int rowIndex = 0; rowIndex < tableModel.getRowCount() / 2; rowIndex++) {

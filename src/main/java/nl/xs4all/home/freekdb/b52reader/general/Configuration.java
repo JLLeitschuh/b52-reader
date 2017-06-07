@@ -52,40 +52,30 @@ public class Configuration {
     /**
      * Selected article sources (from configuration file).
      */
-    private static List<ArticleSource> selectedArticleSources;
+    private List<ArticleSource> selectedArticleSources;
 
     /**
      * All available article sources (from configuration file).
      */
-    private static List<ArticleSource> allArticleSources;
+    private List<ArticleSource> allArticleSources;
 
     /**
      * The application window state (normal or maximized; from configuration file).
      */
-    private static int frameExtendedState;
+    private int frameExtendedState;
 
     /**
      * The application window position (from configuration file).
      */
-    private static Rectangle frameBounds;
-
-    /**
-     * Private constructor to hide the implicit public one.
-     */
-    private Configuration() {
-        // Should not be called.
-    }
+    private Rectangle frameBounds;
 
     /**
      * Initialize by reading the configuration data and filling the <code>selectedArticleSources</code> and
      * <code>allArticleSources</code> lists.
      *
      * @param configurationInputStream the input stream that contains the configuration data.
-     * @return whether the configuration was successfully read.
      */
-    public static boolean initialize(InputStream configurationInputStream) {
-        boolean result = true;
-
+    public Configuration(InputStream configurationInputStream) throws IOException {
         List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
         allArticleSources = new ArrayList<>();
         selectedArticleSources = new ArrayList<>();
@@ -120,10 +110,8 @@ public class Configuration {
         } catch (IOException e) {
             logger.error("Exception while reading the configuration data.", e);
 
-            result = false;
+            throw e;
         }
-
-        return result;
     }
 
     /**
@@ -131,7 +119,7 @@ public class Configuration {
      *
      * @return the selected article sources.
      */
-    public static List<ArticleSource> getSelectedArticleSources() {
+    public List<ArticleSource> getSelectedArticleSources() {
         return selectedArticleSources;
     }
 
@@ -140,7 +128,7 @@ public class Configuration {
      *
      * @return the application window state (normal or maximized).
      */
-    public static int getFrameExtendedState() {
+    public int getFrameExtendedState() {
         return frameExtendedState;
     }
 
@@ -149,7 +137,7 @@ public class Configuration {
      *
      * @return the application window position.
      */
-    public static Rectangle getFrameBounds() {
+    public Rectangle getFrameBounds() {
         return frameBounds;
     }
 
@@ -158,7 +146,7 @@ public class Configuration {
      *
      * @return use the GUI span table (true) or the table with the custom article renderer (false).
      */
-    public static boolean useSpanTable() {
+    public boolean useSpanTable() {
         return true;
     }
 
@@ -170,34 +158,32 @@ public class Configuration {
      * @param frameBounds               the application window bounds.
      * @return whether the configuration was successfully written.
      */
-    public static boolean writeConfiguration(OutputStream configurationOutputStream, int frameExtendedState,
-                                             Rectangle frameBounds) {
+    public boolean writeConfiguration(OutputStream configurationOutputStream, int frameExtendedState,
+                                      Rectangle frameBounds) {
         boolean result = true;
-
-        String sourceIds = (selectedArticleSources != null)
-                ? selectedArticleSources.stream().map(ArticleSource::getSourceId).collect(Collectors.joining(","))
-                : "";
-
-        String windowConfiguration = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : "maximized") +
-                                     (frameBounds != null
-                                             ? ";" + frameBounds.x + "," + frameBounds.y + "," +
-                                               frameBounds.width + "x" + frameBounds.height
-                                             : "");
 
         try {
             Properties configuration = new Properties();
 
+            String sourceIds = selectedArticleSources.stream()
+                    .map(ArticleSource::getSourceId)
+                    .collect(Collectors.joining(","));
+
             configuration.setProperty(SOURCE_IDS_KEY, sourceIds);
 
-            if (allArticleSources != null) {
-                for (ArticleSource articleSource : allArticleSources) {
-                    String parameters = articleSource instanceof RssArticleSource
-                            ? getRssParameters((RssArticleSource) articleSource)
-                            : articleSource.getClass().getName();
+            for (ArticleSource articleSource : allArticleSources) {
+                String parameters = articleSource instanceof RssArticleSource
+                        ? getRssParameters((RssArticleSource) articleSource)
+                        : articleSource.getClass().getName();
 
-                    configuration.setProperty("source-" + articleSource.getSourceId(), parameters);
-                }
+                configuration.setProperty("source-" + articleSource.getSourceId(), parameters);
             }
+
+            String windowConfiguration = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : "maximized") +
+                                         (frameBounds != null
+                                                 ? ";" + frameBounds.x + "," + frameBounds.y + "," +
+                                                   frameBounds.width + "x" + frameBounds.height
+                                                 : "");
 
             configuration.setProperty("window-configuration", windowConfiguration);
 
@@ -216,7 +202,7 @@ public class Configuration {
      *
      * @param configuration the configuration properties.
      */
-    private static void addConfiguredSources(Properties configuration) {
+    private void addConfiguredSources(Properties configuration) {
         String sourcePrefix = "source-";
 
         Collections.list(configuration.propertyNames()).forEach(name -> {
@@ -242,7 +228,7 @@ public class Configuration {
      * @param sourceConfiguration the source configuration.
      * @return the new article source object.
      */
-    private static ArticleSource createArticleSource(String sourceId, String sourceConfiguration) {
+    private ArticleSource createArticleSource(String sourceId, String sourceConfiguration) {
         ArticleSource articleSource = null;
 
         try {
@@ -273,7 +259,7 @@ public class Configuration {
         return articleSource;
     }
 
-    private static Object constructRssArticleSource(String[] configurationItems, String sourceId) {
+    private Object constructRssArticleSource(String[] configurationItems, String sourceId) {
         Object source = null;
 
         try {
@@ -298,7 +284,7 @@ public class Configuration {
      * @param boundsConfiguration the bounds configuration.
      * @return the rectangle with the window bounds.
      */
-    private static Rectangle getBoundsFromConfiguration(String boundsConfiguration) {
+    private Rectangle getBoundsFromConfiguration(String boundsConfiguration) {
         int[] bounds = Arrays.stream(boundsConfiguration.split("[,x]")).mapToInt(Integer::parseInt).toArray();
 
         return new Rectangle(bounds[0], bounds[1], bounds[2], bounds[3]);
@@ -310,7 +296,7 @@ public class Configuration {
      * @param rssSource the RSS article source.
      * @return the configuration parameters for an RSS article source.
      */
-    private static String getRssParameters(RssArticleSource rssSource) {
+    private String getRssParameters(RssArticleSource rssSource) {
         String authorName = rssSource.getDefaultAuthor() != null
                 ? rssSource.getDefaultAuthor().getName()
                 : rssSource.getFeedName();
