@@ -162,30 +162,28 @@ public class ConfigurationV2 {
                                       Rectangle frameBounds) {
         boolean result = true;
 
-        String sourceIds = (selectedArticleSources != null)
-                ? selectedArticleSources.stream().map(ArticleSource::getSourceId).collect(Collectors.joining(","))
-                : "";
-
-        String windowConfiguration = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : "maximized") +
-                                     (frameBounds != null
-                                             ? ";" + frameBounds.x + "," + frameBounds.y + "," +
-                                               frameBounds.width + "x" + frameBounds.height
-                                             : "");
-
         try {
             Properties configuration = new Properties();
 
+            String sourceIds = selectedArticleSources.stream()
+                    .map(ArticleSource::getSourceId)
+                    .collect(Collectors.joining(","));
+
             configuration.setProperty(SOURCE_IDS_KEY, sourceIds);
 
-            if (allArticleSources != null) {
-                for (ArticleSource articleSource : allArticleSources) {
-                    String parameters = articleSource instanceof RssArticleSource
-                            ? getRssParameters((RssArticleSource) articleSource)
-                            : articleSource.getClass().getName();
+            for (ArticleSource articleSource : allArticleSources) {
+                String parameters = articleSource instanceof RssArticleSource
+                        ? getRssParameters((RssArticleSource) articleSource)
+                        : articleSource.getClass().getName();
 
-                    configuration.setProperty("source-" + articleSource.getSourceId(), parameters);
-                }
+                configuration.setProperty("source-" + articleSource.getSourceId(), parameters);
             }
+
+            String windowConfiguration = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : "maximized") +
+                                         (frameBounds != null
+                                                 ? ";" + frameBounds.x + "," + frameBounds.y + "," +
+                                                   frameBounds.width + "x" + frameBounds.height
+                                                 : "");
 
             configuration.setProperty("window-configuration", windowConfiguration);
 

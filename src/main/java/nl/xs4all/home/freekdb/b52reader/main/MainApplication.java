@@ -133,7 +133,10 @@ public class MainApplication implements MainCallbacks {
         try {
             if (configurationUrl != null) {
                 OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());
-                configurationV2.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds);
+
+                if (!configurationV2.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds)) {
+                    logger.error("Error while writing the configuration file " + configurationUrl);
+                }
             }
         } catch (FileNotFoundException e) {
             logger.error("Exception while writing the configuration file " + configurationUrl, e);
