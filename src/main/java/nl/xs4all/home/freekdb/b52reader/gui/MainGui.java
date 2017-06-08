@@ -92,7 +92,7 @@ public class MainGui {
     /**
      * Article index for next article to load in the background.
      * <p>
-     * todo: Should we load articles from the filtered articles list (instead of from all current articles list).
+     * todo: Should we load articles from the filtered articles list (instead of from all current articles list)?
      */
     private int backgroundArticleIndex;
 
@@ -127,7 +127,7 @@ public class MainGui {
     private ManyBrowsersPanel manyBrowsersPanel;
 
     /**
-     * todo
+     * Configuration object with data from the configuration file.
      */
     private Configuration configuration;
 
@@ -145,7 +145,7 @@ public class MainGui {
      * sources a background browser is used to retrieve the list of articles.
      *
      * @param frame the application frame that will contain the GUI.
-     * @param configuration todo
+     * @param configuration the application configuration.
      */
     public void initializeBackgroundBrowsersPanel(JFrame frame, Configuration configuration) {
         JPanel backgroundBrowsersPanel = new JPanel();
@@ -272,7 +272,6 @@ public class MainGui {
             if (previousSelectedArticle != null) {
                 int previousIndex = filteredArticles.indexOf(previousSelectedArticle);
                 if (previousIndex != -1) {
-                    //selectArticle(previousSelectedArticle, previousIndex);
                     table.getSelectionModel().setSelectionInterval(previousIndex, previousIndex);
                     selectFirstArticle = false;
                 }
@@ -385,7 +384,7 @@ public class MainGui {
      */
     private TableModel createSpanTableModel(List<Article> articles) {
         List<String> columnIdentifiers = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
-        //int[] columnIndices1 = {0, 1, 2};
+        //int[] columnIndices1 = {0, 1, 2
         int[] columnIndices2 = {3, 4, 5};
 
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
@@ -408,7 +407,7 @@ public class MainGui {
         spanTableModel.setDataVector(data, listToVector(columnIdentifiers));
 
         for (int rowIndex = 1; rowIndex < data.size(); rowIndex += 2) {
-            //spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices1);
+            //spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices1)
             spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices2);
         }
 

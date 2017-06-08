@@ -101,7 +101,7 @@ public class ManyBrowsersPanelTest {
     private JWebBrowser createMockBrowser() throws IllegalAccessException {
         JWebBrowser mockWebBrowser = Mockito.mock(JWebBrowser.class);
 
-        // Initialize the private Container.component field to make prevent a null pointer exception later.
+        // Initialize the private Container.component field to prevent a null pointer exception later.
         FieldUtils.writeField(mockWebBrowser, "component", new ArrayList<>(), true);
 
         Mockito.when(mockWebBrowser.navigate(Mockito.anyString())).then(invocationOnMock -> {
