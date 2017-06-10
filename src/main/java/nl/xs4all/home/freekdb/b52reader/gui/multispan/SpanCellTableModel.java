@@ -31,9 +31,10 @@ import nl.xs4all.home.freekdb.b52reader.model.Article;
  * @version 1.0 11/22/98
  */
 public class SpanCellTableModel extends DefaultTableModel {
-    private TableSpans tableSpans;
+    private transient TableSpans tableSpans;
 
-    private List<Article> articles;
+    private List<Class<?>> columnClasses;
+    private transient List<Article> articles;
 
     public SpanCellTableModel(List<Article> articles, int columnCount) {
         this.articles = articles;
@@ -55,10 +56,10 @@ public class SpanCellTableModel extends DefaultTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return getValueAt(0, columnIndex).getClass();
+        return columnClasses.get(columnIndex);
     }
 
-    public void setDataVector(Vector newData, Vector columnNames) {
+    public void setDataVector(Vector newData, Vector columnNames, List<Class<?>> columnClasses) {
         if (newData == null) {
             throw new IllegalArgumentException("setDataVector() - Null parameter");
         }
@@ -66,8 +67,9 @@ public class SpanCellTableModel extends DefaultTableModel {
         dataVector = new Vector(0);
 
         // Code modified to prevent stack overflow. See http://stackoverflow.com/a/21977825/1694043 for more information.
-        // setColumnIdentifiers(columnNames);
+        // setColumnIdentifiers(columnNames)
         columnIdentifiers = columnNames;
+        this.columnClasses = columnClasses;
 
         dataVector = newData;
 
@@ -77,6 +79,7 @@ public class SpanCellTableModel extends DefaultTableModel {
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
     }
 
+    @Override
     public void addColumn(Object columnName, Vector columnData) {
         if (columnName == null) {
             throw new IllegalArgumentException("addColumn() - null parameter");
@@ -106,6 +109,7 @@ public class SpanCellTableModel extends DefaultTableModel {
         fireTableStructureChanged();
     }
 
+    @Override
     public void addRow(Vector rowData) {
         Vector newData = null;
 
@@ -124,6 +128,7 @@ public class SpanCellTableModel extends DefaultTableModel {
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
     }
 
+    @Override
     public void insertRow(int row, Vector rowData) {
         if (rowData == null) {
             rowData = new Vector(getColumnCount());
@@ -142,11 +147,11 @@ public class SpanCellTableModel extends DefaultTableModel {
 
     // todo: Subclass this class and create an ArticleSpanTableModel class?
     // todo: Contents should be adjusted -> change dataVector or let getValueAt use the list of articles.
-//    void setArticles(List<Article> articles) {
-//        this.articles = articles;
+//    void setArticles(List<Article> articles)
+//        this.articles = articles
 //
-//        fireTableStructureChanged();
-//    }
+//        fireTableStructureChanged()
+//    )
 
     Article getArticle(int rowIndex) {
         return (articles != null && rowIndex >= 0 && rowIndex < articles.size())

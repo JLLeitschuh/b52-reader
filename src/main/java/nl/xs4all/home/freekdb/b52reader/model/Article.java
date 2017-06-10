@@ -51,7 +51,12 @@ public class Article {
         private ZonedDateTime dateTime;
         private String text;
         private int likes;
+
         private int recordId;
+
+        private boolean starred;
+        private boolean read;
+        private boolean archived;
 
         public Builder(String url, String sourceId, Author author, String title, ZonedDateTime dateTime, String text) {
             this.url = url;
@@ -70,6 +75,24 @@ public class Article {
 
         public Builder recordId(int recordId) {
             this.recordId = recordId;
+
+            return this;
+        }
+
+        public Builder starred(boolean starred) {
+            this.starred = starred;
+
+            return this;
+        }
+
+        public Builder read(boolean read) {
+            this.read = read;
+
+            return this;
+        }
+
+        public Builder archived(boolean archived) {
+            this.archived = archived;
 
             return this;
         }
@@ -93,6 +116,10 @@ public class Article {
         this.likes = builder.likes;
 
         this.recordId = builder.recordId;
+
+        this.setStarred(builder.starred);
+        this.setRead(builder.read);
+        this.setArchived(builder.archived);
     }
 
     public static Article createArticleFromDatabase(ResultSet resultSet, List<Author> authors) {

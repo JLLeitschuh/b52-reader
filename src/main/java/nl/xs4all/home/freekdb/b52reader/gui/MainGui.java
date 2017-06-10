@@ -43,6 +43,7 @@ import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.apache.logging.log4j.LogManager;
@@ -384,6 +385,11 @@ public class MainGui {
      */
     private TableModel createSpanTableModel(List<Article> articles) {
         List<String> columnIdentifiers = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
+
+        List<Class<?>> columnClasses = Arrays.asList(
+                String.class, Icon.class, String.class, String.class, Author.class, String.class
+        );
+
         //int[] columnIndices1 = {0, 1, 2
         int[] columnIndices2 = {3, 4, 5};
 
@@ -398,13 +404,13 @@ public class MainGui {
                     article.isRead() ? "" : "unread",
                     article.getTitle(),
                     article.getAuthor(),
-                    Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime())
+                    article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
             )));
 
             data.add(listToVector(Arrays.asList("", "", "", article.getText())));
         });
 
-        spanTableModel.setDataVector(data, listToVector(columnIdentifiers));
+        spanTableModel.setDataVector(data, listToVector(columnIdentifiers), columnClasses);
 
         for (int rowIndex = 1; rowIndex < data.size(); rowIndex += 2) {
             //spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices1)

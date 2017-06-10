@@ -14,8 +14,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
-
 import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -33,8 +33,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static nl.xs4all.home.freekdb.b52reader.gui.MainGuiTest.FilterTestType.CHANGE_TEXT;
+import static nl.xs4all.home.freekdb.b52reader.gui.MainGuiTest.FilterTestType.INSERT_TEXT;
+import static nl.xs4all.home.freekdb.b52reader.gui.MainGuiTest.FilterTestType.NO_MATCHES;
+import static nl.xs4all.home.freekdb.b52reader.gui.MainGuiTest.FilterTestType.REMOVE_TEXT;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -102,51 +108,52 @@ public class MainGuiTest {
     }
 
     @Test
-    public void testFilterInsert() throws BadLocationException, IllegalAccessException, InterruptedException,
-                                          InvocationTargetException, NoSuchMethodException {
-        testFilter("insert");
+    public void testFilterInsert() throws BadLocationException, InterruptedException, ReflectiveOperationException {
+        testFilter(INSERT_TEXT);
     }
 
     @Test
-    public void testFilterRemove() throws BadLocationException, IllegalAccessException, InterruptedException,
-                                          InvocationTargetException, NoSuchMethodException {
-        testFilter("remove");
+    public void testFilterRemove() throws BadLocationException, InterruptedException, ReflectiveOperationException {
+        testFilter(REMOVE_TEXT);
     }
 
     @Test
-    public void testFilterChange() throws BadLocationException, IllegalAccessException, InterruptedException,
-                                          InvocationTargetException, NoSuchMethodException {
-        testFilter("change");
+    public void testFilterChange() throws BadLocationException, InterruptedException, ReflectiveOperationException {
+        testFilter(CHANGE_TEXT);
     }
 
-    private void testFilter(String testType) throws BadLocationException, IllegalAccessException, InterruptedException,
-                                                    InvocationTargetException, NoSuchMethodException {
-        List<Article> articles = Arrays.asList(
-                new Article.Builder("u1", "s1", null, "Title1", null, "Te1.").build(),
-                new Article.Builder("u2", "s2", null, "Title2", null, "Te2.").build()
-        );
+    @Test
+    public void testFilterNoMatches() throws BadLocationException, InterruptedException, ReflectiveOperationException {
+        testFilter(NO_MATCHES);
+    }
 
+    private void testFilter(FilterTestType testType) throws BadLocationException, InterruptedException,
+                                                            ReflectiveOperationException {
         MainGui mainGui = new MainGui(mockMainCallbacks);
 
+        Mockito.when(mockConfiguration.useSpanTable()).thenReturn(testType == CHANGE_TEXT);
+
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
-        mainGui.initializeGui(articles);
+        mainGui.initializeGui(getTestArticles());
 
         waitForGuiTasks();
 
         JTable table = (JTable) findComponent(mockContentPane, JTable.class);
+        assertNotNull(table);
 
-        assertEquals(2, table.getRowCount());
+        assertEquals(mockConfiguration.useSpanTable() ? 6 : 3, table.getRowCount());
 
         JTextField filterTextField = (JTextField) findComponent(mockContentPane, JTextField.class);
+        assertNotNull(filterTextField);
         AbstractDocument document = (AbstractDocument) filterTextField.getDocument();
 
         document.insertString(0, "title:title1", null);
 
-        assertEquals(1, table.getRowCount());
+        assertEquals(mockConfiguration.useSpanTable() ? 2 : 1, table.getRowCount());
 
-        if ("remove".equals(testType)) {
+        if (testType == REMOVE_TEXT) {
             document.remove(0, document.getLength());
-        } else if ("change".equals(testType)) {
+        } else if (testType == CHANGE_TEXT) {
             document.replace(6, 6, "title2", null);
 
             // Since change is implemented as remove and insert, the fireChangedUpdate method is called with reflection.
@@ -154,21 +161,44 @@ public class MainGuiTest {
             Method method = AbstractDocument.class.getDeclaredMethod("fireChangedUpdate", DocumentEvent.class);
             method.setAccessible(true);
             method.invoke(document, mockEvent);
+        } else if (testType == NO_MATCHES) {
+            document.insertString(document.getLength(), "-some-nonsense", null);
         }
 
-        assertEquals("remove".equals(testType) ? 2 : 1, table.getRowCount());
+        checkArticlesInGui(testType, mainGui, table.getRowCount());
+    }
+
+    private List<Article> getTestArticles() {
+        return Arrays.asList(
+                new Article.Builder("u1", "s1", null, "Title1", null, "Text 1.")
+                        .build(),
+                new Article.Builder("u2", "s2", null, "Title2", null, "Text 2.")
+                        .build(),
+                new Article.Builder("u3", "s3", null, "Title3", null, "Text 3.")
+                        .starred(true).read(true).archived(true)
+                        .build()
+        );
+    }
+
+    private void checkArticlesInGui(FilterTestType testType, MainGui mainGui, int tableRowCount)
+            throws IllegalAccessException {
+        int expectedRowCount = testType == NO_MATCHES
+                ? 0
+                : (testType == REMOVE_TEXT ? 2 : 1) * (mockConfiguration.useSpanTable() ? 2 : 1);
+
+        assertEquals(expectedRowCount, tableRowCount);
 
         Object filteredArticlesField = FieldUtils.readField(mainGui, "filteredArticles", true);
 
         assertTrue(filteredArticlesField instanceof List);
         List filteredArticles = (List) filteredArticlesField;
 
-        if ("insert".equals(testType) || "remove".equals(testType)) {
+        if (testType == INSERT_TEXT || testType == REMOVE_TEXT) {
             assertEquals("u1", ((Article) filteredArticles.get(0)).getUrl());
         }
 
-        if ("remove".equals(testType) || "change".equals(testType)) {
-            assertEquals("u2", ((Article) filteredArticles.get("remove".equals(testType) ? 1 : 0)).getUrl());
+        if (EnumSet.of(REMOVE_TEXT, CHANGE_TEXT).contains(testType)) {
+            assertEquals("u2", ((Article) filteredArticles.get(testType == REMOVE_TEXT ? 1 : 0)).getUrl());
         }
     }
 
@@ -198,7 +228,7 @@ public class MainGuiTest {
         while (componentIndex < parent.getComponentCount() && result == null) {
             Component component = parent.getComponent(componentIndex);
 
-            if (component.getClass() == searchClass) {
+            if (searchClass.isInstance(component)) {
                 result = component;
             } else if (component instanceof Container) {
                 result = findComponent((Container) component, searchClass);
@@ -208,5 +238,13 @@ public class MainGuiTest {
         }
 
         return result;
+    }
+
+
+    enum FilterTestType {
+        INSERT_TEXT,
+        REMOVE_TEXT,
+        CHANGE_TEXT,
+        NO_MATCHES
     }
 }
