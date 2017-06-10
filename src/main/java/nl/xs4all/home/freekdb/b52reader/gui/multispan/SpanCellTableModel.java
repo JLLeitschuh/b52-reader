@@ -16,13 +16,16 @@
 
 package nl.xs4all.home.freekdb.b52reader.gui.multispan;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 
 // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
@@ -59,24 +62,45 @@ public class SpanCellTableModel extends DefaultTableModel {
         return columnClasses.get(columnIndex);
     }
 
-    public void setDataVector(Vector newData, Vector columnNames, List<Class<?>> columnClasses) {
-        if (newData == null) {
-            throw new IllegalArgumentException("setDataVector() - Null parameter");
-        }
-
-        dataVector = new Vector(0);
-
+    public void setColumnsAndData(List<String> columnNames, List<Class<?>> columnClasses, List<Article> articles,
+                                  Predicate<Article> isFetched) {
         // Code modified to prevent stack overflow. See http://stackoverflow.com/a/21977825/1694043 for more information.
         // setColumnIdentifiers(columnNames)
-        columnIdentifiers = columnNames;
+        columnIdentifiers = listToVector(columnNames);
         this.columnClasses = columnClasses;
 
-        dataVector = newData;
+        Vector<Vector<Object>> newDataVector = new Vector();
+
+        articles.forEach(article -> {
+            newDataVector.add(listToVector(Arrays.asList(
+                    isFetched.test(article) ? Constants.FETCHED_VALUE : "",
+                    article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
+                    article.isRead() ? "" : "unread",
+                    article.getTitle(),
+                    article.getAuthor(),
+                    article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
+            )));
+
+            newDataVector.add(listToVector(Arrays.asList("", "", "", article.getText())));
+        });
+
+        dataVector = newDataVector;
 
         tableSpans = new DefaultTableSpans(dataVector.size(), columnIdentifiers.size());
 
         newRowsAdded(new TableModelEvent(this, 0, getRowCount() - 1,
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+    }
+
+    /**
+     * Convert a list to a vector.
+     *
+     * @param list the list to convert.
+     * @param <T>  the type of the list items.
+     * @return the vector with the same items as are in the list.
+     */
+    private <T> Vector<T> listToVector(List<T> list) {
+        return new Vector<>(list);
     }
 
     @Override
@@ -92,11 +116,7 @@ public class SpanCellTableModel extends DefaultTableModel {
         Enumeration enumeration = dataVector.elements();
 
         while (enumeration.hasMoreElements()) {
-            Object value;
-            if ((columnData != null) && (index < columnData.size()))
-                value = columnData.elementAt(index);
-            else
-                value = null;
+            Object value = (columnData != null && index < columnData.size()) ? columnData.elementAt(index) : null;
 
             //noinspection unchecked
             ((Vector) enumeration.nextElement()).addElement(value);

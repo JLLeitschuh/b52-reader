@@ -8,6 +8,9 @@ package nl.xs4all.home.freekdb.b52reader.general;
 
 import java.awt.Color;
 import java.time.format.DateTimeFormatter;
+import javax.swing.Icon;
+
+import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 /**
  * Some general constants.
@@ -75,4 +78,19 @@ public class Constants {
      */
     static final String CONFIGURATION_HEADER = "Configuration file for the b52-reader "
                                                + "(https://github.com/FreekDB/b52-reader).";
+
+    /**
+     * Cell value for fetched articles.
+     */
+    public static final String FETCHED_VALUE = "fetched";
+
+    /**
+     * Icon for starred articles.
+     */
+    public static final Icon STARRED_ICON = Utilities.getIconResource("32x32-Full_Star_Yellow.png");
+
+    /**
+     * Icon for unstarred articles.
+     */
+    public static final Icon UNSTARRED_ICON = Utilities.getIconResource("32x32-Empty_Star.png");
 }

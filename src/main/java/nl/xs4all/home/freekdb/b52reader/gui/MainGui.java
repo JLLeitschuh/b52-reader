@@ -15,9 +15,7 @@ import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Vector;
 import java.util.stream.Collectors;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,7 +42,6 @@ import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
-import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,16 +52,6 @@ import org.apache.logging.log4j.Logger;
  * Main class responsible for the GUI.
  */
 public class MainGui {
-    /**
-     * Icon for starred articles.
-     */
-    private static final Icon STARRED_ICON = Utilities.getIconResource("32x32-Full_Star_Yellow.png");
-
-    /**
-     * Icon for unstarred articles.
-     */
-    private static final Icon UNSTARRED_ICON = Utilities.getIconResource("32x32-Empty_Star.png");
-
     /**
      * Logger for this class.
      */
@@ -145,7 +132,7 @@ public class MainGui {
      * Make sure the background browsers functionality is initialized before fetching articles, since for some article
      * sources a background browser is used to retrieve the list of articles.
      *
-     * @param frame the application frame that will contain the GUI.
+     * @param frame         the application frame that will contain the GUI.
      * @param configuration the application configuration.
      */
     public void initializeBackgroundBrowsersPanel(JFrame frame, Configuration configuration) {
@@ -270,14 +257,14 @@ public class MainGui {
 
         if (!filteredArticles.isEmpty()) {
             boolean selectFirstArticle = true;
-            if (previousSelectedArticle != null) {
-                int previousIndex = filteredArticles.indexOf(previousSelectedArticle);
-                if (previousIndex != -1) {
-                    table.getSelectionModel().setSelectionInterval(previousIndex, previousIndex);
-                    selectFirstArticle = false;
-                }
+
+            int previousIndex = filteredArticles.indexOf(previousSelectedArticle);
+            if (previousIndex != -1) {
+                table.getSelectionModel().setSelectionInterval(previousIndex, previousIndex);
+                selectFirstArticle = false;
             }
-            if (selectFirstArticle && table != null) {
+
+            if (selectFirstArticle) {
                 table.getSelectionModel().setSelectionInterval(0, 0);
             }
         }
@@ -384,7 +371,7 @@ public class MainGui {
      * @return the GUI span table model.
      */
     private TableModel createSpanTableModel(List<Article> articles) {
-        List<String> columnIdentifiers = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
+        List<String> columnNames = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
 
         List<Class<?>> columnClasses = Arrays.asList(
                 String.class, Icon.class, String.class, String.class, Author.class, String.class
@@ -394,41 +381,17 @@ public class MainGui {
         int[] columnIndices2 = {3, 4, 5};
 
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
-        SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnIdentifiers.size());
+        SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnNames.size());
 
-        Vector<Vector<Object>> data = new Vector<>();
-        articles.forEach(article -> {
-            data.add(listToVector(Arrays.asList(
-                    manyBrowsersPanel.hasBrowserForUrl(article.getUrl()) ? "fetched" : "",
-                    article.isStarred() ? STARRED_ICON : UNSTARRED_ICON,
-                    article.isRead() ? "" : "unread",
-                    article.getTitle(),
-                    article.getAuthor(),
-                    article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
-            )));
+        spanTableModel.setColumnsAndData(columnNames, columnClasses, articles,
+                                         article -> manyBrowsersPanel.hasBrowserForUrl(article.getUrl()));
 
-            data.add(listToVector(Arrays.asList("", "", "", article.getText())));
-        });
-
-        spanTableModel.setDataVector(data, listToVector(columnIdentifiers), columnClasses);
-
-        for (int rowIndex = 1; rowIndex < data.size(); rowIndex += 2) {
+        for (int rowIndex = 1; rowIndex < 2 * articles.size(); rowIndex += 2) {
             //spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices1)
             spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices2);
         }
 
         return spanTableModel;
-    }
-
-    /**
-     * Convert a list to a vector.
-     *
-     * @param list the list to convert.
-     * @param <T>  the type of the list items.
-     * @return the vector with the same items as are in the list.
-     */
-    private <T> Vector<T> listToVector(List<T> list) {
-        return new Vector<>(list);
     }
 
     /**
@@ -523,7 +486,7 @@ public class MainGui {
             for (int rowIndex = 0; rowIndex < tableModel.getRowCount() / 2; rowIndex++) {
                 if (manyBrowsersPanel.hasBrowserForUrl(currentArticles.get(rowIndex).getUrl()) &&
                     Objects.equals(tableModel.getValueAt(rowIndex * 2, 0), "")) {
-                    tableModel.setValueAt("fetched", rowIndex * 2, 0);
+                    tableModel.setValueAt(Constants.FETCHED_VALUE, rowIndex * 2, 0);
                     logger.debug("Set column 0 for row {} to fetched.", rowIndex);
                 }
             }
