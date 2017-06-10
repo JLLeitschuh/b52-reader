@@ -11,15 +11,17 @@ jdk:
 - oraclejdk8
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
-# This could be useful for some type of GUI testing:
-#before_script:
-#- "export DISPLAY=:99.0"
-#- "sh -e /etc/init.d/xvfb start"
+# Initialize the test environment for GUI testing, using the X Virtual Framebuffer (xvfb).
+before_script:
+- "export DISPLAY=:99.0"
+- "sh -e /etc/init.d/xvfb start"
+- sleep 3
 
 # To generate code coverage data.
 after_success:
 - mvn clean test jacoco:report coveralls:report
 
-# This could be useful for some type of GUI testing:
+# todo: This is no longer needed?
+# Stop the display imitation after GUI testing.
 #after_script:
 #- "sh -e /etc/init.d/xvfb stop"
