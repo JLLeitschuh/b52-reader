@@ -237,7 +237,7 @@ public class MainGui {
      * Filter the articles and update the GUI.
      */
     private void filterAndShowArticles() {
-        Article previousSelectedArticle = selectedArticle;
+        Article previouslySelectedArticle = selectedArticle;
 
         filteredArticles = currentArticles.stream()
                 .filter(new ArticleFilter(filterTextField.getText()))
@@ -258,7 +258,7 @@ public class MainGui {
         if (!filteredArticles.isEmpty()) {
             boolean selectFirstArticle = true;
 
-            int previousIndex = filteredArticles.indexOf(previousSelectedArticle);
+            int previousIndex = filteredArticles.indexOf(previouslySelectedArticle);
             if (previousIndex != -1) {
                 table.getSelectionModel().setSelectionInterval(previousIndex, previousIndex);
                 selectFirstArticle = false;
@@ -289,7 +289,7 @@ public class MainGui {
 
         customRendererTable.setAutoCreateRowSorter(true);
 
-        // todo: customRendererTable.addKeyListener(new KeyboardShortcutHandler(this));
+        // todo: Add customRendererTable.addKeyListener(new KeyboardShortcutHandler(this));
 
         customRendererTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -301,7 +301,7 @@ public class MainGui {
         });
 
         customRendererTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedArticleIndex = getSelectedTableRow();
+            int selectedArticleIndex = getSelectedArticleIndex();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
                 Article article = filteredArticles.get(selectedArticleIndex);
@@ -346,15 +346,15 @@ public class MainGui {
 
         spanTable.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(MouseEvent mouseEvent) {
-                super.mousePressed(mouseEvent);
+            public void mouseClicked(MouseEvent mouseEvent) {
+                super.mouseClicked(mouseEvent);
 
                 handleTableClick(mouseEvent);
             }
         });
 
         spanTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedArticleIndex = getSelectedTableRow();
+            int selectedArticleIndex = getSelectedArticleIndex();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
                 selectArticle(filteredArticles.get(selectedArticleIndex), selectedArticleIndex);
@@ -413,10 +413,10 @@ public class MainGui {
      * @param mouseEvent the mouse event (to determine the column index).
      */
     private void handleTableClick(MouseEvent mouseEvent) {
-        int selectedArticleIndex = getSelectedTableRow();
-        Article clickedArticle = selectedArticleIndex != -1 ? filteredArticles.get(selectedArticleIndex) : null;
+        int selectedArticleIndex = getSelectedArticleIndex();
 
-        if (clickedArticle != null) {
+        if (selectedArticleIndex != -1) {
+            Article clickedArticle = filteredArticles.get(selectedArticleIndex);
             int columnIndex = table.columnAtPoint(mouseEvent.getPoint());
             boolean updateArticleList = false;
 
@@ -429,19 +429,24 @@ public class MainGui {
             }
 
             if (updateArticleList) {
-                // todo: Keep selection and scroll location if possible.
                 filterAndShowArticles();
             }
         }
     }
 
     /**
-     * Get the selected table row, with an adjustment for span cell tables if necessary (divided by two).
+     * Get the selected article index, with an adjustment for span cell tables if necessary (divided by two).
      *
-     * @return the selected table row.
+     * @return the selected article index.
      */
-    private int getSelectedTableRow() {
-        return table.getSelectedRow() / (tableModel instanceof SpanCellTableModel ? 2 : 1);
+    private int getSelectedArticleIndex() {
+        int selectedArticleIndex = -1;
+
+        if (table.getSelectedRow() != -1) {
+            selectedArticleIndex = table.getSelectedRow() / (tableModel instanceof SpanCellTableModel ? 2 : 1);
+        }
+
+        return selectedArticleIndex;
     }
 
     /**

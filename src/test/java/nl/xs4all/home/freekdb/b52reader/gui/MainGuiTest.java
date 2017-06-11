@@ -8,12 +8,15 @@ package nl.xs4all.home.freekdb.b52reader.gui;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import javax.swing.JFrame;
@@ -96,7 +99,7 @@ public class MainGuiTest {
     }
 
     @Test
-    public void testInitializeGuiCustomRenderer() throws InvocationTargetException, InterruptedException {
+    public void testInitializeGuiCustomRendererTable() throws InvocationTargetException, InterruptedException {
         MainGui mainGui = new MainGui(mockMainCallbacks);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
@@ -125,6 +128,35 @@ public class MainGuiTest {
     @Test
     public void testFilterNoMatches() throws BadLocationException, InterruptedException, ReflectiveOperationException {
         testFilter(NO_MATCHES);
+    }
+
+    @Test
+    public void testClickWithoutSelectedRow() throws InterruptedException, InvocationTargetException {
+        testClickInTable(true, false);
+    }
+
+    @Test
+    public void testClickInSpanTable() throws InterruptedException, InvocationTargetException {
+        testClickInTable(true, true);
+    }
+
+    @Test
+    public void testClickInCustomRendererTable() throws InterruptedException, InvocationTargetException {
+        testClickInTable(false, true);
+    }
+
+    @Test
+    public void testShutdownApplication() throws InterruptedException, InvocationTargetException {
+        MainGui mainGui = new MainGui(mockMainCallbacks);
+
+        mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
+        mainGui.initializeGui(new ArrayList<>());
+
+        waitForGuiTasks();
+
+        windowListener.windowClosing(new WindowEvent(mockFrame, WindowEvent.WINDOW_CLOSING));
+
+        assertTrue(shutdownApplicationWasCalled);
     }
 
     private void testFilter(FilterTestType testType) throws BadLocationException, InterruptedException,
@@ -202,20 +234,6 @@ public class MainGuiTest {
         }
     }
 
-    @Test
-    public void testShutdownApplication() throws InterruptedException, InvocationTargetException {
-        MainGui mainGui = new MainGui(mockMainCallbacks);
-
-        mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
-        mainGui.initializeGui(new ArrayList<>());
-
-        waitForGuiTasks();
-
-        windowListener.windowClosing(new WindowEvent(mockFrame, WindowEvent.WINDOW_CLOSING));
-
-        assertTrue(shutdownApplicationWasCalled);
-    }
-
     // Wait for other tasks on the event dispatch thread to be completed (like MainGui.finishGuiInitialization).
     private void waitForGuiTasks() throws InterruptedException, InvocationTargetException {
         SwingUtilities.invokeAndWait(() -> mockFrame.getTitle());
@@ -238,6 +256,36 @@ public class MainGuiTest {
         }
 
         return result;
+    }
+
+    private void testClickInTable(boolean spanTable, boolean selectRow) throws InterruptedException,
+                                                                               InvocationTargetException {
+        MainGui mainGui = new MainGui(mockMainCallbacks);
+
+        Mockito.when(mockConfiguration.useSpanTable()).thenReturn(spanTable);
+
+        mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
+        mainGui.initializeGui(getTestArticles());
+
+        waitForGuiTasks();
+
+        JTable table = (JTable) findComponent(mockContentPane, JTable.class);
+        assertNotNull(table);
+
+        if (selectRow) {
+            table.getSelectionModel().setValueIsAdjusting(true);
+            table.getSelectionModel().setSelectionInterval(0, 0);
+        } else {
+            table.getSelectionModel().setValueIsAdjusting(true);
+            table.clearSelection();
+        }
+
+        MouseEvent mouseEvent = new MouseEvent(table, 123456, new Date().getTime(), 0, 100, 10,
+                                               1, false);
+
+        for (MouseListener mouseListener : table.getMouseListeners()) {
+            mouseListener.mouseClicked(mouseEvent);
+        }
     }
 
 
