@@ -52,6 +52,7 @@ import static org.junit.Assert.assertTrue;
 public class MainGuiTest {
     private JFrame mockFrame;
     private Container mockContentPane;
+    private ManyBrowsersPanel mockManyBrowsersPanel;
     private MainCallbacks mockMainCallbacks;
     private Configuration mockConfiguration;
 
@@ -59,9 +60,10 @@ public class MainGuiTest {
     private boolean shutdownApplicationWasCalled;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IllegalAccessException {
         mockFrame = Mockito.mock(JFrame.class);
         mockContentPane = new Container();
+        mockManyBrowsersPanel = Mockito.mock(ManyBrowsersPanel.class);
         mockMainCallbacks = Mockito.mock(MainCallbacks.class);
         mockConfiguration = Mockito.mock(Configuration.class);
 
@@ -70,13 +72,16 @@ public class MainGuiTest {
         Mockito.doAnswer(invocationOnMock -> windowListener = invocationOnMock.getArgument(0))
                 .when(mockFrame).addWindowListener(Mockito.any(WindowListener.class));
 
+        // Initialize the private Container.component field to prevent a null pointer exception later.
+        FieldUtils.writeField(mockManyBrowsersPanel, "component", new ArrayList<>(), true);
+
         Mockito.doAnswer(invocationOnMock -> shutdownApplicationWasCalled = true)
                 .when(mockMainCallbacks).shutdownApplication(Mockito.anyInt(), Mockito.any());
     }
 
     @Test
     public void testInitializeBackgroundBrowsersPanel() {
-        MainGui mainGui = new MainGui(null);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
 
@@ -86,7 +91,7 @@ public class MainGuiTest {
 
     @Test
     public void testInitializeGuiSpanTable() throws InvocationTargetException, InterruptedException {
-        MainGui mainGui = new MainGui(mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(true);
 
@@ -100,7 +105,7 @@ public class MainGuiTest {
 
     @Test
     public void testInitializeGuiCustomRendererTable() throws InvocationTargetException, InterruptedException {
-        MainGui mainGui = new MainGui(mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
         mainGui.initializeGui(new ArrayList<>());
@@ -132,22 +137,32 @@ public class MainGuiTest {
 
     @Test
     public void testClickWithoutSelectedRow() throws InterruptedException, InvocationTargetException {
-        testClickInTable(true, false);
+        testClickInTable(false, false, true, false, 120);
     }
 
     @Test
     public void testClickInSpanTable() throws InterruptedException, InvocationTargetException {
-        testClickInTable(true, true);
+        testClickInTable(false, false, true, true, 120);
+        testClickInTable(true, false, true, true, 120);
+
+        testClickInTable(false, false, true, true, 220);
+        testClickInTable(false, true, true, true, 220);
     }
 
     @Test
     public void testClickInCustomRendererTable() throws InterruptedException, InvocationTargetException {
-        testClickInTable(false, true);
+        testClickInTable(false, false, false, true, 20);
+        testClickInTable(true, false, false, true, 20);
+
+        testClickInTable(false, false, false, true, 40);
+        testClickInTable(false, true, false, true, 40);
+
+        testClickInTable(false, true, false, true, 80);
     }
 
     @Test
     public void testShutdownApplication() throws InterruptedException, InvocationTargetException {
-        MainGui mainGui = new MainGui(mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
         mainGui.initializeGui(new ArrayList<>());
@@ -161,7 +176,7 @@ public class MainGuiTest {
 
     private void testFilter(FilterTestType testType) throws BadLocationException, InterruptedException,
                                                             ReflectiveOperationException {
-        MainGui mainGui = new MainGui(mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(testType == CHANGE_TEXT);
 
@@ -203,6 +218,7 @@ public class MainGuiTest {
     private List<Article> getTestArticles() {
         return Arrays.asList(
                 new Article.Builder("u1", "s1", null, "Title1", null, "Text 1.")
+                        .starred(true).read(true)
                         .build(),
                 new Article.Builder("u2", "s2", null, "Title2", null, "Text 2.")
                         .build(),
@@ -258,14 +274,19 @@ public class MainGuiTest {
         return result;
     }
 
-    private void testClickInTable(boolean spanTable, boolean selectRow) throws InterruptedException,
-                                                                               InvocationTargetException {
-        MainGui mainGui = new MainGui(mockMainCallbacks);
+    private void testClickInTable(boolean firstStarred, boolean firstRead, boolean spanTable, boolean selectRow,
+                                  int xMouseEvent)
+            throws InterruptedException, InvocationTargetException {
+        List<Article> testArticles = getTestArticles();
+        testArticles.get(0).setStarred(firstStarred);
+        testArticles.get(0).setRead(firstRead);
+
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(spanTable);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
-        mainGui.initializeGui(getTestArticles());
+        mainGui.initializeGui(testArticles);
 
         waitForGuiTasks();
 
@@ -274,13 +295,15 @@ public class MainGuiTest {
 
         if (selectRow) {
             table.getSelectionModel().setValueIsAdjusting(true);
+            table.getSelectionModel().setSelectionInterval(1, 1);
+            table.getSelectionModel().setValueIsAdjusting(true);
             table.getSelectionModel().setSelectionInterval(0, 0);
         } else {
             table.getSelectionModel().setValueIsAdjusting(true);
             table.clearSelection();
         }
 
-        MouseEvent mouseEvent = new MouseEvent(table, 123456, new Date().getTime(), 0, 100, 10,
+        MouseEvent mouseEvent = new MouseEvent(table, 123456, new Date().getTime(), 0, xMouseEvent, 10,
                                                1, false);
 
         for (MouseListener mouseListener : table.getMouseListeners()) {

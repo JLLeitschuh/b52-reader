@@ -16,13 +16,14 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JFrame;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
+import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
@@ -65,7 +66,7 @@ public class MainApplication implements MainCallbacks {
         configuration = initializeConfiguration();
 
         if (configuration != null) {
-            MainGui mainGui = new MainGui(this);
+            MainGui mainGui = new MainGui(new ManyBrowsersPanel(new JWebBrowserFactory()), this);
             mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
 
             currentArticles = getArticles(configuration.getSelectedArticleSources());

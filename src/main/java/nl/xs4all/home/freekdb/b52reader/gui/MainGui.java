@@ -32,7 +32,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
-import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
@@ -122,9 +121,11 @@ public class MainGui {
     /**
      * Construct the main GUI object: set the main callbacks handler.
      *
+     * @param manyBrowsersPanel the panel with many embedded browsers, of which only one can be visible.
      * @param mainCallbacks the main callbacks handler.
      */
-    public MainGui(MainCallbacks mainCallbacks) {
+    public MainGui(ManyBrowsersPanel manyBrowsersPanel, MainCallbacks mainCallbacks) {
+        this.manyBrowsersPanel = manyBrowsersPanel;
         this.mainCallbacks = mainCallbacks;
     }
 
@@ -179,9 +180,7 @@ public class MainGui {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
-        manyBrowsersPanel = new ManyBrowsersPanel(new JWebBrowserFactory());
-
-        table = configuration.useSpanTable() ? createSpanTable(currentArticles) : createTable(currentArticles);
+        table = configuration.useSpanTable() ? createSpanTable(currentArticles) : createCustomRendererTable(currentArticles);
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
@@ -276,7 +275,7 @@ public class MainGui {
      * @param articles the (filtered) articles to show in the table.
      * @return the GUI table with the custom article renderer.
      */
-    private JTable createTable(List<Article> articles) {
+    private JTable createCustomRendererTable(List<Article> articles) {
         ArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
         tableModel = new ArticlesTableModel(articles);
@@ -417,7 +416,7 @@ public class MainGui {
 
         if (selectedArticleIndex != -1) {
             Article clickedArticle = filteredArticles.get(selectedArticleIndex);
-            int columnIndex = table.columnAtPoint(mouseEvent.getPoint());
+            int columnIndex = getColumnIndexFromClick(mouseEvent);
             boolean updateArticleList = false;
 
             if (columnIndex == 1) {
@@ -447,6 +446,31 @@ public class MainGui {
         }
 
         return selectedArticleIndex;
+    }
+
+    /**
+     * Get the column index corresponding to a mouse click event.
+     *
+     * @param mouseEvent the related mouse event.
+     * @return the column index corresponding to the mouse click event.
+     */
+    private int getColumnIndexFromClick(MouseEvent mouseEvent) {
+        int columnIndex;
+
+        if (configuration.useSpanTable()) {
+            columnIndex = table.columnAtPoint(mouseEvent.getPoint());
+        } else {
+            // todo: Get rid of these magic numbers (36 and 60) below.
+            if (mouseEvent.getX() < 36) {
+                columnIndex = 1;
+            } else if (mouseEvent.getX() < 60) {
+                columnIndex = 2;
+            } else {
+                columnIndex = 3;
+            }
+        }
+
+        return columnIndex;
     }
 
     /**
