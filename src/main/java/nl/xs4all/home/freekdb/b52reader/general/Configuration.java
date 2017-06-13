@@ -45,6 +45,31 @@ public class Configuration {
     private static final String SOURCE_IDS_KEY = "source-ids";
 
     /**
+     * The name and version of the application.
+     */
+    private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
+
+    /**
+     * The maximum number of browsers that are loaded in the background.
+     */
+    private static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
+
+    /**
+     * The initial delay in milliseconds before starting the background tasks: preloading browsers.
+     */
+    private static final int BACKGROUND_TIMER_INITIAL_DELAY = 800;
+
+    /**
+     * The delay in milliseconds between background tasks: preloading browsers.
+     */
+    private static final int BACKGROUND_TIMER_DELAY = 1000;
+
+    /**
+     * Cell value for fetched articles.
+     */
+    private static final String FETCHED_VALUE = "fetched";
+
+    /**
      * Logger for this class.
      */
     private static final Logger logger = LogManager.getLogger();
@@ -195,6 +220,51 @@ public class Configuration {
         }
 
         return result;
+    }
+
+    /**
+     * Get the name and version of the application.
+     *
+     * @return the name and version of the application.
+     */
+    public String getApplicationNameAndVersion() {
+        return APPLICATION_NAME_AND_VERSION;
+    }
+
+    /**
+     * Get the maximum number of browsers that are loaded in the background.
+     *
+     * @return the maximum number of browsers that are loaded in the background.
+     */
+    public int getBackgroundBrowserMaxCount() {
+        return BACKGROUND_BROWSER_MAX_COUNT;
+    }
+
+    /**
+     * Get the initial delay in milliseconds before starting the background tasks: preloading browsers.
+     *
+     * @return the initial delay in milliseconds before starting the background tasks: preloading browsers.
+     */
+    public int getBackgroundTimerInitialDelay() {
+        return BACKGROUND_TIMER_INITIAL_DELAY;
+    }
+
+    /**
+     * Get the delay in milliseconds between background tasks: preloading browsers.
+     *
+     * @return the delay in milliseconds between background tasks: preloading browsers.
+     */
+    public int getBackgroundTimerDelay() {
+        return BACKGROUND_TIMER_DELAY;
+    }
+
+    /**
+     * Get the cell value for fetched articles.
+     *
+     * @return the cell value for fetched articles.
+     */
+    public String getFetchedValue() {
+        return FETCHED_VALUE;
     }
 
     /**

@@ -160,4 +160,18 @@ public class ConfigurationTest {
 
         assertFalse(configuration.writeConfiguration(mockConfigurationOutputStream, Frame.NORMAL, null));
     }
+
+    @Test
+    public void testConstantGetters() throws IOException {
+        byte[] configurationLinesBytes = "".getBytes("UTF-8");
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        // todo: The asserts below are rather silly. Is there a better way to check this configuration functionality?
+
+        assertEquals("B52 reader 0.0.6", configuration.getApplicationNameAndVersion());
+        assertEquals(6, configuration.getBackgroundBrowserMaxCount());
+        assertEquals(800, configuration.getBackgroundTimerInitialDelay());
+        assertEquals(1000, configuration.getBackgroundTimerDelay());
+        assertEquals("fetched", configuration.getFetchedValue());
+    }
 }

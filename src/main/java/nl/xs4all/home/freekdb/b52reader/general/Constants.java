@@ -23,10 +23,10 @@ public class Constants {
         // Should not be called.
     }
 
-    /**
-     * The name and version of the application.
-     */
-    public static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
+//    /**
+//     * The name and version of the application.
+//     */
+//    public static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6"
 
     /**
      * The date/time format with day of week, day of month, month name, hours, and minutes. Example: "Mon 15-May 22:28".
@@ -43,15 +43,15 @@ public class Constants {
      */
     public static final EmbeddedBrowserType EMBEDDED_BROWSER_TYPE = EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING;
 
-    /**
-     * The maximum number of browsers that are loaded in the background.
-     */
-    public static final int BACKGROUND_BROWSER_MAX_COUNT = 6;
-
-    /**
-     * The delay in milliseconds between background tasks: preloading browsers.
-     */
-    public static final int BACKGROUND_TIMER_DELAY = 1000;
+//    /**
+//     * The maximum number of browsers that are loaded in the background.
+//     */
+//    public static final int BACKGROUND_BROWSER_MAX_COUNT = 6
+//
+//    /**
+//     * The delay in milliseconds between background tasks: preloading browsers.
+//     */
+//    public static final int BACKGROUND_TIMER_DELAY = 1000
 
     /**
      * Main URL of the NRC Handelsblad website.

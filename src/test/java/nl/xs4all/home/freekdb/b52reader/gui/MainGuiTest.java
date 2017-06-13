@@ -53,6 +53,7 @@ public class MainGuiTest {
     private JFrame mockFrame;
     private Container mockContentPane;
     private ManyBrowsersPanel mockManyBrowsersPanel;
+    private boolean hasBrowserValue;
     private MainCallbacks mockMainCallbacks;
     private Configuration mockConfiguration;
 
@@ -72,11 +73,22 @@ public class MainGuiTest {
         Mockito.doAnswer(invocationOnMock -> windowListener = invocationOnMock.getArgument(0))
                 .when(mockFrame).addWindowListener(Mockito.any(WindowListener.class));
 
+        Mockito.when(mockManyBrowsersPanel.hasBrowserForUrl(Mockito.anyString()))
+                .thenAnswer(invocationOnMock -> {
+                    hasBrowserValue = !hasBrowserValue;
+
+                    return hasBrowserValue;
+                });
+
         // Initialize the private Container.component field to prevent a null pointer exception later.
         FieldUtils.writeField(mockManyBrowsersPanel, "component", new ArrayList<>(), true);
 
         Mockito.doAnswer(invocationOnMock -> shutdownApplicationWasCalled = true)
                 .when(mockMainCallbacks).shutdownApplication(Mockito.anyInt(), Mockito.any());
+
+        Mockito.when(mockConfiguration.getBackgroundBrowserMaxCount()).thenReturn(2);
+        Mockito.when(mockConfiguration.getBackgroundTimerInitialDelay()).thenReturn(100);
+        Mockito.when(mockConfiguration.getBackgroundTimerDelay()).thenReturn(100);
     }
 
     @Test
@@ -173,6 +185,8 @@ public class MainGuiTest {
 
         assertTrue(shutdownApplicationWasCalled);
     }
+
+    // todo: Check whether more asserts are needed.
 
     private void testFilter(FilterTestType testType) throws BadLocationException, InterruptedException,
                                                             ReflectiveOperationException {

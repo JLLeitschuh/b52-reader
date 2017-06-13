@@ -33,7 +33,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanArticleTableCellRenderer;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
@@ -142,7 +141,7 @@ public class MainGui {
         ObjectHub.injectBackgroundBrowsersPanel(backgroundBrowsersPanel);
 
         this.frame = frame;
-        this.frame.setTitle(Constants.APPLICATION_NAME_AND_VERSION);
+        this.frame.setTitle(configuration.getApplicationNameAndVersion());
         this.frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
         this.frame.setVisible(true);
 
@@ -161,8 +160,11 @@ public class MainGui {
         // Start a background timer to initialize and load some browsers in the background.
         backgroundBrowserCount = 0;
         backgroundArticleIndex = 1;
-        Timer backgroundTasksTimer = new Timer(Constants.BACKGROUND_TIMER_DELAY, actionEvent -> handleBackgroundTasks());
-        backgroundTasksTimer.setInitialDelay(800);
+
+        Timer backgroundTasksTimer = new Timer(configuration.getBackgroundTimerDelay(),
+                                               actionEvent -> handleBackgroundTasks());
+
+        backgroundTasksTimer.setInitialDelay(configuration.getBackgroundTimerInitialDelay());
         backgroundTasksTimer.start();
 
         frame.setBounds(configuration.getFrameBounds());
@@ -251,7 +253,7 @@ public class MainGui {
             ((ArticlesTableModel) tableModel).setArticles(filteredArticles);
         }
 
-        frame.setTitle(Constants.APPLICATION_NAME_AND_VERSION + " - " + (!filteredArticles.isEmpty() ? "1" : "0")
+        frame.setTitle(configuration.getApplicationNameAndVersion() + " - " + (!filteredArticles.isEmpty() ? "1" : "0")
                        + "/" + filteredArticles.size());
 
         if (!filteredArticles.isEmpty()) {
@@ -481,7 +483,7 @@ public class MainGui {
      */
     private void selectArticle(Article article, int articleIndex) {
         String articleCounterAndSize = (articleIndex + 1) + "/" + filteredArticles.size();
-        frame.setTitle(Constants.APPLICATION_NAME_AND_VERSION + " - " + articleCounterAndSize);
+        frame.setTitle(configuration.getApplicationNameAndVersion() + " - " + articleCounterAndSize);
 
         selectedArticle = article;
 
@@ -495,7 +497,7 @@ public class MainGui {
     private void handleBackgroundTasks() {
         logger.debug("Handle background tasks.");
 
-        if (backgroundBrowserCount < Constants.BACKGROUND_BROWSER_MAX_COUNT &&
+        if (backgroundBrowserCount < configuration.getBackgroundBrowserMaxCount() &&
             backgroundArticleIndex < currentArticles.size()) {
 
             String url = currentArticles.get(backgroundArticleIndex).getUrl();
@@ -515,7 +517,7 @@ public class MainGui {
             for (int rowIndex = 0; rowIndex < tableModel.getRowCount() / 2; rowIndex++) {
                 if (manyBrowsersPanel.hasBrowserForUrl(currentArticles.get(rowIndex).getUrl()) &&
                     Objects.equals(tableModel.getValueAt(rowIndex * 2, 0), "")) {
-                    tableModel.setValueAt(Constants.FETCHED_VALUE, rowIndex * 2, 0);
+                    tableModel.setValueAt(configuration.getFetchedValue(), rowIndex * 2, 0);
                     logger.debug("Set column 0 for row {} to fetched.", rowIndex);
                 }
             }
