@@ -75,7 +75,12 @@ public class MainGuiTest {
 
         Mockito.when(mockManyBrowsersPanel.hasBrowserForUrl(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
-                    hasBrowserValue = !hasBrowserValue;
+                    String url = invocationOnMock.getArgument(0);
+                    if (url.startsWith("u")) {
+                        hasBrowserValue = url.equals("u2");
+                    } else {
+                        hasBrowserValue = !hasBrowserValue;
+                    }
 
                     return hasBrowserValue;
                 });
@@ -154,6 +159,8 @@ public class MainGuiTest {
 
     @Test
     public void testClickInSpanTable() throws InterruptedException, InvocationTargetException {
+        // Note: the x coordinates for the mouse events are related to MainGui.setTableColumnWidths.
+
         testClickInTable(false, false, true, true, 120);
         testClickInTable(true, false, true, true, 120);
 
@@ -163,6 +170,9 @@ public class MainGuiTest {
 
     @Test
     public void testClickInCustomRendererTable() throws InterruptedException, InvocationTargetException {
+        // Note: the x coordinates for the mouse events are related to ArticleTableCellRenderer and
+        // MainGui.getColumnIndexFromClick.
+
         testClickInTable(false, false, false, true, 20);
         testClickInTable(true, false, false, true, 20);
 
@@ -170,6 +180,23 @@ public class MainGuiTest {
         testClickInTable(false, true, false, true, 40);
 
         testClickInTable(false, true, false, true, 80);
+    }
+
+    @Test
+    public void testFetchedArticles() throws InvocationTargetException, InterruptedException {
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+
+        Mockito.when(mockConfiguration.useSpanTable()).thenReturn(true);
+
+        mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
+        mainGui.initializeGui(getTestArticles());
+
+        waitForGuiTasks();
+
+        JTable table = (JTable) findComponent(mockContentPane, JTable.class);
+        assertNotNull(table);
+
+        assertEquals("fetched", table.getModel().getValueAt(2, 0));
     }
 
     @Test
@@ -185,8 +212,6 @@ public class MainGuiTest {
 
         assertTrue(shutdownApplicationWasCalled);
     }
-
-    // todo: Check whether more asserts are needed.
 
     private void testFilter(FilterTestType testType) throws BadLocationException, InterruptedException,
                                                             ReflectiveOperationException {
