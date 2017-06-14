@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
@@ -35,10 +36,13 @@ public class NrcScienceArticleSource implements ArticleSource {
      */
     private static final Logger logger = LogManager.getLogger();
 
-    private ArticleListFetcher articleListFetcher;
+    private final ArticleListFetcher articleListFetcher;
 
-    public NrcScienceArticleSource(ArticleListFetcher articleListFetcher) {
+    private final Configuration configuration;
+
+    public NrcScienceArticleSource(ArticleListFetcher articleListFetcher, Configuration configuration) {
         this.articleListFetcher = articleListFetcher;
+        this.configuration = configuration;
     }
 
     @Override
@@ -67,7 +71,7 @@ public class NrcScienceArticleSource implements ArticleSource {
         Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor("NRC science");
 
         for (Element articleElement : articleElements) {
-            String url = Constants.NRC_MAIN_URL + articleElement.attr("href");
+            String url = configuration.getNrcMainUrl() + articleElement.attr("href");
             String title = articleElement.getElementsByClass("nmt-item__headline").text();
             ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
             String text = articleElement.getElementsByClass("nmt-item__teaser").text();

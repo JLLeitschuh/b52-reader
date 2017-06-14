@@ -382,7 +382,7 @@ public class MainGui {
         int[] columnIndices2 = {3, 4, 5};
 
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
-        SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnNames.size());
+        SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnNames.size(), configuration);
 
         spanTableModel.setColumnsAndData(columnNames, columnClasses, articles,
                                          article -> manyBrowsersPanel.hasBrowserForUrl(article.getUrl()));

@@ -134,7 +134,7 @@ public class ConfigurationTest {
                                                                      .split(System.lineSeparator()));
 
         assertEquals(7, actualConfigurationData.size());
-        assertEquals("#" + Constants.CONFIGURATION_HEADER, actualConfigurationData.get(0));
+        assertEquals("#" + configuration.getConfigurationHeader(), actualConfigurationData.get(0));
         assertTrue(actualConfigurationData.get(1).startsWith("#"));
 
         List<String> expectedSubList = Arrays.asList(
@@ -166,7 +166,7 @@ public class ConfigurationTest {
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
         Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
 
-        // todo: The asserts below are rather silly. Is there a better way to check this configuration functionality?
+        // The asserts below are rather silly. Is there a better way to check this configuration functionality?
 
         assertEquals("B52 reader 0.0.6", configuration.getApplicationNameAndVersion());
         assertEquals(6, configuration.getBackgroundBrowserMaxCount());

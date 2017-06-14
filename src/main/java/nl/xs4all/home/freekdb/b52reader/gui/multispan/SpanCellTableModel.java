@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 
@@ -37,10 +38,13 @@ public class SpanCellTableModel extends DefaultTableModel {
     private transient TableSpans tableSpans;
 
     private List<Class<?>> columnClasses;
-    private transient List<Article> articles;
+    private final transient List<Article> articles;
+    private final transient Configuration configuration;
 
-    public SpanCellTableModel(List<Article> articles, int columnCount) {
+    public SpanCellTableModel(List<Article> articles, int columnCount, Configuration configuration) {
         this.articles = articles;
+        this.configuration = configuration;
+
         int rowCount = 2 * articles.size();
 
         Vector names = new Vector(columnCount);
@@ -73,7 +77,7 @@ public class SpanCellTableModel extends DefaultTableModel {
 
         articles.forEach(article -> {
             newDataVector.add(listToVector(Arrays.asList(
-                    isFetched.test(article) ? Constants.FETCHED_VALUE : "",
+                    isFetched.test(article) ? configuration.getFetchedValue() : "",
                     article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
                     article.isRead() ? "" : "unread",
                     article.getTitle(),

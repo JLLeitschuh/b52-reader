@@ -6,11 +6,14 @@
 
 package nl.xs4all.home.freekdb.b52reader.sources.nrc;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
@@ -20,15 +23,24 @@ import nl.xs4all.home.freekdb.b52reader.sources.website.ArticleListFetcher;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 
 public class NrcScienceArticleSourceTest {
+    private Configuration configuration;
+
+    @Before
+    public void setUp() throws IOException {
+        byte[] configurationLinesBytes = "".getBytes("UTF-8");
+        configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+    }
+
     @Test
     public void testGetSourceId() {
-        NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(null);
+        NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(null, configuration);
 
         assertEquals(Constants.NRC_SOURCE_ID, nrcScienceArticleSource.getSourceId());
     }
@@ -38,7 +50,7 @@ public class NrcScienceArticleSourceTest {
         ArticleListFetcher mockFetcher = Mockito.mock(ArticleListFetcher.class);
         Mockito.when(mockFetcher.getArticleListDocument()).thenReturn(null);
 
-        NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(mockFetcher);
+        NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(mockFetcher, configuration);
         List<Article> articles = nrcScienceArticleSource.getArticles(new HashMap<>(), new HashMap<>());
 
         assertEquals(0, articles.size());
@@ -54,14 +66,14 @@ public class NrcScienceArticleSourceTest {
         ArticleListFetcher mockFetcher = Mockito.mock(ArticleListFetcher.class);
         Mockito.when(mockFetcher.getArticleListDocument()).thenReturn(prepareArticleListDocument());
 
-        NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(mockFetcher);
+        NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(mockFetcher, configuration);
         List<Article> actualArticles = nrcScienceArticleSource.getArticles(new HashMap<>(), new HashMap<>());
 
         assertEquals(prepareExpectedArticles(testAuthor, actualArticles), actualArticles);
     }
 
     private Document prepareArticleListDocument() {
-        Document articleListDocument = new Document(Constants.NRC_MAIN_URL);
+        Document articleListDocument = new Document(configuration.getNrcMainUrl());
 
         addArticleElement(articleListDocument, "article-1", "title-1", "text-1");
         addArticleElement(articleListDocument, "article-2", "title-2", "text-2");
@@ -78,13 +90,13 @@ public class NrcScienceArticleSourceTest {
 
     // todo: Pass a Clock object to the NrcScienceArticleSource class instead of copying date/times here.
     private List<Article> prepareExpectedArticles(Author testAuthor, List<Article> actualArticles) {
-        Article article1 = new Article.Builder(Constants.NRC_MAIN_URL + "article-1", "nrc", testAuthor,
+        Article article1 = new Article.Builder(configuration.getNrcMainUrl() + "article-1", "nrc", testAuthor,
                                               "title-1", actualArticles.get(0).getDateTime(), "text-1")
                 .likes(1234)
                 .recordId(-1)
                 .build();
 
-        Article article2 = new Article.Builder(Constants.NRC_MAIN_URL + "article-2", "nrc", testAuthor,
+        Article article2 = new Article.Builder(configuration.getNrcMainUrl() + "article-2", "nrc", testAuthor,
                                                "title-2", actualArticles.get(1).getDateTime(), "text-2")
                 .likes(1234)
                 .recordId(-2)

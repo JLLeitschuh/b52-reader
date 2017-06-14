@@ -187,6 +187,7 @@ public class MainGuiTest {
         MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(true);
+        Mockito.when(mockConfiguration.getFetchedValue()).thenReturn("fetched");
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
         mainGui.initializeGui(getTestArticles());

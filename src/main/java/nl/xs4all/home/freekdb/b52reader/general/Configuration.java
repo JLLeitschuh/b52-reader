@@ -26,11 +26,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.website.ArticleListFetcher;
+import nl.xs4all.home.freekdb.b52reader.sources.website.HtmlHelper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,6 +65,23 @@ public class Configuration {
      * The delay in milliseconds between background tasks: preloading browsers.
      */
     private static final int BACKGROUND_TIMER_DELAY = 1000;
+
+    /**
+     * The main URL of the NRC Handelsblad website.
+     */
+    private static final String NRC_MAIN_URL = "https://www.nrc.nl/";
+
+    /**
+     * Whether to use a background browser for fetching the html with the list of articles, which is for example
+     * necessary when the html page is dynamically generated.
+     */
+    private static final boolean GET_ARTICLE_LIST_WITH_BROWSER = false;
+
+    /**
+     * The header for the configuration file.
+     */
+    private static final String CONFIGURATION_HEADER = "Configuration file for the b52-reader "
+                                                       + "(https://github.com/FreekDB/b52-reader).";
 
     /**
      * Cell value for fetched articles.
@@ -212,7 +231,7 @@ public class Configuration {
 
             configuration.setProperty("window-configuration", windowConfiguration);
 
-            configuration.store(configurationOutputStream, Constants.CONFIGURATION_HEADER);
+            configuration.store(configurationOutputStream, getConfigurationHeader());
         } catch (IOException e) {
             logger.error("Exception while reading the configuration data.", e);
 
@@ -256,6 +275,34 @@ public class Configuration {
      */
     public int getBackgroundTimerDelay() {
         return BACKGROUND_TIMER_DELAY;
+    }
+
+    /**
+     * Get the main URL of the NRC Handelsblad website.
+     *
+     * @return the main URL of the NRC Handelsblad website.
+     */
+    public String getNrcMainUrl() {
+        return NRC_MAIN_URL;
+    }
+
+    /**
+     * Whether to use a background browser for fetching the html with the list of articles, which is for example
+     * necessary when the html page is dynamically generated.
+     *
+     * @return whether to use a background browser for fetching the html with the list of articles.
+     */
+    private boolean getArticleListWithBrowser() {
+        return GET_ARTICLE_LIST_WITH_BROWSER;
+    }
+
+    /**
+     * Get the header for the configuration file.
+     *
+     * @return the header for the configuration file.
+     */
+    String getConfigurationHeader() {
+        return CONFIGURATION_HEADER;
     }
 
     /**
@@ -313,10 +360,20 @@ public class Configuration {
 
                 if (sourceClass.equals(NrcScienceArticleSource.class)) {
                     // This configuration needs to become more generic: WebSiteArticleSource as a base class?
-                    Constructor<?> constructor = sourceClass.getConstructor(ArticleListFetcher.class);
-                    String url = Constants.NRC_MAIN_URL + "sectie/wetenschap/";
-                    ArticleListFetcher fetcher = new ArticleListFetcher(url, Constants.GET_ARTICLE_LIST_WITH_BROWSER);
-                    articleSource = (ArticleSource) constructor.newInstance(fetcher);
+
+                    Constructor<?> constructor = NrcScienceArticleSource.class.getConstructor(ArticleListFetcher.class,
+                                                                                              Configuration.class);
+
+                    String url = getNrcMainUrl() + "sectie/wetenschap/";
+
+                    BackgroundBrowsers backgroundBrowsers = getArticleListWithBrowser()
+                            ? ObjectHub.getBackgroundBrowsers()
+                            : null;
+
+                    ArticleListFetcher fetcher = new ArticleListFetcher(url, getArticleListWithBrowser(),
+                                                                        backgroundBrowsers, new HtmlHelper());
+
+                    articleSource = (ArticleSource) constructor.newInstance(fetcher, this);
                 } else {
                     articleSource = (ArticleSource) sourceClass.getConstructor().newInstance();
                 }

@@ -53,36 +53,36 @@ public class Constants {
 //     */
 //    public static final int BACKGROUND_TIMER_DELAY = 1000
 
-    /**
-     * Main URL of the NRC Handelsblad website.
-     */
-    public static final String NRC_MAIN_URL = "https://www.nrc.nl/";
+//    /**
+//     * Main URL of the NRC Handelsblad website.
+//     */
+//    public static final String NRC_MAIN_URL = "https://www.nrc.nl/"
 
     /**
      * Article source ID of the NRC Handelsblad website.
      */
     public static final String NRC_SOURCE_ID = "nrc";
 
-    /**
-     * Test fetching the html with the list of articles using a background browser.
-     */
-    static final boolean GET_ARTICLE_LIST_WITH_BROWSER = false;
+//    /**
+//     * Test fetching the html with the list of articles using a background browser.
+//     */
+//    static final boolean GET_ARTICLE_LIST_WITH_BROWSER = false
 
     /**
      * Name of the configuration file.
      */
     public static final String CONFIGURATION_FILE_NAME = "b52-reader.configuration";
 
-    /**
-     * Header for the configuration file.
-     */
-    static final String CONFIGURATION_HEADER = "Configuration file for the b52-reader "
-                                               + "(https://github.com/FreekDB/b52-reader).";
+//    /**
+//     * Header for the configuration file.
+//     */
+//    static final String CONFIGURATION_HEADER = "Configuration file for the b52-reader "
+//                                               + "(https://github.com/FreekDB/b52-reader)."
 
-    /**
-     * Cell value for fetched articles.
-     */
-    public static final String FETCHED_VALUE = "fetched";
+//    /**
+//     * Cell value for fetched articles.
+//     */
+//    public static final String FETCHED_VALUE = "fetched"
 
     /**
      * Icon for starred articles.
