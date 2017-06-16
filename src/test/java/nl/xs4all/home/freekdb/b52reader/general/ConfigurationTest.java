@@ -35,19 +35,27 @@ import static org.junit.Assert.assertTrue;
  */
 public class ConfigurationTest {
     @Test
-    public void testInitializeOnlySourceIds() throws IOException {
+    public void testConstructorOnlySourceIds() throws IOException {
         byte[] configurationLinesBytes = "source-ids = test".getBytes("UTF-8");
         Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
 
         assertEquals(new ArrayList<>(), configuration.getSelectedArticleSources());
         assertEquals(Frame.NORMAL, configuration.getFrameExtendedState());
         assertNull(configuration.getFrameBounds());
-
         assertTrue(configuration.useSpanTable());
     }
 
     @Test
-    public void testInitializeSourceIdsAndWindowConfiguration() throws IOException {
+    public void testConstructorSourceIdsAndWindowConfigurationWithBrowser() throws IOException {
+        testConstructorSourceIdsAndWindowConfiguration(true);
+    }
+
+    @Test
+    public void testConstructorSourceIdsAndWindowConfigurationDirectly() throws IOException {
+        testConstructorSourceIdsAndWindowConfiguration(false);
+    }
+
+    private void testConstructorSourceIdsAndWindowConfiguration(boolean articleListWithBrowser) throws IOException {
         PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
         Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(null);
         ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
@@ -64,7 +72,8 @@ public class ConfigurationTest {
                 "window-configuration = maximized;0,0,1280x1024";
 
         byte[] configurationLinesBytes = configurationLines.getBytes("UTF-8");
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                                        articleListWithBrowser);
 
         List<ArticleSource> selectedArticleSources = configuration.getSelectedArticleSources();
         assertEquals(1, selectedArticleSources.size());
@@ -74,7 +83,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testInitializeHalfWindowConfiguration() throws IOException {
+    public void testConstructorHalfWindowConfiguration() throws IOException {
         byte[] configurationLinesBytes = "window-configuration = normal".getBytes("UTF-8");
         Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
 
@@ -84,7 +93,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testInitializeWithException() {
+    public void testConstructorWithException() {
         String exceptionMessage = "Some I/O exception...";
 
         InputStream mockConfigurationInputStream = Mockito.mock(InputStream.class,

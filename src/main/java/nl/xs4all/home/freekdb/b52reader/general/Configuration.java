@@ -72,12 +72,6 @@ public class Configuration {
     private static final String NRC_MAIN_URL = "https://www.nrc.nl/";
 
     /**
-     * Whether to use a background browser for fetching the html with the list of articles, which is for example
-     * necessary when the html page is dynamically generated.
-     */
-    private static final boolean GET_ARTICLE_LIST_WITH_BROWSER = false;
-
-    /**
      * The header for the configuration file.
      */
     private static final String CONFIGURATION_HEADER = "Configuration file for the b52-reader "
@@ -120,6 +114,19 @@ public class Configuration {
      * @param configurationInputStream the input stream that contains the configuration data.
      */
     public Configuration(InputStream configurationInputStream) throws IOException {
+        this(configurationInputStream, false);
+    }
+
+    /**
+     * Initialize by reading the configuration data and filling the <code>selectedArticleSources</code> and
+     * <code>allArticleSources</code> lists.
+     *
+     * @param configurationInputStream the input stream that contains the configuration data.
+     * @param articleListWithBrowser   whether to use a background browser for fetching the html with the list of
+     *                                 articles, which is for example necessary when the html page is dynamically
+     *                                 generated.
+     */
+    public Configuration(InputStream configurationInputStream, boolean articleListWithBrowser) throws IOException {
         List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
         allArticleSources = new ArrayList<>();
         selectedArticleSources = new ArrayList<>();
@@ -135,7 +142,7 @@ public class Configuration {
             sourceIds.clear();
             sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(",")));
 
-            addConfiguredSources(configuration);
+            addConfiguredSources(configuration, articleListWithBrowser);
 
             String windowConfiguration = configuration.getProperty("window-configuration");
 
@@ -287,16 +294,6 @@ public class Configuration {
     }
 
     /**
-     * Whether to use a background browser for fetching the html with the list of articles, which is for example
-     * necessary when the html page is dynamically generated.
-     *
-     * @return whether to use a background browser for fetching the html with the list of articles.
-     */
-    private boolean getArticleListWithBrowser() {
-        return GET_ARTICLE_LIST_WITH_BROWSER;
-    }
-
-    /**
      * Get the header for the configuration file.
      *
      * @return the header for the configuration file.
@@ -317,9 +314,12 @@ public class Configuration {
     /**
      * Add the configured article sources to the <code>allArticleSources</code> list.
      *
-     * @param configuration the configuration properties.
+     * @param configuration          the configuration properties.
+     * @param articleListWithBrowser whether to use a background browser for fetching the html with the list of
+     *                               articles, which is for example necessary when the html page is dynamically
+     *                               generated.
      */
-    private void addConfiguredSources(Properties configuration) {
+    private void addConfiguredSources(Properties configuration, boolean articleListWithBrowser) {
         String sourcePrefix = "source-";
 
         Collections.list(configuration.propertyNames()).forEach(name -> {
@@ -329,7 +329,8 @@ public class Configuration {
                 String sourceId = propertyName.substring(sourcePrefix.length());
                 String sourceConfiguration = configuration.getProperty(propertyName);
 
-                ArticleSource articleSource = createArticleSource(sourceId, sourceConfiguration);
+                ArticleSource articleSource = createArticleSource(sourceId, sourceConfiguration,
+                                                                  articleListWithBrowser);
 
                 if (articleSource != null) {
                     allArticleSources.add(articleSource);
@@ -341,11 +342,15 @@ public class Configuration {
     /**
      * Create an article source object from the source id and the source configuration.
      *
-     * @param sourceId            the source id.
-     * @param sourceConfiguration the source configuration.
+     * @param sourceId               the source id.
+     * @param sourceConfiguration    the source configuration.
+     * @param articleListWithBrowser whether to use a background browser for fetching the html with the list of
+     *                               articles, which is for example necessary when the html page is dynamically
+     *                               generated.
      * @return the new article source object.
      */
-    private ArticleSource createArticleSource(String sourceId, String sourceConfiguration) {
+    private ArticleSource createArticleSource(String sourceId, String sourceConfiguration,
+                                              boolean articleListWithBrowser) {
         ArticleSource articleSource = null;
 
         try {
@@ -366,11 +371,11 @@ public class Configuration {
 
                     String url = getNrcMainUrl() + "sectie/wetenschap/";
 
-                    BackgroundBrowsers backgroundBrowsers = getArticleListWithBrowser()
+                    BackgroundBrowsers backgroundBrowsers = articleListWithBrowser
                             ? ObjectHub.getBackgroundBrowsers()
                             : null;
 
-                    ArticleListFetcher fetcher = new ArticleListFetcher(url, getArticleListWithBrowser(),
+                    ArticleListFetcher fetcher = new ArticleListFetcher(url, articleListWithBrowser,
                                                                         backgroundBrowsers, new HtmlHelper());
 
                     articleSource = (ArticleSource) constructor.newInstance(fetcher, this);
