@@ -106,6 +106,7 @@ public class BackgroundBrowsers {
                     // Some systems provide some kind of intermediate "in progress" html content.
                     if (URL_TO_HTML_CONTENT.get(url).contains("Working...")) {
                         logger.debug("Working...");
+
                         if (waitCount % 10 == 0) {
                             logger.trace("Refresh html content.");
 
