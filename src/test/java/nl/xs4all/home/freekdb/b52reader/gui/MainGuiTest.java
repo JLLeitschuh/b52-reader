@@ -6,6 +6,8 @@
 
 package nl.xs4all.home.freekdb.b52reader.gui;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.MouseEvent;
@@ -17,8 +19,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
 import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -53,7 +56,6 @@ public class MainGuiTest {
     private JFrame mockFrame;
     private Container mockContentPane;
     private ManyBrowsersPanel mockManyBrowsersPanel;
-    private boolean hasBrowserValue;
     private MainCallbacks mockMainCallbacks;
     private Configuration mockConfiguration;
 
@@ -62,6 +64,8 @@ public class MainGuiTest {
 
     @Before
     public void setUp() throws IllegalAccessException {
+        Set<String> urlsWithBrowsers = ImmutableSet.of("u2", "u4", "u6");
+
         mockFrame = Mockito.mock(JFrame.class);
         mockContentPane = new Container();
         mockManyBrowsersPanel = Mockito.mock(ManyBrowsersPanel.class);
@@ -74,16 +78,7 @@ public class MainGuiTest {
                 .when(mockFrame).addWindowListener(Mockito.any(WindowListener.class));
 
         Mockito.when(mockManyBrowsersPanel.hasBrowserForUrl(Mockito.anyString()))
-                .thenAnswer(invocationOnMock -> {
-                    String url = invocationOnMock.getArgument(0);
-                    if (url.startsWith("u")) {
-                        hasBrowserValue = url.equals("u2");
-                    } else {
-                        hasBrowserValue = !hasBrowserValue;
-                    }
-
-                    return hasBrowserValue;
-                });
+                .thenAnswer(invocationOnMock -> urlsWithBrowsers.contains(invocationOnMock.<String>getArgument(0)));
 
         // Initialize the private Container.component field to prevent a null pointer exception later.
         FieldUtils.writeField(mockManyBrowsersPanel, "component", new ArrayList<>(), true);
@@ -92,8 +87,8 @@ public class MainGuiTest {
                 .when(mockMainCallbacks).shutdownApplication(Mockito.anyInt(), Mockito.any());
 
         Mockito.when(mockConfiguration.getBackgroundBrowserMaxCount()).thenReturn(2);
-        Mockito.when(mockConfiguration.getBackgroundTimerInitialDelay()).thenReturn(100);
-        Mockito.when(mockConfiguration.getBackgroundTimerDelay()).thenReturn(100);
+        Mockito.when(mockConfiguration.getBackgroundTimerInitialDelay()).thenReturn(2000);
+        Mockito.when(mockConfiguration.getBackgroundTimerDelay()).thenReturn(600);
     }
 
     @Test
@@ -183,21 +178,37 @@ public class MainGuiTest {
     }
 
     @Test
-    public void testFetchedArticles() throws InvocationTargetException, InterruptedException {
+    public void testFetchedArticlesBrowserMaxCount0() throws InvocationTargetException, InterruptedException {
+        testFetchedArticles(true);
+    }
+
+    @Test
+    public void testFetchedArticlesBrowserMaxCount2() throws InvocationTargetException, InterruptedException {
+        testFetchedArticles(false);
+    }
+
+    private void testFetchedArticles(boolean zeroBackgroundBrowserMaxCount)
+            throws InterruptedException, InvocationTargetException {
+        String fetchedValue = "fetched";
+
+        if (zeroBackgroundBrowserMaxCount) {
+            Mockito.when(mockConfiguration.getBackgroundBrowserMaxCount()).thenReturn(0);
+        }
+
         MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(true);
-        Mockito.when(mockConfiguration.getFetchedValue()).thenReturn("fetched");
+        Mockito.when(mockConfiguration.getFetchedValue()).thenReturn(fetchedValue);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
-        mainGui.initializeGui(getTestArticles());
+        mainGui.initializeGui(getSixTestArticles());
 
         waitForGuiTasks();
 
         JTable table = (JTable) findComponent(mockContentPane, JTable.class);
         assertNotNull(table);
 
-        assertEquals("fetched", table.getModel().getValueAt(2, 0));
+        assertEquals(fetchedValue, table.getModel().getValueAt(2, 0));
     }
 
     @Test
@@ -221,14 +232,14 @@ public class MainGuiTest {
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(testType == CHANGE_TEXT);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
-        mainGui.initializeGui(getTestArticles());
+        mainGui.initializeGui(getSixTestArticles());
 
         waitForGuiTasks();
 
         JTable table = (JTable) findComponent(mockContentPane, JTable.class);
         assertNotNull(table);
 
-        assertEquals(mockConfiguration.useSpanTable() ? 6 : 3, table.getRowCount());
+        assertEquals(mockConfiguration.useSpanTable() ? 12 : 6, table.getRowCount());
 
         JTextField filterTextField = (JTextField) findComponent(mockContentPane, JTextField.class);
         assertNotNull(filterTextField);
@@ -255,7 +266,7 @@ public class MainGuiTest {
         checkArticlesInGui(testType, mainGui, table.getRowCount());
     }
 
-    private List<Article> getTestArticles() {
+    private List<Article> getSixTestArticles() {
         return Arrays.asList(
                 new Article.Builder("u1", "s1", null, "Title1", null, "Text 1.")
                         .starred(true).read(true)
@@ -264,15 +275,25 @@ public class MainGuiTest {
                         .build(),
                 new Article.Builder("u3", "s3", null, "Title3", null, "Text 3.")
                         .starred(true).read(true).archived(true)
+                        .build(),
+                new Article.Builder("u4", "s4", null, "Title4", null, "Text 4.")
+                        .build(),
+                new Article.Builder("u5", "s5", null, "Title5", null, "Text 5.")
+                        .build(),
+                new Article.Builder("u6", "s6", null, "Title6", null, "Text 6.")
                         .build()
         );
     }
 
     private void checkArticlesInGui(FilterTestType testType, MainGui mainGui, int tableRowCount)
             throws IllegalAccessException {
-        int expectedRowCount = testType == NO_MATCHES
-                ? 0
-                : (testType == REMOVE_TEXT ? 2 : 1) * (mockConfiguration.useSpanTable() ? 2 : 1);
+        int expectedRowCount = mockConfiguration.useSpanTable() ? 2 : 1;
+
+        if (testType == NO_MATCHES) {
+            expectedRowCount = 0;
+        } else if (testType == REMOVE_TEXT) {
+            expectedRowCount = 5;
+        }
 
         assertEquals(expectedRowCount, tableRowCount);
 
@@ -281,12 +302,17 @@ public class MainGuiTest {
         assertTrue(filteredArticlesField instanceof List);
         List filteredArticles = (List) filteredArticlesField;
 
-        if (testType == INSERT_TEXT || testType == REMOVE_TEXT) {
+        if (testType == INSERT_TEXT) {
             assertEquals("u1", ((Article) filteredArticles.get(0)).getUrl());
-        }
-
-        if (EnumSet.of(REMOVE_TEXT, CHANGE_TEXT).contains(testType)) {
-            assertEquals("u2", ((Article) filteredArticles.get(testType == REMOVE_TEXT ? 1 : 0)).getUrl());
+        } else if (testType == CHANGE_TEXT) {
+            assertEquals("u2", ((Article) filteredArticles.get(0)).getUrl());
+        } else if (testType == REMOVE_TEXT) {
+            IntStream.range(0, filteredArticles.size())
+                    .forEach(index -> {
+                        // Test article 3 (with index 2) is archived and should be filtered out: u1, u2, u4, u5, and u6.
+                        String expectedUrl = "u" + (index + (index < 2 ? 1 : 2));
+                        assertEquals(expectedUrl, ((Article) filteredArticles.get(index)).getUrl());
+                    });
         }
     }
 
@@ -317,7 +343,7 @@ public class MainGuiTest {
     private void testClickInTable(boolean firstStarred, boolean firstRead, boolean spanTable, boolean selectRow,
                                   int xMouseEvent)
             throws InterruptedException, InvocationTargetException {
-        List<Article> testArticles = getTestArticles();
+        List<Article> testArticles = getSixTestArticles();
         testArticles.get(0).setStarred(firstStarred);
         testArticles.get(0).setRead(firstRead);
 

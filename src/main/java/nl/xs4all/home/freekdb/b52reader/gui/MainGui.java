@@ -121,7 +121,7 @@ public class MainGui {
      * Construct the main GUI object: set the main callbacks handler.
      *
      * @param manyBrowsersPanel the panel with many embedded browsers, of which only one can be visible.
-     * @param mainCallbacks the main callbacks handler.
+     * @param mainCallbacks     the main callbacks handler.
      */
     public MainGui(ManyBrowsersPanel manyBrowsersPanel, MainCallbacks mainCallbacks) {
         this.manyBrowsersPanel = manyBrowsersPanel;
@@ -378,7 +378,6 @@ public class MainGui {
                 String.class, Icon.class, String.class, String.class, Author.class, String.class
         );
 
-        //int[] columnIndices1 = {0, 1, 2
         int[] columnIndices2 = {3, 4, 5};
 
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
@@ -388,7 +387,6 @@ public class MainGui {
                                          article -> manyBrowsersPanel.hasBrowserForUrl(article.getUrl()));
 
         for (int rowIndex = 1; rowIndex < 2 * articles.size(); rowIndex += 2) {
-            //spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices1)
             spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices2);
         }
 
