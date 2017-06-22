@@ -1,41 +1,57 @@
+cd src
 find . -name '*.java' | xargs wc -l | sort
 
     18 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/ArticleSource.java
+    21 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BrowserListener.java
     22 ./main/java/nl/xs4all/home/freekdb/b52reader/general/EmbeddedBrowserType.java
     22 ./main/java/nl/xs4all/home/freekdb/b52reader/main/MainCallbacks.java
+    24 ./test/java/nl/xs4all/home/freekdb/b52reader/general/EmbeddedBrowserTypeTest.java
+    31 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BrowserFactory.java
+    33 ./test/java/nl/xs4all/home/freekdb/b52reader/general/ConstantsTest.java
     36 ./test/java/nl/xs4all/home/freekdb/b52reader/model/AuthorTest.java
     37 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/TableSpans.java
-    41 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanArticleTableCellRenderer.java
+    39 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/website/HtmlHelper.java
     41 ./main/java/nl/xs4all/home/freekdb/b52reader/main/B52Reader.java
     44 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/CombinationArticleSource.java
     45 ./test/java/nl/xs4all/home/freekdb/b52reader/sources/testdata/TestDataArticleSourceTest.java
-    55 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/website/ArticleListFetcher.java
-    57 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticlesTableModel.java
-    60 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Constants.java
+    51 ./test/java/nl/xs4all/home/freekdb/b52reader/sources/website/HtmlHelperTest.java
+    52 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanArticleTableCellRenderer.java
+    52 ./test/java/nl/xs4all/home/freekdb/b52reader/general/ObjectHubTest.java
+    56 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/JWebBrowserFactory.java
+    57 ./test/java/nl/xs4all/home/freekdb/b52reader/browsers/BackgroundBrowsersTest.java
+    60 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticlesTableModel.java
+    61 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ArticlesTableModelTest.java
     64 ./main/java/nl/xs4all/home/freekdb/b52reader/model/Author.java
+    65 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRendererTest.java
     67 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/testdata/TestDataArticleSource.java
-    79 ./main/java/nl/xs4all/home/freekdb/b52reader/general/ObjectHub.java
-    83 ./main/java/nl/xs4all/home/freekdb/b52reader/utilities/Utilities.java
-    86 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/nrc/NrcScienceArticleSource.java
+    79 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleFilterTest.java
+    80 ./main/java/nl/xs4all/home/freekdb/b52reader/general/ObjectHub.java
+    82 ./main/java/nl/xs4all/home/freekdb/b52reader/utilities/Utilities.java
     86 ./test/java/nl/xs4all/home/freekdb/b52reader/sources/CombinationArticleSourceTest.java
-    95 ./test/java/nl/xs4all/home/freekdb/b52reader/sources/nrc/NrcScienceArticleSourceTest.java
-   112 ./test/java/nl/xs4all/home/freekdb/b52reader/general/ConfigurationTest.java
+    90 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/website/ArticleListFetcher.java
+    92 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/nrc/NrcScienceArticleSource.java
+    96 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Constants.java
+   100 ./test/java/nl/xs4all/home/freekdb/b52reader/sources/ArticleListFetcherTest.java
+   107 ./test/java/nl/xs4all/home/freekdb/b52reader/sources/nrc/NrcScienceArticleSourceTest.java
    114 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableUI.java
    114 ./test/java/nl/xs4all/home/freekdb/b52reader/utilities/UtilitiesTest.java
-   119 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRenderer.java
-   128 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/RssArticleSource.java
-   132 ./main/java/nl/xs4all/home/freekdb/b52reader/main/MainApplication.java
-   136 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleFilter.java
+   129 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRenderer.java
+   131 ./main/java/nl/xs4all/home/freekdb/b52reader/sources/RssArticleSource.java
+   143 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleFilter.java
+   148 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ManyBrowsersPanelTest.java
    155 ./test/java/nl/xs4all/home/freekdb/b52reader/sources/RssArticleSourceTest.java
-   156 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableModel.java
-   160 ./test/java/nl/xs4all/home/freekdb/b52reader/model/ArticleTest.java
+   161 ./main/java/nl/xs4all/home/freekdb/b52reader/main/MainApplication.java
+   161 ./test/java/nl/xs4all/home/freekdb/b52reader/model/ArticleTest.java
    164 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTable.java
-   166 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ManyBrowsersPanel.java
    169 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/DefaultTableSpans.java
-   206 ./main/java/nl/xs4all/home/freekdb/b52reader/backgroundbrowsers/BackgroundBrowsers.java
-   234 ./main/java/nl/xs4all/home/freekdb/b52reader/model/Article.java
-   301 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Configuration.java
+   175 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ManyBrowsersPanel.java
+   185 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableModel.java
+   186 ./test/java/nl/xs4all/home/freekdb/b52reader/general/ConfigurationTest.java
+   198 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BackgroundBrowsers.java
+   264 ./main/java/nl/xs4all/home/freekdb/b52reader/model/Article.java
    371 ./main/java/nl/xs4all/home/freekdb/b52reader/model/database/PersistencyHandler.java
-   529 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/MainGui.java
+   387 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/MainGuiTest.java
+   439 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Configuration.java
+   533 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/MainGui.java
 
-  4504 total
+  6137 total
