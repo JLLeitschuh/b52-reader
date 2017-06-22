@@ -31,7 +31,7 @@ public class DefaultTableSpans implements TableSpans {
     private int columnCount;
     private int[][][] span;                   // TableSpans
 //    protected Color[][] foreground;             // ColoredCell
-//    protected Color[][] background;             //
+//    protected Color[][] background             //
 
     DefaultTableSpans(int rowCount, int columnCount) {
         setSize(new Dimension(columnCount, rowCount));
@@ -98,8 +98,8 @@ public class DefaultTableSpans implements TableSpans {
         rowCount = size.height;
         span = new int[rowCount][columnCount][2];   // 2: COLUMN,ROW
 
-//        foreground = new Color[rowCount][columnCount];
-//        background = new Color[rowCount][columnCount];
+//        foreground = new Color[rowCount][columnCount]
+//        background = new Color[rowCount][columnCount]
 
         for (int rowIndex = 0; rowIndex < span.length; rowIndex++) {
             for (int columnIndex = 0; columnIndex < span[rowIndex].length; columnIndex++) {
@@ -111,48 +111,48 @@ public class DefaultTableSpans implements TableSpans {
 
     public void addColumn() {
         int[][][] oldSpan = span;
-        int rowCount = oldSpan.length;
-        int columnCount = oldSpan[0].length;
+        int currentRowCount = oldSpan.length;
+        int oldColumnCount = oldSpan[0].length;
 
-        span = new int[rowCount][columnCount + 1][2];
+        span = new int[currentRowCount][oldColumnCount + 1][2];
 
-        System.arraycopy(oldSpan, 0, span, 0, rowCount);
-
-        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            span[rowIndex][columnCount][TableSpans.COLUMN] = 1;
-            span[rowIndex][columnCount][TableSpans.ROW] = 1;
+        for (int rowIndex = 0; rowIndex < currentRowCount; rowIndex++) {
+            span[rowIndex] = Arrays.copyOf(oldSpan[rowIndex], oldColumnCount + 1);
+            span[rowIndex][oldColumnCount] = new int[2];
+            span[rowIndex][oldColumnCount][TableSpans.COLUMN] = 1;
+            span[rowIndex][oldColumnCount][TableSpans.ROW] = 1;
         }
     }
 
     public void addRow() {
         int[][][] oldSpan = span;
-        int rowCount = oldSpan.length;
-        int columnCount = oldSpan[0].length;
+        int oldRowCount = oldSpan.length;
+        int currentColumnCount = oldSpan[0].length;
 
-        span = new int[rowCount + 1][columnCount][2];
+        span = new int[oldRowCount + 1][currentColumnCount][2];
 
-        System.arraycopy(oldSpan, 0, span, 0, rowCount);
+        System.arraycopy(oldSpan, 0, span, 0, oldRowCount);
 
-        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-            span[rowCount][columnIndex][TableSpans.COLUMN] = 1;
-            span[rowCount][columnIndex][TableSpans.ROW] = 1;
+        for (int columnIndex = 0; columnIndex < currentColumnCount; columnIndex++) {
+            span[oldRowCount][columnIndex][TableSpans.COLUMN] = 1;
+            span[oldRowCount][columnIndex][TableSpans.ROW] = 1;
         }
     }
 
     public void insertRow(int rowIndex) {
         int[][][] oldSpan = span;
-        int rowCount = oldSpan.length;
-        int columnCount = oldSpan[0].length;
+        int oldRowCount = oldSpan.length;
+        int currentColumnCount = oldSpan[0].length;
 
-        span = new int[rowCount + 1][columnCount][2];
+        span = new int[oldRowCount + 1][currentColumnCount][2];
 
         if (rowIndex > 0) {
-            System.arraycopy(oldSpan, 0, span, 0, rowIndex - 1);
+            System.arraycopy(oldSpan, 0, span, 0, rowIndex);
         }
 
-        System.arraycopy(oldSpan, 0, span, rowIndex, rowCount - rowIndex);
+        System.arraycopy(oldSpan, 0, span, rowIndex, oldRowCount - rowIndex);
 
-        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+        for (int columnIndex = 0; columnIndex < currentColumnCount; columnIndex++) {
             span[rowIndex][columnIndex][TableSpans.COLUMN] = 1;
             span[rowIndex][columnIndex][TableSpans.ROW] = 1;
         }
