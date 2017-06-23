@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/FreekDB/b52-reader.svg)](https://travis-ci.org/FreekDB/b52-reader)
-[![Coverage Status](https://coveralls.io/repos/github/FreekDB/b52-reader/badge.svg?branch=master&dummy=no_cache_please_8)](https://coveralls.io/github/FreekDB/b52-reader?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/FreekDB/b52-reader/badge.svg?branch=master&dummy=no_cache_please_9)](https://coveralls.io/github/FreekDB/b52-reader?branch=master)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/FreekDB/b52-reader/blob/master/LICENSE)
 
 
