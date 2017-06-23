@@ -15,11 +15,30 @@ import static org.junit.Assert.assertArrayEquals;
  */
 public class DefaultTableSpansTest {
     @Test
-    public void testAddColumn() throws IllegalAccessException {
-        DefaultTableSpans tableSpans = new DefaultTableSpans(28, 6);
+    public void testAddColumn() {
+        int rowCount = 28;
+        int columnIndex = 6;
+
+        DefaultTableSpans tableSpans = new DefaultTableSpans(rowCount, columnIndex);
 
         tableSpans.addColumn();
 
-        assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(2, 6));
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(rowIndex, columnIndex));
+        }
+    }
+
+    @Test
+    public void testAddRow() {
+        int rowIndex = 28;
+        int columnCount = 6;
+
+        DefaultTableSpans tableSpans = new DefaultTableSpans(rowIndex, columnCount);
+
+        tableSpans.addRow();
+
+        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+            assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(rowIndex, columnIndex));
+        }
     }
 }

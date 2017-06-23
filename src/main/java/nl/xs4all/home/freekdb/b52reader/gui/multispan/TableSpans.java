@@ -33,5 +33,4 @@ public interface TableSpans {
     boolean isVisible(int rowIndex, int columnIndex);
     int[] getSpan(int rowIndex, int columnIndex);
     void combine(int[] rowIndices, int[] columnIndices);
-    //void split(int rowIndex, int columnIndex);
 }

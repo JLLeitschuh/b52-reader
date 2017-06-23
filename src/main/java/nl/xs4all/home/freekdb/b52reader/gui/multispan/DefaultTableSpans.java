@@ -29,9 +29,14 @@ public class DefaultTableSpans implements TableSpans {
     //
     private int rowCount;
     private int columnCount;
-    private int[][][] span;                   // TableSpans
-//    protected Color[][] foreground;             // ColoredCell
-//    protected Color[][] background             //
+
+    /**
+     * For each cell (a row and column position), a span number is stored for the row and column directions. This span
+     * number is one for cells that are not combined. For a group of cells that are combined, the top left cell contains
+     * span numbers equal to the number of rows and columns in the group, while the other cells have span numbers
+     * smaller than or equal to zero.
+     */
+    private int[][][] span;
 
     DefaultTableSpans(int rowCount, int columnCount) {
         setSize(new Dimension(columnCount, rowCount));
@@ -39,72 +44,74 @@ public class DefaultTableSpans implements TableSpans {
 
     public boolean isVisible(int rowIndex, int columnIndex) {
         return !isOutOfBounds(rowIndex, columnIndex) &&
-               (span[rowIndex][columnIndex][TableSpans.COLUMN] >= 1) &&
-               (span[rowIndex][columnIndex][TableSpans.ROW] >= 1);
+               span[rowIndex][columnIndex][TableSpans.ROW] >= 1 &&
+               span[rowIndex][columnIndex][TableSpans.COLUMN] >= 1;
     }
 
     public int[] getSpan(int rowIndex, int columnIndex) {
-        if (!isOutOfBounds(rowIndex, columnIndex)) {
-            return span[rowIndex][columnIndex];
-        } else {
-            return new int[]{1, 1};
-        }
+        return !isOutOfBounds(rowIndex, columnIndex) ? span[rowIndex][columnIndex] : new int[]{1, 1};
     }
 
     public void combine(int[] rowIndices, int[] columnIndices) {
         if (!isOutOfBounds(rowIndices, columnIndices)) {
-            int rowSpan = rowIndices.length;
-            int columnSpan = columnIndices.length;
-            int startRow = rowIndices[0];
-            int startColumn = columnIndices[0];
+            int startRowIndex = rowIndices[0];
+            int startColumnIndex = columnIndices[0];
+            int combineRowCount = rowIndices.length;
+            int combineColumnCount = columnIndices.length;
 
-            for (int i = 0; i < rowSpan; i++) {
-                for (int j = 0; j < columnSpan; j++) {
-                    if ((span[startRow + i][startColumn + j][TableSpans.COLUMN] != 1)
-                        || (span[startRow + i][startColumn + j][TableSpans.ROW] != 1)) {
-                        return;
+            if (isValidCombinationArea(startRowIndex, startColumnIndex, combineRowCount, combineColumnCount)) {
+                int rowSpanNumber = 0;
+
+                for (int rowOffset = 0; rowOffset < combineRowCount; rowOffset++) {
+                    int cellRowIndex = startRowIndex + rowOffset;
+                    int columnSpanNumber = 0;
+
+                    for (int columnOffset = 0; columnOffset < combineColumnCount; columnOffset++) {
+                        setSpanCellNumbers(cellRowIndex, startColumnIndex + columnOffset,
+                                           rowSpanNumber, columnSpanNumber);
+
+                        columnSpanNumber--;
                     }
-                }
-            }
 
-            for (int i = 0, ii = 0; i < rowSpan; i++, ii--) {
-                for (int j = 0, jj = 0; j < columnSpan; j++, jj--) {
-                    span[startRow + i][startColumn + j][TableSpans.COLUMN] = jj;
-                    span[startRow + i][startColumn + j][TableSpans.ROW] = ii;
+                    rowSpanNumber--;
                 }
-            }
 
-            span[startRow][startColumn][TableSpans.COLUMN] = columnSpan;
-            span[startRow][startColumn][TableSpans.ROW] = rowSpan;
+                setSpanCellNumbers(startRowIndex, startColumnIndex, combineRowCount, combineColumnCount);
+            }
         }
     }
 
-//    public void split(int rowIndex, int columnIndex) {
-//        if (!isOutOfBounds(rowIndex, columnIndex)) {
-//            int spanRowCount = span[rowIndex][columnIndex][TableSpans.ROW];
-//            int spanColumnCount = span[rowIndex][columnIndex][TableSpans.COLUMN];
-//
-//            for (int spanRowIndex = 0; spanRowIndex < spanRowCount; spanRowIndex++) {
-//                for (int spanColumnIndex = 0; spanColumnIndex < spanColumnCount; spanColumnIndex++) {
-//                    span[rowIndex + spanRowIndex][columnIndex + spanColumnIndex][TableSpans.COLUMN] = 1;
-//                    span[rowIndex + spanRowIndex][columnIndex + spanColumnIndex][TableSpans.ROW] = 1;
-//                }
-//            }
-//        }
-//    }
+    private boolean isValidCombinationArea(int startRowIndex, int startColumnIndex,
+                                           int combinationRowCount, int combinationColumnCount) {
+        for (int rowIndex = 0; rowIndex < combinationRowCount; rowIndex++) {
+            for (int columnIndex = 0; columnIndex < combinationColumnCount; columnIndex++) {
+                if (span[startRowIndex + rowIndex][startColumnIndex + columnIndex][TableSpans.ROW] != 1 ||
+                    span[startRowIndex + rowIndex][startColumnIndex + columnIndex][TableSpans.COLUMN] != 1) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private void setSpanCellNumbers(int cellRowIndex, int cellColumnIndex) {
+        setSpanCellNumbers(cellRowIndex, cellColumnIndex, 1, 1);
+    }
+
+    private void setSpanCellNumbers(int cellRowIndex, int cellColumnIndex, int rowSpanNumber, int columnSpanNumber) {
+        span[cellRowIndex][cellColumnIndex][TableSpans.ROW] = rowSpanNumber;
+        span[cellRowIndex][cellColumnIndex][TableSpans.COLUMN] = columnSpanNumber;
+    }
 
     public void setSize(Dimension size) {
         columnCount = size.width;
         rowCount = size.height;
         span = new int[rowCount][columnCount][2];   // 2: COLUMN,ROW
 
-//        foreground = new Color[rowCount][columnCount]
-//        background = new Color[rowCount][columnCount]
-
         for (int rowIndex = 0; rowIndex < span.length; rowIndex++) {
             for (int columnIndex = 0; columnIndex < span[rowIndex].length; columnIndex++) {
-                span[rowIndex][columnIndex][TableSpans.COLUMN] = 1;
-                span[rowIndex][columnIndex][TableSpans.ROW] = 1;
+                setSpanCellNumbers(rowIndex, columnIndex);
             }
         }
     }
@@ -119,8 +126,8 @@ public class DefaultTableSpans implements TableSpans {
         for (int rowIndex = 0; rowIndex < currentRowCount; rowIndex++) {
             span[rowIndex] = Arrays.copyOf(oldSpan[rowIndex], oldColumnCount + 1);
             span[rowIndex][oldColumnCount] = new int[2];
-            span[rowIndex][oldColumnCount][TableSpans.COLUMN] = 1;
-            span[rowIndex][oldColumnCount][TableSpans.ROW] = 1;
+
+            setSpanCellNumbers(rowIndex, oldColumnCount);
         }
     }
 
@@ -134,8 +141,7 @@ public class DefaultTableSpans implements TableSpans {
         System.arraycopy(oldSpan, 0, span, 0, oldRowCount);
 
         for (int columnIndex = 0; columnIndex < currentColumnCount; columnIndex++) {
-            span[oldRowCount][columnIndex][TableSpans.COLUMN] = 1;
-            span[oldRowCount][columnIndex][TableSpans.ROW] = 1;
+            setSpanCellNumbers(oldRowCount, columnIndex);
         }
     }
 
@@ -153,8 +159,7 @@ public class DefaultTableSpans implements TableSpans {
         System.arraycopy(oldSpan, 0, span, rowIndex, oldRowCount - rowIndex);
 
         for (int columnIndex = 0; columnIndex < currentColumnCount; columnIndex++) {
-            span[rowIndex][columnIndex][TableSpans.COLUMN] = 1;
-            span[rowIndex][columnIndex][TableSpans.ROW] = 1;
+            setSpanCellNumbers(rowIndex, columnIndex);
         }
     }
 
