@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 public class HtmlHelperTest {
     @Test
     public void testGetHtmlAsDocumentAndParseHtml() throws IOException {
-        String url = "https://freekdb.home.xs4all.nl/";
+        String url = "https://freekdb.home.xs4all.nl/index.html";
         HtmlHelper htmlHelper = new HtmlHelper();
 
         Document document1 = htmlHelper.getHtmlAsDocument(url);
