@@ -156,7 +156,7 @@ public class DefaultTableSpans implements TableSpans {
             System.arraycopy(oldSpan, 0, span, 0, rowIndex);
         }
 
-        System.arraycopy(oldSpan, 0, span, rowIndex, oldRowCount - rowIndex);
+        System.arraycopy(oldSpan, 0, span, rowIndex + 1, oldRowCount - rowIndex);
 
         for (int columnIndex = 0; columnIndex < currentColumnCount; columnIndex++) {
             setSpanCellNumbers(rowIndex, columnIndex);
