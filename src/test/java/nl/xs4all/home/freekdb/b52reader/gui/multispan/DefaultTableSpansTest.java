@@ -15,6 +15,20 @@ import static org.junit.Assert.assertArrayEquals;
  */
 public class DefaultTableSpansTest {
     @Test
+    public void testCombineInvalid() {
+        int rowCount = 28;
+        int columnCount = 6;
+
+        DefaultTableSpans tableSpans = new DefaultTableSpans(rowCount, columnCount);
+
+        tableSpans.combine(new int[]{0, 1}, new int[]{0, 1});
+        tableSpans.combine(new int[]{0, 1, 2, 3}, new int[]{0, 1, 2, 3});
+
+        assertArrayEquals(new int[]{2, 2}, tableSpans.getSpan(0, 0));
+        assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(2, 2));
+    }
+
+    @Test
     public void testAddColumn() {
         int rowCount = 28;
         int columnCount = 6;
