@@ -30,6 +30,7 @@ import javax.swing.table.TableCellRenderer;
  * @version 1.0 11/26/98
  */
 public class SpanCellTableUI extends BasicTableUI {
+    @Override
     public void paint(Graphics graphics, JComponent component) {
         Rectangle oldClipBounds = graphics.getClipBounds();
 
@@ -47,7 +48,7 @@ public class SpanCellTableUI extends BasicTableUI {
 
         for (int rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++) {
             if (rowRect.intersects(clipBounds)) {
-                paintRow(graphics, rowIndex);
+                paintTableRow(graphics, rowIndex);
             }
 
             rowRect.y += rowRect.height;
@@ -56,7 +57,7 @@ public class SpanCellTableUI extends BasicTableUI {
         graphics.setClip(oldClipBounds);
     }
 
-    private void paintRow(Graphics graphics, int rowIndex) {
+    private void paintTableRow(Graphics graphics, int rowIndex) {
         Rectangle clipBounds = graphics.getClipBounds();
         boolean drawn = false;
 
@@ -74,7 +75,7 @@ public class SpanCellTableUI extends BasicTableUI {
 
             if (cellRect.intersects(clipBounds)) {
                 drawn = true;
-                paintCell(graphics, cellRect, cellRow, cellColumn);
+                paintTableCell(graphics, cellRect, cellRow, cellColumn);
             }
             else if (drawn) {
                 break;
@@ -82,7 +83,7 @@ public class SpanCellTableUI extends BasicTableUI {
         }
     }
 
-    private void paintCell(Graphics graphics, Rectangle cellRect, int rowIndex, int columnIndex) {
+    private void paintTableCell(Graphics graphics, Rectangle cellRect, int rowIndex, int columnIndex) {
         int spacingHeight = table.getRowMargin();
         int spacingWidth = table.getColumnModel().getColumnMargin();
 
