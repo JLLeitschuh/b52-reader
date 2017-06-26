@@ -27,6 +27,7 @@ import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandlerJdbc;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.CombinationArticleSource;
 
@@ -79,7 +80,7 @@ public class MainApplication implements MainCallbacks {
      * Initialize the database connection and read the articles & authors.
      */
     private void initializeDatabase() {
-        persistencyHandler = new PersistencyHandler();
+        persistencyHandler = new PersistencyHandlerJdbc();
 
         ObjectHub.injectPersistencyHandler(persistencyHandler);
 

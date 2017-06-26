@@ -13,6 +13,8 @@ import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
 // todo: Use Lombok.
+// todo: Use Guice.
+// todo: Use JPA/Hibernate.
 
 /**
  * The b52-reader main class which creates the application and launches it.
