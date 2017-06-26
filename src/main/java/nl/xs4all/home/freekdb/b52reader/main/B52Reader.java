@@ -15,6 +15,9 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 // todo: Use Lombok.
 // todo: Use Guice.
 // todo: Use JPA/Hibernate.
+// todo: Use Checkstyle.
+// todo: Use FindBugs.
+// todo: Use PMD/CPD.
 
 /**
  * The b52-reader main class which creates the application and launches it.
