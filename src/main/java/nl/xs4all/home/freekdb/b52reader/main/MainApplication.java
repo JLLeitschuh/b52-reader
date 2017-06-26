@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
@@ -62,32 +65,50 @@ public class MainApplication implements MainCallbacks {
      * Initialize and show enough of the application to fetch articles, possibly using background browsers.
      */
     void createAndLaunchApplication() {
-        initializeDatabase();
+        if (initializeDatabase()) {
+            configuration = initializeConfiguration();
 
-        configuration = initializeConfiguration();
+            if (configuration != null) {
+                MainGui mainGui = new MainGui(new ManyBrowsersPanel(new JWebBrowserFactory()), this);
+                mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
 
-        if (configuration != null) {
-            MainGui mainGui = new MainGui(new ManyBrowsersPanel(new JWebBrowserFactory()), this);
-            mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
+                currentArticles = getArticles(configuration.getSelectedArticleSources());
 
-            currentArticles = getArticles(configuration.getSelectedArticleSources());
-
-            mainGui.initializeGui(currentArticles);
+                mainGui.initializeGui(currentArticles);
+            }
         }
     }
 
     /**
      * Initialize the database connection and read the articles & authors.
+     *
+     * @return whether the database initialization was successful.
      */
-    private void initializeDatabase() {
+    private boolean initializeDatabase() {
+        boolean result = true;
+
         persistencyHandler = new PersistencyHandlerJdbc();
 
         ObjectHub.injectPersistencyHandler(persistencyHandler);
 
-        if (persistencyHandler.initializeDatabaseConnection()) {
-            persistencyHandler.createTablesIfNeeded();
-            persistencyHandler.readAuthorsAndArticles();
+        try {
+            Class.forName("org.h2.Driver");
+            String databaseUrl = "jdbc:h2:./data/b52-reader-settings";
+            Connection databaseConnection = DriverManager.getConnection(databaseUrl, "b52", "reader");
+
+            if (persistencyHandler.initializeDatabaseConnection(databaseConnection)) {
+                persistencyHandler.createTablesIfNeeded();
+                persistencyHandler.readAuthorsAndArticles();
+            } else {
+                result = false;
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.error("Exception while initializing the database connection.", e);
+
+            result = false;
         }
+
+        return result;
     }
 
     /**

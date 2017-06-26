@@ -50,27 +50,17 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
     private Map<String, Article> storedArticlesMap;
 
     @Override
-    public Map<String, Author> getStoredAuthorsMap() {
-        return storedAuthorsMap;
-    }
-
-    @Override
-    public Map<String, Article> getStoredArticlesMap() {
-        return storedArticlesMap;
-    }
-
-    @Override
-    public boolean initializeDatabaseConnection() {
-        boolean result = true;
+    public boolean initializeDatabaseConnection(Connection databaseConnection) {
+        boolean result;
 
         try {
-            Class.forName("org.h2.Driver");
-            String databaseUrl = "jdbc:h2:./data/b52-reader-settings";
-            databaseConnection = DriverManager.getConnection(databaseUrl, "b52", "reader");
+            this.databaseConnection = databaseConnection;
+            this.statement = databaseConnection.createStatement();
 
-            statement = databaseConnection.createStatement();
-        } catch (ClassNotFoundException | SQLException e) {
+            result = this.statement != null;
+        } catch (SQLException e) {
             logger.error("Exception while initializing the database connection.", e);
+
             result = false;
         }
 
@@ -147,6 +137,16 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         } catch (SQLException e) {
             logger.error("Exception while reading authors and articles from the database.", e);
         }
+    }
+
+    @Override
+    public Map<String, Author> getStoredAuthorsMap() {
+        return storedAuthorsMap;
+    }
+
+    @Override
+    public Map<String, Article> getStoredArticlesMap() {
+        return storedArticlesMap;
     }
 
     @Override
