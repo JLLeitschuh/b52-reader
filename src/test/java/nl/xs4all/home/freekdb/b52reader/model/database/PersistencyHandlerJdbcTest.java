@@ -13,9 +13,18 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.Month;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -45,6 +54,7 @@ public class PersistencyHandlerJdbcTest {
         Mockito.when(mockDatabaseConnection.createStatement()).thenReturn(mockStatement);
 
         Mockito.when(mockDatabaseConnection.getMetaData()).thenReturn(mockDatabaseMetaData);
+
         Mockito.when(mockDatabaseMetaData.getTables(Mockito.isNull(), Mockito.isNull(),
                                                     Mockito.anyString(), Mockito.isNull()))
                 .thenReturn(mockResultSet);
@@ -78,5 +88,54 @@ public class PersistencyHandlerJdbcTest {
         });
 
         return createdTables;
+    }
+
+    @Test
+    public void testReadAuthorsAndArticles() throws SQLException {
+        String authorName = "Cara Santa Maria";
+        int authorId = 28;
+        Author author = new Author(authorName, authorId);
+
+        int articleIntValue = author.getRecordId();
+        String articleStringValue = "generic string value";
+        ZonedDateTime publishingDateTime = Utilities.createDate(2017, Month.JUNE, 27);
+
+        Article article = new Article.Builder(articleStringValue, articleStringValue, author, articleStringValue,
+                                              publishingDateTime, articleStringValue)
+                .recordId(articleIntValue)
+                .likes(articleIntValue)
+                .build();
+
+        Connection mockDatabaseConnection = Mockito.mock(Connection.class);
+        Statement mockStatement = Mockito.mock(Statement.class);
+        ResultSet mockResultSetAuthor = Mockito.mock(ResultSet.class);
+        ResultSet mockResultSetArticle = Mockito.mock(ResultSet.class);
+
+        Mockito.when(mockDatabaseConnection.createStatement()).thenReturn(mockStatement);
+
+        Mockito.when(mockStatement.executeQuery(Mockito.anyString()))
+                .thenReturn(mockResultSetAuthor, mockResultSetArticle);
+
+        Mockito.when(mockResultSetAuthor.next()).thenReturn(true, false);
+        Mockito.when(mockResultSetAuthor.getInt(Mockito.anyString())).thenReturn(authorId);
+        Mockito.when(mockResultSetAuthor.getString(Mockito.anyString())).thenReturn(authorName);
+
+        Mockito.when(mockResultSetArticle.next()).thenReturn(true, false);
+        Mockito.when(mockResultSetArticle.getInt(Mockito.anyString())).thenReturn(articleIntValue);
+        Mockito.when(mockResultSetArticle.getString(Mockito.anyString())).thenReturn(articleStringValue);
+        Mockito.when(mockResultSetArticle.getTimestamp(Mockito.anyString()))
+                .thenReturn(Timestamp.from(publishingDateTime.toInstant()));
+
+        PersistencyHandler persistencyHandler = new PersistencyHandlerJdbc();
+
+        assertTrue(persistencyHandler.initializeDatabaseConnection(mockDatabaseConnection));
+
+        persistencyHandler.readAuthorsAndArticles();
+
+        assertEquals(Collections.singletonList(author),
+                     new ArrayList<>(persistencyHandler.getStoredAuthorsMap().values()));
+
+        assertEquals(Collections.singletonList(article),
+                     new ArrayList<>(persistencyHandler.getStoredArticlesMap().values()));
     }
 }
