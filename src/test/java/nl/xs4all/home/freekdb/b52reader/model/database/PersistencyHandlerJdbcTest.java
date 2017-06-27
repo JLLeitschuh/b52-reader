@@ -6,15 +6,22 @@
 
 package nl.xs4all.home.freekdb.b52reader.model.database;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.Invocation;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -48,6 +55,28 @@ public class PersistencyHandlerJdbcTest {
 
         persistencyHandler.createTablesIfNeeded();
 
-        // todo: add more assert/verify statements.
+        Collection<Invocation> statementInvocations = Mockito.mockingDetails(mockStatement).getInvocations();
+        assertEquals(2, statementInvocations.size());
+
+        Set<String> expectedTables = ImmutableSet.of("article", "author");
+        assertEquals(expectedTables, getCreatedTables(statementInvocations, expectedTables));
+    }
+
+    private Set<String> getCreatedTables(Collection<Invocation> statementInvocations, Set<String> expectedTables) {
+        Set<String> createdTables = new HashSet<>();
+
+        statementInvocations.forEach(invocation -> {
+            String invocationString = invocation.toString();
+
+            if (invocationString.contains("execute")) {
+                expectedTables.forEach(tableName -> {
+                    if (invocationString.contains("create table " + tableName)) {
+                        createdTables.add(tableName);
+                    }
+                });
+            }
+        });
+
+        return createdTables;
     }
 }
