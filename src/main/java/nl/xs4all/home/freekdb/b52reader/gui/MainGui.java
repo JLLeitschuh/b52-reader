@@ -121,10 +121,17 @@ public class MainGui {
      * Construct the main GUI object: set the main callbacks handler.
      *
      * @param manyBrowsersPanel the panel with many embedded browsers, of which only one can be visible.
-     * @param mainCallbacks     the main callbacks handler.
      */
-    public MainGui(ManyBrowsersPanel manyBrowsersPanel, MainCallbacks mainCallbacks) {
+    public MainGui(ManyBrowsersPanel manyBrowsersPanel) {
         this.manyBrowsersPanel = manyBrowsersPanel;
+    }
+
+    /**
+     * Set the handler for the callback functions of the main program.
+     *
+     * @param mainCallbacks the handler for the callback functions of the main program.
+     */
+    public void setMainCallbacks(MainCallbacks mainCallbacks) {
         this.mainCallbacks = mainCallbacks;
     }
 

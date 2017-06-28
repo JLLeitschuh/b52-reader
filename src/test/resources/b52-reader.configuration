@@ -1,0 +1,11 @@
+# Configuration file for unit tests of the MainApplication class.
+
+
+# Selected article sources that will be used by the b52-reader.
+source-ids = test
+
+# All available article sources with IDs and parameters.
+source-test = nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource
+
+# Last used window state (normal or maximized), position, and size.
+window-configuration = normal;0,0,1280x1024

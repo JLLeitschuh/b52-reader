@@ -93,7 +93,8 @@ public class MainGuiTest {
 
     @Test
     public void testInitializeBackgroundBrowsersPanel() {
-        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel);
+        mainGui.setMainCallbacks(mockMainCallbacks);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
 
@@ -103,7 +104,8 @@ public class MainGuiTest {
 
     @Test
     public void testInitializeGuiSpanTable() throws InvocationTargetException, InterruptedException {
-        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel);
+        mainGui.setMainCallbacks(mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(true);
 
@@ -117,7 +119,8 @@ public class MainGuiTest {
 
     @Test
     public void testInitializeGuiCustomRendererTable() throws InvocationTargetException, InterruptedException {
-        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel);
+        mainGui.setMainCallbacks(mockMainCallbacks);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
         mainGui.initializeGui(new ArrayList<>());
@@ -195,7 +198,8 @@ public class MainGuiTest {
             Mockito.when(mockConfiguration.getBackgroundBrowserMaxCount()).thenReturn(0);
         }
 
-        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel);
+        mainGui.setMainCallbacks(mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(true);
         Mockito.when(mockConfiguration.getFetchedValue()).thenReturn(fetchedValue);
@@ -213,7 +217,8 @@ public class MainGuiTest {
 
     @Test
     public void testShutdownApplication() throws InterruptedException, InvocationTargetException {
-        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel);
+        mainGui.setMainCallbacks(mockMainCallbacks);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
         mainGui.initializeGui(new ArrayList<>());
@@ -227,7 +232,8 @@ public class MainGuiTest {
 
     private void testFilter(FilterTestType testType) throws BadLocationException, InterruptedException,
                                                             ReflectiveOperationException {
-        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel);
+        mainGui.setMainCallbacks(mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(testType == CHANGE_TEXT);
 
@@ -347,7 +353,8 @@ public class MainGuiTest {
         testArticles.get(0).setStarred(firstStarred);
         testArticles.get(0).setRead(firstRead);
 
-        MainGui mainGui = new MainGui(mockManyBrowsersPanel, mockMainCallbacks);
+        MainGui mainGui = new MainGui(mockManyBrowsersPanel);
+        mainGui.setMainCallbacks(mockMainCallbacks);
 
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(spanTable);
 

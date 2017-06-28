@@ -21,16 +21,12 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
 
-import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
-import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandlerJdbc;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.CombinationArticleSource;
 
@@ -47,9 +43,19 @@ public class MainApplication implements MainCallbacks {
     private static final Logger logger = LogManager.getLogger();
 
     /**
+     * Main GUI object.
+     */
+    private final MainGui mainGui;
+
+    /**
+     * URL pointing to the configuration data.
+     */
+    private final URL configurationUrl;
+
+    /**
      * Handler for persistency functionality: storing and retrieving data in the database.
      */
-    private PersistencyHandler persistencyHandler;
+    private final PersistencyHandler persistencyHandler;
 
     /**
      * Configuration object with data from the configuration file.
@@ -62,6 +68,21 @@ public class MainApplication implements MainCallbacks {
     private List<Article> currentArticles;
 
     /**
+     * Construct a main application object and inject the main gui, configuration URL & persistency handler.
+     *
+     * @param mainGui            the main GUI object.
+     * @param configurationUrl   the URL pointing to the configuration data.
+     * @param persistencyHandler the persistency handler that should be used.
+     */
+    MainApplication(MainGui mainGui, URL configurationUrl, PersistencyHandler persistencyHandler) {
+        this.mainGui = mainGui;
+        this.persistencyHandler = persistencyHandler;
+        this.configurationUrl = configurationUrl;
+
+        this.mainGui.setMainCallbacks(this);
+    }
+
+    /**
      * Initialize and show enough of the application to fetch articles, possibly using background browsers.
      */
     void createAndLaunchApplication() {
@@ -69,7 +90,6 @@ public class MainApplication implements MainCallbacks {
             configuration = initializeConfiguration();
 
             if (configuration != null) {
-                MainGui mainGui = new MainGui(new ManyBrowsersPanel(new JWebBrowserFactory()), this);
                 mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
 
                 currentArticles = getArticles(configuration.getSelectedArticleSources());
@@ -86,8 +106,6 @@ public class MainApplication implements MainCallbacks {
      */
     private boolean initializeDatabase() {
         boolean result = true;
-
-        persistencyHandler = new PersistencyHandlerJdbc();
 
         ObjectHub.injectPersistencyHandler(persistencyHandler);
 
@@ -116,11 +134,11 @@ public class MainApplication implements MainCallbacks {
      */
     private Configuration initializeConfiguration() {
         Configuration applicationConfiguration = null;
-        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
 
         try {
             if (configurationUrl != null) {
                 InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
+
                 applicationConfiguration = new Configuration(configurationInputStream);
             }
         } catch (IOException e) {
@@ -151,8 +169,6 @@ public class MainApplication implements MainCallbacks {
      */
     @Override
     public void shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
-        URL configurationUrl = Configuration.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
-
         try {
             if (configurationUrl != null) {
                 OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());

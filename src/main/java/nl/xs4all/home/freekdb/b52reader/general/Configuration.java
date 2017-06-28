@@ -59,7 +59,7 @@ public class Configuration {
     /**
      * The initial delay in milliseconds before starting the background tasks: preloading browsers.
      */
-    private static final int BACKGROUND_TIMER_INITIAL_DELAY = 800;
+    private static final int BACKGROUND_TIMER_INITIAL_DELAY = 1200;
 
     /**
      * The delay in milliseconds between background tasks: preloading browsers.

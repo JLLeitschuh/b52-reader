@@ -179,7 +179,7 @@ public class ConfigurationTest {
 
         assertEquals("B52 reader 0.0.6", configuration.getApplicationNameAndVersion());
         assertEquals(6, configuration.getBackgroundBrowserMaxCount());
-        assertEquals(800, configuration.getBackgroundTimerInitialDelay());
+        assertEquals(1200, configuration.getBackgroundTimerInitialDelay());
         assertEquals(1000, configuration.getBackgroundTimerDelay());
         assertEquals("fetched", configuration.getFetchedValue());
     }

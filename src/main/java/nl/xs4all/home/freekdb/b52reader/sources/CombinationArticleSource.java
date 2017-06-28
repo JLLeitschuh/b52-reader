@@ -33,7 +33,7 @@ public class CombinationArticleSource implements ArticleSource {
     public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
         articles.clear();
 
-        for (final ArticleSource articleSource : articleSources) {
+        for (ArticleSource articleSource : articleSources) {
             articles.addAll(articleSource.getArticles(previousArticlesMap, previousAuthorsMap));
         }
 
