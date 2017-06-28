@@ -7,7 +7,6 @@
 package nl.xs4all.home.freekdb.b52reader.model.database;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -30,13 +29,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * todo: define constants for table (and column) names?
+ * Define more constants for table (and column) names?
  * <p>
  * Enable storage of articles and authors in an H2 database.
  * <p>
  * If performance is not good enough: http://h2database.com/html/performance.html.
  */
 public class PersistencyHandlerJdbc implements PersistencyHandler {
+    private static final String ARTICLE_TABLE_NAME = "article";
+
     /**
      * Logger for this class.
      */
@@ -79,14 +80,14 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                 logger.info("Created the author database table.");
             }
 
-            if (!tableExists("article")) {
-                statement.execute("create table article(id int auto_increment primary key, " +
+            if (!tableExists(ARTICLE_TABLE_NAME)) {
+                statement.execute("create table " + ARTICLE_TABLE_NAME + " (id int auto_increment primary key, " +
                                   "url varchar(2800), source_id varchar(42), " +
                                   "author_id int not null references author(id), " +
                                   "title varchar(200), date_time timestamp, text varchar(8128), " +
                                   "starred boolean, read boolean, archived boolean, likes int)");
 
-                logger.info("Created the article database table.");
+                logger.info("Created the " + ARTICLE_TABLE_NAME + " database table.");
             }
         } catch (SQLException e) {
             logger.error("Exception while creating the database tables.", e);
@@ -121,10 +122,11 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
             }
 
             logger.info("Read {} from the database.",
-                                               Utilities.countAndWord(storedAuthors.size(), "author"));
+                        Utilities.countAndWord(storedAuthors.size(), "author"));
 
             storedArticlesMap = new HashMap<>();
-            try (ResultSet articlesResultSet = statement.executeQuery("select distinct * from article")) {
+            try (ResultSet articlesResultSet = statement.executeQuery("select distinct * from " +
+                                                                      ARTICLE_TABLE_NAME)) {
                 while (articlesResultSet.next()) {
                     Article article = Article.createArticleFromDatabase(articlesResultSet, storedAuthors);
 
@@ -133,7 +135,7 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
             }
 
             logger.info("Read {} from the database.",
-                                               Utilities.countAndWord(storedArticlesMap.size(), "article"));
+                        Utilities.countAndWord(storedArticlesMap.size(), "article"));
         } catch (SQLException e) {
             logger.error("Exception while reading authors and articles from the database.", e);
         }
@@ -177,32 +179,33 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         existingArticles.removeAll(newArticles);
         updateExistingArticles(existingArticles);
 
-        saveNewArticles(newArticles);
+        if (!newArticles.isEmpty()) {
+            saveNewArticles(newArticles);
+        }
     }
 
     private void saveNewAuthors(List<Author> newAuthors) {
         if (!newAuthors.isEmpty()) {
-            try {
-                final String insertQuery = "insert into author(name) values (?)";
-                try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery)) {
-                    for (Author newAuthor : newAuthors) {
-                        preparedStatement.setString(1, newAuthor.getName());
-                        preparedStatement.addBatch();
-                    }
+            final String insertQuery = "insert into author(name) values (?)";
 
-                    int[] results = preparedStatement.executeBatch();
-                    for (int authorIndex = 0; authorIndex < results.length; authorIndex++) {
-                        int result = results[authorIndex];
-                        if (result != 1) {
-                            logger.error("Error writing author {} to the database.", newAuthors.get(authorIndex));
-                        }
-                    }
+            try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery)) {
+                for (Author newAuthor : newAuthors) {
+                    preparedStatement.setString(1, newAuthor.getName());
+                    preparedStatement.addBatch();
                 }
 
-                logger.info("Wrote {} to the database.", Utilities.countAndWord(newAuthors.size(), "new author"));
+                int[] results = preparedStatement.executeBatch();
+                for (int authorIndex = 0; authorIndex < results.length; authorIndex++) {
+                    int result = results[authorIndex];
+                    if (result != 1) {
+                        logger.error("Error writing author {} to the database.", newAuthors.get(authorIndex));
+                    }
+                }
             } catch (SQLException e) {
                 logger.error("Exception while inserting authors into the database.", e);
             }
+
+            logger.info("Wrote {} to the database.", Utilities.countAndWord(newAuthors.size(), "new author"));
         }
     }
 
@@ -225,16 +228,14 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
     }
 
     private void updateExistingArticles(List<Article> existingArticles) {
-        try {
-            String updateQuery = "update article " +
-                                 "set url = ?, source_id = ?, author_id = ?, title = ?, date_time = ?, text = ?, " +
-                                 "likes = ?, starred = ?, read = ?, archived = ? " +
-                                 "where id = ?";
+        String updateQuery = "update " + ARTICLE_TABLE_NAME + " " +
+                             "set url = ?, source_id = ?, author_id = ?, title = ?, date_time = ?, text = ?, " +
+                             "likes = ?, starred = ?, read = ?, archived = ? " +
+                             "where id = ?";
 
-            PreparedStatement preparedStatement = databaseConnection.prepareStatement(updateQuery);
+        List<Article> updateArticles = new ArrayList<>();
 
-            List<Article> updateArticles = new ArrayList<>();
-
+        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(updateQuery)) {
             for (Article existingArticle : existingArticles) {
                 Article storedArticle = storedArticlesMap.get(existingArticle.getUrl());
 
@@ -270,52 +271,49 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                     }
                 }
             }
-
-            preparedStatement.close();
-
-            if (!updateArticles.isEmpty()) {
-                logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), "article"));
-            }
         } catch (SQLException e) {
             logger.error("Exception while updating articles in the database.", e);
+        }
+
+        if (!updateArticles.isEmpty()) {
+            logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), "article"));
         }
     }
 
     private void saveNewArticles(List<Article> newArticles) {
         try {
-            String insertQuery = "insert into " +
-                                 "article(url, source_id, author_id, title, date_time, text, starred, read, archived, likes) " +
+            String insertQuery = "insert into " + ARTICLE_TABLE_NAME +
+                                 " (url, source_id, author_id, title, date_time, text, starred, read, archived, likes) " +
                                  "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery);
+            try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery)) {
+                for (Article newArticle : newArticles) {
+                    preparedStatement.setString(1, newArticle.getUrl());
+                    preparedStatement.setString(2, newArticle.getSourceId());
+                    preparedStatement.setInt(3, newArticle.getAuthor().getRecordId());
+                    preparedStatement.setString(4, newArticle.getTitle());
+                    preparedStatement.setTimestamp(5, Timestamp.from(newArticle.getDateTime().toInstant()));
+                    preparedStatement.setString(6, newArticle.getText());
+                    preparedStatement.setBoolean(7, newArticle.isStarred());
+                    preparedStatement.setBoolean(8, newArticle.isRead());
+                    preparedStatement.setBoolean(9, newArticle.isArchived());
+                    preparedStatement.setInt(10, newArticle.getLikes());
 
-            for (Article newArticle : newArticles) {
-                preparedStatement.setString(1, newArticle.getUrl());
-                preparedStatement.setString(2, newArticle.getSourceId());
-                preparedStatement.setInt(3, newArticle.getAuthor().getRecordId());
-                preparedStatement.setString(4, newArticle.getTitle());
-                preparedStatement.setTimestamp(5, Timestamp.from(newArticle.getDateTime().toInstant()));
-                preparedStatement.setString(6, newArticle.getText());
-                preparedStatement.setBoolean(7, newArticle.isStarred());
-                preparedStatement.setBoolean(8, newArticle.isRead());
-                preparedStatement.setBoolean(9, newArticle.isArchived());
-                preparedStatement.setInt(10, newArticle.getLikes());
+                    preparedStatement.addBatch();
+                }
 
-                preparedStatement.addBatch();
-            }
-
-            int[] results = preparedStatement.executeBatch();
-            for (int articleIndex = 0; articleIndex < results.length; articleIndex++) {
-                int result = results[articleIndex];
-                if (result != 1) {
-                    logger.error("Error writing article {} to the database.", newArticles.get(articleIndex));
+                int[] results = preparedStatement.executeBatch();
+                for (int articleIndex = 0; articleIndex < results.length; articleIndex++) {
+                    int result = results[articleIndex];
+                    if (result != 1) {
+                        logger.error("Error writing article {} to the database.", newArticles.get(articleIndex));
+                    }
                 }
             }
 
-            preparedStatement.close();
-
             if (!newArticles.isEmpty()) {
-                logger.info("Wrote {} to the database.", Utilities.countAndWord(newArticles.size(), "new article"));
+                logger.info("Wrote {} to the database.",
+                            Utilities.countAndWord(newArticles.size(), "new article"));
             }
         } catch (SQLException e) {
             logger.error("Exception while inserting articles into the database.", e);
@@ -348,7 +346,7 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                 }
             }
 
-            try (ResultSet articlesResultSet = statement.executeQuery("select * from article")) {
+            try (ResultSet articlesResultSet = statement.executeQuery("select * from " + ARTICLE_TABLE_NAME)) {
                 if (articlesResultSet.next()) {
                     logger.info("Articles:");
                     printResultSet(articlesResultSet);
