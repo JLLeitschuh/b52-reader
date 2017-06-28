@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PersistencyHandlerJdbc implements PersistencyHandler {
     private static final String ARTICLE_TABLE_NAME = "article";
+    private static final String ARTICLE_WORD = "article";
 
     /**
      * Logger for this class.
@@ -135,7 +136,7 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
             }
 
             logger.info("Read {} from the database.",
-                        Utilities.countAndWord(storedArticlesMap.size(), "article"));
+                        Utilities.countAndWord(storedArticlesMap.size(), ARTICLE_WORD));
         } catch (SQLException e) {
             logger.error("Exception while reading authors and articles from the database.", e);
         }
@@ -276,7 +277,7 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         }
 
         if (!updateArticles.isEmpty()) {
-            logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), "article"));
+            logger.info("Updated {} in the database.", Utilities.countAndWord(updateArticles.size(), ARTICLE_WORD));
         }
     }
 
