@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.Month;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -133,14 +134,26 @@ public class PersistencyHandlerJdbcTest {
         persistencyHandler.readAuthorsAndArticles();
 
         String newAuthorName = "Patrick Süskind";
-        Author newAuthor = new Author(newAuthorName, 496);
+        int newAuthorId = 496;
+        Author newAuthor = new Author(newAuthorName, newAuthorId);
+
+        Article existingArticle =
+                new Article.Builder("generic string value", "source-id",
+                                    new Author("Cara Santa Maria", 28), "title",
+                                    Utilities.createDate(2017, Month.JUNE, 28), "text").build();
 
         Article newlyFetchedArticle =
-                new Article.Builder("url", "source-id", newAuthor, "title",
-                                    Utilities.createDate(2017, Month.JUNE, 28), "text")
-                        .build();
+                new Article.Builder("url2", "source-id", newAuthor, "title",
+                                    Utilities.createDate(2017, Month.JUNE, 28), "text").build();
 
-        ArrayList<Article> currentArticles = new ArrayList<>(Collections.singleton(newlyFetchedArticle));
+        ArrayList<Article> currentArticles = new ArrayList<>(Arrays.asList(existingArticle, newlyFetchedArticle));
+
+        ResultSet mockResultSet = Mockito.mock(ResultSet.class);
+        Mockito.when(mockStatement.executeQuery(Mockito.anyString())).thenReturn(mockResultSet);
+
+        Mockito.when(mockResultSet.next()).thenReturn(true, false);
+        Mockito.when(mockResultSet.getInt(Mockito.anyString())).thenReturn(newAuthorId);
+        Mockito.when(mockResultSet.getString(Mockito.anyString())).thenReturn(newAuthorName);
 
         persistencyHandler.saveAuthorsAndArticles(currentArticles);
 
@@ -148,7 +161,7 @@ public class PersistencyHandlerJdbcTest {
                 .getInvocations().stream().filter(invocation -> invocation.toString().contains("setString"))
                 .collect(Collectors.toList());
 
-        assertEquals(5, setStringInvocations.size());
+        assertEquals(9, setStringInvocations.size());
 
         Optional<Invocation> optionalAuthorInvocation = setStringInvocations.stream()
                 .filter(invocation -> invocation.toString().contains("1") && invocation.toString().contains("Patrick"))
@@ -156,6 +169,13 @@ public class PersistencyHandlerJdbcTest {
 
         assertTrue(optionalAuthorInvocation.isPresent());
         assertTrue(optionalAuthorInvocation.get().toString().contains(newAuthorName));
+    }
+
+    @Test
+    public void testCloseDatabaseConnection() throws SQLException {
+        createConnectionAndRelatedMocks();
+
+        assertTrue(persistencyHandler.closeDatabaseConnection());
     }
 
     private void createConnectionAndRelatedMocks() throws SQLException {

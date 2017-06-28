@@ -9,7 +9,6 @@ package nl.xs4all.home.freekdb.b52reader.model.database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -111,6 +110,7 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         try {
             storedAuthors = new ArrayList<>();
             storedAuthorsMap = new HashMap<>();
+
             try (ResultSet authorsResultSet = statement.executeQuery("select distinct * from author")) {
                 while (authorsResultSet.next()) {
                     int id = authorsResultSet.getInt("id");
@@ -126,6 +126,7 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                         Utilities.countAndWord(storedAuthors.size(), "author"));
 
             storedArticlesMap = new HashMap<>();
+
             try (ResultSet articlesResultSet = statement.executeQuery("select distinct * from " +
                                                                       ARTICLE_TABLE_NAME)) {
                 while (articlesResultSet.next()) {
@@ -333,47 +334,5 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         }
 
         return result;
-    }
-
-    @Override
-    @SuppressWarnings("unused")
-    public void readAndPrintAuthorsAndArticles() {
-        try {
-            try (ResultSet authorsResultSet = statement.executeQuery("select * from author")) {
-                if (authorsResultSet.next()) {
-                    logger.info("");
-                    logger.info("Authors:");
-                    printResultSet(authorsResultSet);
-                }
-            }
-
-            try (ResultSet articlesResultSet = statement.executeQuery("select * from " + ARTICLE_TABLE_NAME)) {
-                if (articlesResultSet.next()) {
-                    logger.info("Articles:");
-                    printResultSet(articlesResultSet);
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Exception while reading authors and articles from the database.", e);
-        }
-    }
-
-    private void printResultSet(ResultSet resultSet) {
-        try {
-            boolean firstRecord = true;
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            while (firstRecord || resultSet.next()) {
-                for (int columnIndex = 1; columnIndex <= metaData.getColumnCount(); columnIndex++) {
-                    String columnName = metaData.getColumnName(columnIndex).toLowerCase();
-                    String value = resultSet.getString(columnIndex);
-
-                    logger.info("{}: {}", columnName, value);
-                }
-                logger.info("");
-                firstRecord = false;
-            }
-        } catch (SQLException e) {
-            logger.error("Exception while printing database records.", e);
-        }
     }
 }

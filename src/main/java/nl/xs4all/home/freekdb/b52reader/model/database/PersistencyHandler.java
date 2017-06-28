@@ -29,7 +29,4 @@ public interface PersistencyHandler {
     void saveAuthorsAndArticles(List<Article> currentArticles);
 
     boolean closeDatabaseConnection();
-
-    @SuppressWarnings("unused")
-    void readAndPrintAuthorsAndArticles();
 }
