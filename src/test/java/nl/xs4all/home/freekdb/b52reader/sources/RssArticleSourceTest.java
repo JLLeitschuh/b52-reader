@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
@@ -73,34 +72,41 @@ public class RssArticleSourceTest {
         RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID, mockFeed, FEED_NAME, TEST_AUTHOR_1, feedUrl,
                                                                  null);
 
-        assertEquals(0, rssArticleSource.getArticles(null, null).size());
+        assertEquals(0, rssArticleSource.getArticles(Mockito.mock(PersistencyHandler.class),
+                                                     null, null).size());
     }
 
     @Test
     public void testGetArticlesCategoryNull() {
-        RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID, createMockFeed(false), FEED_NAME,
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+
+        RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID, createMockFeed(mockPersistencyHandler, false), FEED_NAME,
                                                                  TEST_AUTHOR_1, feedUrl, null);
 
-        List<Article> actualArticles = rssArticleSource.getArticles(new HashMap<>(), new HashMap<>());
+        List<Article> actualArticles = rssArticleSource.getArticles(mockPersistencyHandler,
+                                                                    new HashMap<>(), new HashMap<>());
 
         assertEquals(prepareExpectedArticles(TEST_AUTHOR_1, true, actualArticles), actualArticles);
     }
 
     @Test
     public void testGetArticlesCategoryNamed() {
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+
         // The default author is TEST_AUTHOR_1, but the mock feed should provide the name of TEST_AUTHOR_2.
-        RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID, createMockFeed(true), FEED_NAME,
+        SyndFeed mockFeed = createMockFeed(mockPersistencyHandler, true);
+
+        RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID, mockFeed, FEED_NAME,
                                                                  TEST_AUTHOR_1, feedUrl, CATEGORY_NAME);
 
-        List<Article> actualArticles = rssArticleSource.getArticles(new HashMap<>(), new HashMap<>());
+        List<Article> actualArticles = rssArticleSource.getArticles(mockPersistencyHandler,
+                                                                    new HashMap<>(), new HashMap<>());
 
         assertEquals(prepareExpectedArticles(TEST_AUTHOR_2, false, actualArticles), actualArticles);
     }
 
-    private SyndFeed createMockFeed(boolean addExtraFields) {
-        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+    private SyndFeed createMockFeed(PersistencyHandler mockPersistencyHandler, boolean addExtraFields) {
         Mockito.when(mockPersistencyHandler.getOrCreateAuthor(TEST_AUTHOR_2.getName())).thenReturn(TEST_AUTHOR_2);
-        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         SyndFeed mockFeed = Mockito.mock(SyndFeed.class);
         SyndEntry mockEntry1 = Mockito.mock(SyndEntry.class);

@@ -37,7 +37,9 @@ public class ConfigurationTest {
     @Test
     public void testConstructorOnlySourceIds() throws IOException {
         byte[] configurationLinesBytes = "source-ids = test".getBytes("UTF-8");
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                                        Mockito.mock(PersistencyHandler.class));
 
         assertEquals(new ArrayList<>(), configuration.getSelectedArticleSources());
         assertEquals(Frame.NORMAL, configuration.getFrameExtendedState());
@@ -58,7 +60,6 @@ public class ConfigurationTest {
     private void testConstructorSourceIdsAndWindowConfiguration(boolean articleListWithBrowser) throws IOException {
         PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
         Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(null);
-        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         String configurationLines =
                 "source-ids = nrc\n" +
@@ -72,8 +73,9 @@ public class ConfigurationTest {
                 "window-configuration = maximized;0,0,1280x1024";
 
         byte[] configurationLinesBytes = configurationLines.getBytes("UTF-8");
+
         Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
-                                                        articleListWithBrowser);
+                                                        mockPersistencyHandler, articleListWithBrowser);
 
         List<ArticleSource> selectedArticleSources = configuration.getSelectedArticleSources();
         assertEquals(1, selectedArticleSources.size());
@@ -85,7 +87,9 @@ public class ConfigurationTest {
     @Test
     public void testConstructorHalfWindowConfiguration() throws IOException {
         byte[] configurationLinesBytes = "window-configuration = normal".getBytes("UTF-8");
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                                        Mockito.mock(PersistencyHandler.class));
 
         assertEquals(new ArrayList<>(), configuration.getSelectedArticleSources());
         assertEquals(Frame.NORMAL, configuration.getFrameExtendedState());
@@ -105,7 +109,8 @@ public class ConfigurationTest {
         boolean exceptionThrown = false;
 
         try {
-            configuration = new Configuration(mockConfigurationInputStream);
+            configuration = new Configuration(mockConfigurationInputStream,
+                                              Mockito.mock(PersistencyHandler.class));
         } catch (IOException e) {
             exceptionThrown = exceptionMessage.equals(e.getMessage());
         }
@@ -121,7 +126,6 @@ public class ConfigurationTest {
         Author[] authors = {null};
         // Return an author object for the first call to getOrCreateAuthor and keep returning null after that.
         Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(firstAuthor, authors);
-        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         String configurationLines =
                 "source-ids = nrc\n" +
@@ -131,7 +135,9 @@ public class ConfigurationTest {
                 "window-configuration = maximized;1,2,3x4";
 
         byte[] configurationLinesBytes = configurationLines.getBytes("UTF-8");
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                                        mockPersistencyHandler);
 
         OutputStream configurationOutputStream = new ByteArrayOutputStream();
 
@@ -165,7 +171,9 @@ public class ConfigurationTest {
                                                                   });
 
         byte[] configurationLinesBytes = "source-ids = test".getBytes("UTF-8");
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                                        Mockito.mock(PersistencyHandler.class));
 
         assertFalse(configuration.writeConfiguration(mockConfigurationOutputStream, Frame.NORMAL, null));
     }
@@ -173,7 +181,9 @@ public class ConfigurationTest {
     @Test
     public void testConstantGetters() throws IOException {
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                                        Mockito.mock(PersistencyHandler.class));
 
         // The asserts below are rather silly. Is there a better way to check this configuration functionality?
 

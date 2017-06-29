@@ -11,9 +11,11 @@ import java.util.Map;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 
 public interface ArticleSource {
     String getSourceId();
 
-    List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap);
+    List<Article> getArticles(PersistencyHandler persistencyHandler, Map<String, Article> previousArticlesMap,
+                              Map<String, Author> previousAuthorsMap);
 }

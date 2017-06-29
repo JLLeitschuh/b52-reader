@@ -14,9 +14,11 @@ import java.util.Map;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,7 +34,8 @@ public class CombinationArticleSourceTest {
     public void testGetArticlesEmpty() {
         CombinationArticleSource combinationArticleSource = new CombinationArticleSource(new ArrayList<>());
 
-        List<Article> noArticles = combinationArticleSource.getArticles(null, null);
+        List<Article> noArticles = combinationArticleSource.getArticles(Mockito.mock(PersistencyHandler.class),
+                                                                        null, null);
         assertEquals(0, noArticles.size());
     }
 
@@ -47,7 +50,9 @@ public class CombinationArticleSourceTest {
 
         CombinationArticleSource combinationArticleSource = new CombinationArticleSource(articleSources);
 
-        List<Article> articles = combinationArticleSource.getArticles(null, null);
+        List<Article> articles = combinationArticleSource.getArticles(Mockito.mock(PersistencyHandler.class),
+                                                                      null, null);
+
         assertEquals(articleCount1 + articleCount2, articles.size());
     }
 
@@ -77,7 +82,8 @@ public class CombinationArticleSourceTest {
             }
 
             @Override
-            public List<Article> getArticles(Map<String, Article> previousArticlesMap,
+            public List<Article> getArticles(PersistencyHandler persistencyHandler,
+                                             Map<String, Article> previousArticlesMap,
                                              Map<String, Author> previousAuthorsMap) {
                 return articles;
             }

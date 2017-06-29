@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -80,7 +81,9 @@ public class SpanCellTableUITest {
         List<Article> articles = getSixTestArticles();
 
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                                        Mockito.mock(PersistencyHandler.class));
 
         List<String> columnNames = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
 

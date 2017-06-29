@@ -17,9 +17,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
 
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +40,8 @@ public class RssArticleSource implements ArticleSource {
     private final Author defaultAuthor;
     private final URL feedUrl;
     private final String categoryName;
+
+    private PersistencyHandler persistencyHandler;
 
     public RssArticleSource(String sourceId, SyndFeed feed, String feedName, Author defaultAuthor, URL feedUrl,
                             String categoryName) {
@@ -73,7 +75,9 @@ public class RssArticleSource implements ArticleSource {
     }
 
     @Override
-    public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
+    public List<Article> getArticles(PersistencyHandler persistencyHandler, Map<String, Article> previousArticlesMap,
+                                     Map<String, Author> previousAuthorsMap) {
+        this.persistencyHandler = persistencyHandler;
         List<Article> newArticles = new ArrayList<>();
 
         for (SyndEntry entry : feed.getEntries()) {
@@ -107,7 +111,7 @@ public class RssArticleSource implements ArticleSource {
                 : "";
 
         Author entryAuthor = entry.getAuthor() != null
-                ? ObjectHub.getPersistencyHandler().getOrCreateAuthor(entry.getAuthor())
+                ? persistencyHandler.getOrCreateAuthor(entry.getAuthor())
                 : null;
 
         Date dateTime = entry.getPublishedDate() != null ? entry.getPublishedDate() : new Date();

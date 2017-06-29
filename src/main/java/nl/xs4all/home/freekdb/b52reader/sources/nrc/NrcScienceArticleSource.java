@@ -14,9 +14,9 @@ import java.util.Map;
 
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
-import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.website.ArticleListFetcher;
 import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
@@ -40,6 +40,8 @@ public class NrcScienceArticleSource implements ArticleSource {
 
     private final Configuration configuration;
 
+    private PersistencyHandler persistencyHandler;
+
     public NrcScienceArticleSource(ArticleListFetcher articleListFetcher, Configuration configuration) {
         this.articleListFetcher = articleListFetcher;
         this.configuration = configuration;
@@ -51,7 +53,9 @@ public class NrcScienceArticleSource implements ArticleSource {
     }
 
     @Override
-    public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
+    public List<Article> getArticles(PersistencyHandler persistencyHandler, Map<String, Article> previousArticlesMap,
+                                     Map<String, Author> previousAuthorsMap) {
+        this.persistencyHandler = persistencyHandler;
         List<Article> newArticles = new ArrayList<>();
 
         Document articleListDocument = articleListFetcher.getArticleListDocument();
@@ -60,7 +64,8 @@ public class NrcScienceArticleSource implements ArticleSource {
             parseArticles(previousArticlesMap, previousAuthorsMap, newArticles, articleListDocument);
         }
 
-        logger.info("Fetched {} from the NRC website.", Utilities.countAndWord(newArticles.size(), "article"));
+        logger.info("Fetched {} from the NRC website.",
+                    Utilities.countAndWord(newArticles.size(), "article"));
 
         return newArticles;
     }
@@ -68,7 +73,7 @@ public class NrcScienceArticleSource implements ArticleSource {
     private void parseArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap,
                                List<Article> newArticles, Document articleListDocument) {
         Elements articleElements = articleListDocument.select(".nmt-item__link");
-        Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor("NRC science");
+        Author defaultAuthor = persistencyHandler.getOrCreateAuthor("NRC science");
 
         for (Element articleElement : articleElements) {
             String url = configuration.getNrcMainUrl() + articleElement.attr("href");

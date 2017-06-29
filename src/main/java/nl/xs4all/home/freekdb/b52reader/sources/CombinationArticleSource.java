@@ -13,6 +13,7 @@ import java.util.Map;
 
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 
 public class CombinationArticleSource implements ArticleSource {
     private final List<ArticleSource> articleSources;
@@ -30,11 +31,12 @@ public class CombinationArticleSource implements ArticleSource {
     }
 
     @Override
-    public List<Article> getArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap) {
+    public List<Article> getArticles(PersistencyHandler persistencyHandler, Map<String, Article> previousArticlesMap,
+                                     Map<String, Author> previousAuthorsMap) {
         articles.clear();
 
         for (ArticleSource articleSource : articleSources) {
-            articles.addAll(articleSource.getArticles(previousArticlesMap, previousAuthorsMap));
+            articles.addAll(articleSource.getArticles(persistencyHandler, previousArticlesMap, previousAuthorsMap));
         }
 
         articles.sort(Comparator.comparing(Article::getDateTime).reversed());

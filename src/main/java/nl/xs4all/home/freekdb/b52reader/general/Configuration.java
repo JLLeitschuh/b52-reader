@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
 import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
@@ -88,6 +89,11 @@ public class Configuration {
     private static final Logger logger = LogManager.getLogger();
 
     /**
+     * Handler for persistency functionality: storing and retrieving data in the database.
+     */
+    private final PersistencyHandler persistencyHandler;
+
+    /**
      * Selected article sources (from configuration file).
      */
     private List<ArticleSource> selectedArticleSources;
@@ -112,9 +118,12 @@ public class Configuration {
      * <code>allArticleSources</code> lists.
      *
      * @param configurationInputStream the input stream that contains the configuration data.
+     * @param persistencyHandler       the handler for persistency functionality: storing and retrieving data in the
+     *                                 database.
      */
-    public Configuration(InputStream configurationInputStream) throws IOException {
-        this(configurationInputStream, false);
+    public Configuration(InputStream configurationInputStream, PersistencyHandler persistencyHandler)
+            throws IOException {
+        this(configurationInputStream, persistencyHandler, false);
     }
 
     /**
@@ -122,11 +131,17 @@ public class Configuration {
      * <code>allArticleSources</code> lists.
      *
      * @param configurationInputStream the input stream that contains the configuration data.
+     * @param persistencyHandler       the handler for persistency functionality: storing and retrieving data in the
+     *                                 database.
      * @param articleListWithBrowser   whether to use a background browser for fetching the html with the list of
      *                                 articles, which is for example necessary when the html page is dynamically
      *                                 generated.
      */
-    public Configuration(InputStream configurationInputStream, boolean articleListWithBrowser) throws IOException {
+    public Configuration(InputStream configurationInputStream, PersistencyHandler persistencyHandler,
+                         boolean articleListWithBrowser)
+            throws IOException {
+        this.persistencyHandler = persistencyHandler;
+
         List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
         allArticleSources = new ArrayList<>();
         selectedArticleSources = new ArrayList<>();
@@ -396,7 +411,7 @@ public class Configuration {
 
         try {
             String feedName = configurationItems[1];
-            Author defaultAuthor = ObjectHub.getPersistencyHandler().getOrCreateAuthor(configurationItems[2]);
+            Author defaultAuthor = persistencyHandler.getOrCreateAuthor(configurationItems[2]);
             URL feedUrl = new URL(configurationItems[3]);
             String categoryName = configurationItems.length >= 5 ? configurationItems[4] : null;
 

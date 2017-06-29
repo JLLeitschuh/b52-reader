@@ -35,7 +35,7 @@ public class MainApplicationTest {
         mainApplication.createAndLaunchApplication();
 
         List<Article> expectedArticles = new TestDataArticleSource()
-                .getArticles(null, null);
+                .getArticles(mockPersistencyHandler, null, null);
 
         Mockito.verify(mockMainGui, Mockito.times(1)).initializeGui(expectedArticles);
     }

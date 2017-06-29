@@ -15,7 +15,6 @@ import java.util.List;
 
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
-import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
 import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
@@ -35,7 +34,9 @@ public class NrcScienceArticleSourceTest {
     @Before
     public void setUp() throws IOException {
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
-        configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
+
+        configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
+                                          Mockito.mock(PersistencyHandler.class));
     }
 
     @Test
@@ -51,23 +52,27 @@ public class NrcScienceArticleSourceTest {
         Mockito.when(mockFetcher.getArticleListDocument()).thenReturn(null);
 
         NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(mockFetcher, configuration);
-        List<Article> articles = nrcScienceArticleSource.getArticles(new HashMap<>(), new HashMap<>());
+
+        List<Article> articles = nrcScienceArticleSource.getArticles(Mockito.mock(PersistencyHandler.class),
+                                                                     new HashMap<>(), new HashMap<>());
 
         assertEquals(0, articles.size());
     }
 
     @Test
     public void testGetArticlesNormal() {
-        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
         Author testAuthor = new Author("Test Author", 6);
+
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
         Mockito.when(mockPersistencyHandler.getOrCreateAuthor(Mockito.anyString())).thenReturn(testAuthor);
-        ObjectHub.injectPersistencyHandler(mockPersistencyHandler);
 
         ArticleListFetcher mockFetcher = Mockito.mock(ArticleListFetcher.class);
         Mockito.when(mockFetcher.getArticleListDocument()).thenReturn(prepareArticleListDocument());
 
         NrcScienceArticleSource nrcScienceArticleSource = new NrcScienceArticleSource(mockFetcher, configuration);
-        List<Article> actualArticles = nrcScienceArticleSource.getArticles(new HashMap<>(), new HashMap<>());
+
+        List<Article> actualArticles = nrcScienceArticleSource.getArticles(mockPersistencyHandler,
+                                                                           new HashMap<>(), new HashMap<>());
 
         assertEquals(prepareExpectedArticles(testAuthor, actualArticles), actualArticles);
     }

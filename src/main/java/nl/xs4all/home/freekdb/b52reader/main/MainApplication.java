@@ -107,8 +107,6 @@ public class MainApplication implements MainCallbacks {
     private boolean initializeDatabase() {
         boolean result = true;
 
-        ObjectHub.injectPersistencyHandler(persistencyHandler);
-
         try {
             Class.forName("org.h2.Driver");
             String databaseUrl = "jdbc:h2:./data/b52-reader-settings";
@@ -139,7 +137,7 @@ public class MainApplication implements MainCallbacks {
             if (configurationUrl != null) {
                 InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
 
-                applicationConfiguration = new Configuration(configurationInputStream);
+                applicationConfiguration = new Configuration(configurationInputStream, persistencyHandler);
             }
         } catch (IOException e) {
             logger.error("Exception while reading the configuration file " + configurationUrl, e);
@@ -158,7 +156,8 @@ public class MainApplication implements MainCallbacks {
         Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
         Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
 
-        return new CombinationArticleSource(articleSources).getArticles(storedArticlesMap, storedAuthorsMap);
+        return new CombinationArticleSource(articleSources).getArticles(persistencyHandler, storedArticlesMap,
+                                                                        storedAuthorsMap);
     }
 
     /**
