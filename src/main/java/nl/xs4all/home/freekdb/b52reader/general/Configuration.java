@@ -114,6 +114,11 @@ public class Configuration {
     private Rectangle frameBounds;
 
     /**
+     * Background browsers handler.
+     */
+    private BackgroundBrowsers backgroundBrowsers;
+
+    /**
      * Initialize by reading the configuration data and filling the <code>selectedArticleSources</code> and
      * <code>allArticleSources</code> lists.
      *
@@ -214,6 +219,15 @@ public class Configuration {
      */
     public boolean useSpanTable() {
         return true;
+    }
+
+    /**
+     * Inject the background browsers handler.
+     *
+     * @param backgroundBrowsers the background browsers handler.
+     */
+    public void injectBackgroundBrowsers(BackgroundBrowsers backgroundBrowsers) {
+        this.backgroundBrowsers = backgroundBrowsers;
     }
 
     /**
@@ -386,12 +400,12 @@ public class Configuration {
 
                     String url = getNrcMainUrl() + "sectie/wetenschap/";
 
-                    BackgroundBrowsers backgroundBrowsers = articleListWithBrowser
-                            ? ObjectHub.getBackgroundBrowsers()
+                    BackgroundBrowsers backgroundBrowsersHandler = articleListWithBrowser
+                            ? backgroundBrowsers
                             : null;
 
                     ArticleListFetcher fetcher = new ArticleListFetcher(url, articleListWithBrowser,
-                                                                        backgroundBrowsers, new HtmlHelper());
+                                                                        backgroundBrowsersHandler, new HtmlHelper());
 
                     articleSource = (ArticleSource) constructor.newInstance(fetcher, this);
                 } else {

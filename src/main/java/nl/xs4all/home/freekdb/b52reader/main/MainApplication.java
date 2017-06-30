@@ -21,8 +21,9 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
+import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
-import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
 import nl.xs4all.home.freekdb.b52reader.model.Article;
 import nl.xs4all.home.freekdb.b52reader.model.Author;
@@ -68,6 +69,11 @@ public class MainApplication implements MainCallbacks {
     private List<Article> currentArticles;
 
     /**
+     * Background browsers handler.
+     */
+    private BackgroundBrowsers backgroundBrowsers;
+
+    /**
      * Construct a main application object and inject the main gui, configuration URL & persistency handler.
      *
      * @param mainGui            the main GUI object.
@@ -91,6 +97,11 @@ public class MainApplication implements MainCallbacks {
 
             if (configuration != null) {
                 mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
+
+                backgroundBrowsers = new BackgroundBrowsers(new JWebBrowserFactory(),
+                                                            mainGui.getBackgroundBrowsersPanel());
+
+                configuration.injectBackgroundBrowsers(backgroundBrowsers);
 
                 currentArticles = getArticles(configuration.getSelectedArticleSources());
 
@@ -182,7 +193,7 @@ public class MainApplication implements MainCallbacks {
 
         saveDataAndCloseDatabase();
 
-        ObjectHub.getBackgroundBrowsers().closeAllBackgroundBrowsers();
+        backgroundBrowsers.closeAllBackgroundBrowsers();
     }
 
     /**

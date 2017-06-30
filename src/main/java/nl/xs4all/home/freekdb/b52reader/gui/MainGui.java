@@ -33,7 +33,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
-import nl.xs4all.home.freekdb.b52reader.general.ObjectHub;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanArticleTableCellRenderer;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
@@ -93,6 +92,11 @@ public class MainGui {
     private JFrame frame;
 
     /**
+     * Panel for the background browsers.
+     */
+    private JPanel backgroundBrowsersPanel;
+
+    /**
      * Text field for filtering articles.
      */
     private JTextField filterTextField;
@@ -143,16 +147,24 @@ public class MainGui {
      * @param configuration the application configuration.
      */
     public void initializeBackgroundBrowsersPanel(JFrame frame, Configuration configuration) {
-        JPanel backgroundBrowsersPanel = new JPanel();
-        backgroundBrowsersPanel.setVisible(false);
-        ObjectHub.injectBackgroundBrowsersPanel(backgroundBrowsersPanel);
+        this.backgroundBrowsersPanel = new JPanel();
+        this.backgroundBrowsersPanel.setVisible(false);
 
         this.frame = frame;
         this.frame.setTitle(configuration.getApplicationNameAndVersion());
-        this.frame.getContentPane().add(backgroundBrowsersPanel, BorderLayout.SOUTH);
+        this.frame.getContentPane().add(this.backgroundBrowsersPanel, BorderLayout.SOUTH);
         this.frame.setVisible(true);
 
         this.configuration = configuration;
+    }
+
+    /**
+     * Get the panel for the background browsers.
+     *
+     * @return the panel for the background browsers.
+     */
+    public JPanel getBackgroundBrowsersPanel() {
+        return backgroundBrowsersPanel;
     }
 
     /**
