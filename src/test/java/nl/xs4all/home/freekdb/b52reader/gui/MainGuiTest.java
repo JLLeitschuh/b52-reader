@@ -47,6 +47,7 @@ import static nl.xs4all.home.freekdb.b52reader.gui.MainGuiTest.FilterTestType.RE
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -100,6 +101,9 @@ public class MainGuiTest {
 
         assertEquals(1, mockContentPane.getComponentCount());
         assertFalse(mockContentPane.getComponent(0).isVisible());
+
+        assertNotNull(mainGui.getBackgroundBrowsersPanel());
+        assertEquals(0, mainGui.getBackgroundBrowsersPanel().getComponentCount());
     }
 
     @Test
