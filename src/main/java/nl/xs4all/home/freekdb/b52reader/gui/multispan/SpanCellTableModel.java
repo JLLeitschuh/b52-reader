@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.Predicate;
-
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
@@ -31,15 +30,18 @@ import nl.xs4all.home.freekdb.b52reader.model.Article;
 
 // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
 
+// todo: Contents should be adjusted -> change dataVector or let getValueAt use the list of articles.
+
 /**
  * @version 1.0 11/22/98
  */
 public class SpanCellTableModel extends DefaultTableModel {
-    private transient TableSpans tableSpans;
+    private final transient Configuration configuration;
 
     private List<Class<?>> columnClasses;
-    private final transient List<Article> articles;
-    private final transient Configuration configuration;
+
+    private transient TableSpans tableSpans;
+    private transient List<Article> articles;
 
     public SpanCellTableModel(List<Article> articles, int columnCount, Configuration configuration) {
         this.articles = articles;
@@ -47,7 +49,9 @@ public class SpanCellTableModel extends DefaultTableModel {
 
         int rowCount = 2 * articles.size();
 
+        @SuppressWarnings("squid:S1149")
         Vector names = new Vector(columnCount);
+
         names.setSize(columnCount);
         setColumnIdentifiers(names);
 
@@ -70,27 +74,31 @@ public class SpanCellTableModel extends DefaultTableModel {
                                   Predicate<Article> isFetched) {
         // Code modified to prevent stack overflow. See http://stackoverflow.com/a/21977825/1694043 for more information.
         // setColumnIdentifiers(columnNames)
-        columnIdentifiers = listToVector(columnNames);
+        this.columnIdentifiers = listToVector(columnNames);
         this.columnClasses = columnClasses;
+        this.articles = articles;
 
-        Vector<Vector<Object>> newDataVector = new Vector();
+        @SuppressWarnings("squid:S1149")
+        Vector<Vector<Object>> newDataVector = new Vector<>();
 
-        articles.forEach(article -> {
-            newDataVector.add(listToVector(Arrays.asList(
-                    isFetched.test(article) ? configuration.getFetchedValue() : "",
-                    article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
-                    article.isRead() ? "" : "unread",
-                    article.getTitle(),
-                    article.getAuthor(),
-                    article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
-            )));
+        if (articles != null) {
+            articles.forEach(article -> {
+                newDataVector.add(listToVector(Arrays.asList(
+                        isFetched.test(article) ? configuration.getFetchedValue() : "",
+                        article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
+                        article.isRead() ? "" : "unread",
+                        article.getTitle(),
+                        article.getAuthor(),
+                        article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
+                )));
 
-            newDataVector.add(listToVector(Arrays.asList("", "", "", article.getText())));
-        });
+                newDataVector.add(listToVector(Arrays.asList("", "", "", article.getText())));
+            });
+        }
 
         dataVector = newDataVector;
 
-        tableSpans = new DefaultTableSpans(dataVector.size(), columnIdentifiers.size());
+        tableSpans = new DefaultTableSpans(dataVector.size(), columnIdentifiers != null ? columnIdentifiers.size() : 0);
 
         newRowsAdded(new TableModelEvent(this, 0, getRowCount() - 1,
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
@@ -103,8 +111,9 @@ public class SpanCellTableModel extends DefaultTableModel {
      * @param <T>  the type of the list items.
      * @return the vector with the same items as are in the list.
      */
+    @SuppressWarnings("squid:S1149")
     private <T> Vector<T> listToVector(List<T> list) {
-        return new Vector<>(list);
+        return list != null ? new Vector<>(list) : null;
     }
 
     @Override
@@ -135,47 +144,51 @@ public class SpanCellTableModel extends DefaultTableModel {
 
     @Override
     public void addRow(Vector rowData) {
-        Vector newData = null;
+        @SuppressWarnings("squid:S1149")
+        Vector newData;
 
         if (rowData == null) {
             newData = new Vector(getColumnCount());
         } else {
             rowData.setSize(getColumnCount());
+            newData = rowData;
         }
 
         //noinspection unchecked
         dataVector.addElement(newData);
+        //noinspection unchecked
+        dataVector.addElement(new Vector(getColumnCount()));
 
         tableSpans.addRow();
+        tableSpans.addRow();
 
-        newRowsAdded(new TableModelEvent(this, getRowCount() - 1, getRowCount() - 1,
+        newRowsAdded(new TableModelEvent(this, getRowCount() - 2, getRowCount() - 1,
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
     }
 
     @Override
-    public void insertRow(int row, Vector rowData) {
+    public void insertRow(int rowIndex, Vector rowData) {
+        @SuppressWarnings("squid:S1149")
+        Vector newData;
+
         if (rowData == null) {
-            rowData = new Vector(getColumnCount());
+            newData = new Vector(getColumnCount());
         } else {
             rowData.setSize(getColumnCount());
+            newData = rowData;
         }
 
         //noinspection unchecked
-        dataVector.insertElementAt(rowData, row);
+        dataVector.insertElementAt(newData, rowIndex);
+        //noinspection unchecked
+        dataVector.insertElementAt(new Vector(getColumnCount()), rowIndex + 1);
 
-        tableSpans.insertRow(row);
+        tableSpans.insertRow(rowIndex);
+        tableSpans.insertRow(rowIndex + 1);
 
-        newRowsAdded(new TableModelEvent(this, row, row,
+        newRowsAdded(new TableModelEvent(this, rowIndex, rowIndex + 1,
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
     }
-
-    // todo: Subclass this class and create an ArticleSpanTableModel class?
-    // todo: Contents should be adjusted -> change dataVector or let getValueAt use the list of articles.
-//    void setArticles(List<Article> articles)
-//        this.articles = articles
-//
-//        fireTableStructureChanged()
-//    )
 
     Article getArticle(int rowIndex) {
         return (articles != null && rowIndex >= 0 && rowIndex < articles.size())
