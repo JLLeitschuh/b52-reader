@@ -6,10 +6,14 @@
 
 package nl.xs4all.home.freekdb.b52reader.main;
 
+import java.awt.Frame;
+import java.awt.Rectangle;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.util.List;
+
+import javax.swing.JPanel;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
@@ -38,5 +42,23 @@ public class MainApplicationTest {
                 .getArticles(mockPersistencyHandler, null, null);
 
         Mockito.verify(mockMainGui, Mockito.times(1)).initializeGui(expectedArticles);
+    }
+
+    @Test
+    public void testShutdownApplication() throws MalformedURLException {
+        MainGui mockMainGui = Mockito.mock(MainGui.class);
+        URL configurationUrl = MainApplicationTest.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+
+        Mockito.when(mockMainGui.getBackgroundBrowsersPanel()).thenReturn(new JPanel());
+
+        Mockito.when(mockPersistencyHandler.initializeDatabaseConnection(Mockito.any(Connection.class)))
+                .thenReturn(true);
+
+        MainApplication mainApplication = new MainApplication(mockMainGui, configurationUrl, mockPersistencyHandler);
+
+        mainApplication.createAndLaunchApplication();
+
+        mainApplication.shutdownApplication(Frame.MAXIMIZED_BOTH, new Rectangle(1, 2, 3, 4));
     }
 }

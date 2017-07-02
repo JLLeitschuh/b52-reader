@@ -174,7 +174,8 @@ public class MainApplication implements MainCallbacks {
     /**
      * Handle shutdown of the application.
      *
-     * @param frameExtendedState the application window state (normal or maximized).
+     * @param frameExtendedState the application window state (<code>Frame.NORMAL</code> or
+     *                           <code>Frame.MAXIMIZED_BOTH</code>).
      * @param frameBounds        the application window bounds.
      */
     @Override
