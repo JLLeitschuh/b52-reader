@@ -18,40 +18,78 @@ import org.mockito.Mockito;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * Unit tests for the {@link BackgroundBrowsers} class.
  */
 public class BackgroundBrowsersTest {
+    private BrowserFactory mockBrowserFactory;
+    private JWebBrowser mockJWebBrowser;
+    private BrowserListener browserListener;
     private String htmlContent;
 
     @Test
-    public void testWithNonfunctionalBrowser() throws IllegalAccessException {
-        JWebBrowser mockJWebBrowser = Mockito.mock(JWebBrowser.class);
+    public void testGetHtmlContent() throws IllegalAccessException {
+        String url = "https://freekdb.home.xs4all.nl/";
+        String inProgressHtmlContent = "<html><body>Working...</body></html>";
+        String expectedHtmlContent = "<html><body>Hi there!</body></html>";
+        htmlContent = "This is clearly different from the expected html content...";
+
+        prepareMockObjects(inProgressHtmlContent, expectedHtmlContent);
+
+        JPanel backgroundBrowsersPanel = new JPanel();
+
+        BackgroundBrowsers backgroundBrowsers = new BackgroundBrowsers(mockBrowserFactory, backgroundBrowsersPanel);
+
+        Thread getHtmlContentThread = new Thread(
+                () -> htmlContent = backgroundBrowsers.getHtmlContent(url, 2000)
+        );
+
+        getHtmlContentThread.start();
+
+        Awaitility.await().atMost(600, TimeUnit.MILLISECONDS)
+                .until(() -> browserListener != null);
+
+        simulatePageLoadedEvents();
+
+        Awaitility.await().atMost(1600, TimeUnit.MILLISECONDS)
+                .until(() -> expectedHtmlContent.equals(htmlContent));
+
+        assertEquals(expectedHtmlContent, htmlContent);
+    }
+
+    private void prepareMockObjects(String inProgressHtmlContent, String expectedHtmlContent) throws IllegalAccessException {
+        mockJWebBrowser = Mockito.mock(JWebBrowser.class);
+        Mockito.when(mockJWebBrowser.getHTMLContent()).thenReturn(inProgressHtmlContent, expectedHtmlContent);
 
         // Initialize the private Container.component field to prevent a null pointer exception later.
         FieldUtils.writeField(mockJWebBrowser, "component", new ArrayList<>(), true);
 
-        BrowserFactory mockBrowserFactory = Mockito.mock(BrowserFactory.class);
-        Mockito.when(mockBrowserFactory.createBrowser(Mockito.any(BrowserListener.class))).thenReturn(mockJWebBrowser);
+        mockBrowserFactory = Mockito.mock(BrowserFactory.class);
 
-        JPanel backgroundBrowsersPanel = new JPanel();
-        String url = "https://freekdb.home.xs4all.nl/";
-        htmlContent = "This is clearly not null...";
+        Mockito.when(mockBrowserFactory.createBrowser(Mockito.any(BrowserListener.class)))
+                .thenAnswer(invocationOnMock -> {
+                    browserListener = invocationOnMock.getArgument(0);
 
-        BackgroundBrowsers backgroundBrowsers = new BackgroundBrowsers(mockBrowserFactory, backgroundBrowsersPanel);
-        Thread workerThread = new Thread(() -> htmlContent = backgroundBrowsers.getHtmlContent(url, 2000));
-        workerThread.start();
+                    return mockJWebBrowser;
+                });
+    }
 
-        Awaitility.await().atMost(600, TimeUnit.MILLISECONDS)
-                .until(() -> backgroundBrowsersPanel.getComponentCount() == 1);
+    private void simulatePageLoadedEvents() {
+        Thread simulatePageLoadedThread = new Thread(() -> {
+            // Simulate the "page loaded" event for the in progress html content ("Working...").
+            browserListener.pageLoaded(mockJWebBrowser);
 
-        assertEquals(mockJWebBrowser, backgroundBrowsersPanel.getComponent(0));
+            try {
+                Thread.sleep(1100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        Awaitility.await().atMost(2800, TimeUnit.MILLISECONDS)
-                .until(() -> htmlContent == null);
+            // Simulate the "page loaded" event for the final html content.
+            browserListener.pageLoaded(mockJWebBrowser);
+        });
 
-        assertNull(htmlContent);
+        simulatePageLoadedThread.start();
     }
 }

@@ -114,7 +114,9 @@ public class BackgroundBrowsers {
                                     () -> URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent())
                             );
 
-                            logger.trace("Html content: " + URL_TO_HTML_CONTENT.get(url).substring(0, 100));
+                            String htmlContent = URL_TO_HTML_CONTENT.get(url);
+                            logger.trace("Html content: " +
+                                         htmlContent.substring(0, Math.min(100, htmlContent.length())));
                         }
                     } else {
                         done = true;
