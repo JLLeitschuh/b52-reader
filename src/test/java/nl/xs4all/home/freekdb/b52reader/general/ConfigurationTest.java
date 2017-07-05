@@ -148,19 +148,24 @@ public class ConfigurationTest {
                                                                      .toString()
                                                                      .split(System.lineSeparator()));
 
-        assertEquals(7, actualConfigurationData.size());
+        assertEquals(9, actualConfigurationData.size());
         assertEquals("#" + configuration.getConfigurationHeader(), actualConfigurationData.get(0));
         assertTrue(actualConfigurationData.get(1).startsWith("#"));
+
+        // Colons (":") are replaced by "\:" by the Properties.saveConvert method.
+        String escapedDatabaseUrl = configuration.getDatabaseUrl().replaceAll(":", "\\\\:");
 
         List<String> expectedSubList = Arrays.asList(
                 "source-ids=nrc",
                 "source-nrc-rss=rss|NRC|Bill Hicks|https\\://www.nrc.nl/rss/|wetenschap",
                 "source-nrc=nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource",
                 "source-verge=rss|The Verge|The Verge|https\\://www.theverge.com/rss/index.xml",
+                "database-url=" + escapedDatabaseUrl,
+                "database-driver-class-name=" + configuration.getDatabaseDriverClassName(),
                 "window-configuration=maximized;1,2,3x4"
         );
 
-        assertEquals(expectedSubList, actualConfigurationData.subList(2, 7));
+        assertEquals(expectedSubList, actualConfigurationData.subList(2, 9));
     }
 
     @Test

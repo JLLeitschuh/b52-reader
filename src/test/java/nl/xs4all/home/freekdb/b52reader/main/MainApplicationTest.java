@@ -26,7 +26,7 @@ import org.mockito.Mockito;
 
 public class MainApplicationTest {
     @Test
-    public void testCreateAndLaunchApplication() throws MalformedURLException {
+    public void testCreateAndLaunchApplicationDatabaseWorks() throws MalformedURLException {
         MainGui mockMainGui = Mockito.mock(MainGui.class);
         URL configurationUrl = MainApplicationTest.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
         PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
@@ -42,6 +42,36 @@ public class MainApplicationTest {
                 .getArticles(mockPersistencyHandler, null, null);
 
         Mockito.verify(mockMainGui, Mockito.times(1)).initializeGui(expectedArticles);
+    }
+
+    @Test
+    public void testCreateAndLaunchApplicationDatabaseFailure() throws MalformedURLException {
+        MainGui mockMainGui = Mockito.mock(MainGui.class);
+        URL configurationUrl = MainApplicationTest.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+
+        Mockito.when(mockPersistencyHandler.initializeDatabaseConnection(Mockito.any(Connection.class)))
+                .thenReturn(false);
+
+        MainApplication mainApplication = new MainApplication(mockMainGui, configurationUrl, mockPersistencyHandler);
+
+        mainApplication.createAndLaunchApplication();
+
+        Mockito.verify(mockMainGui, Mockito.times(0)).initializeGui(Mockito.anyList());
+    }
+
+    @Test
+    public void testCreateAndLaunchApplicationWithException() throws MalformedURLException {
+        MainGui mockMainGui = Mockito.mock(MainGui.class);
+        String configurationFileName = "b52-reader-exception.configuration";
+        URL configurationUrl = MainApplicationTest.class.getClassLoader().getResource(configurationFileName);
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+
+        MainApplication mainApplication = new MainApplication(mockMainGui, configurationUrl, mockPersistencyHandler);
+
+        mainApplication.createAndLaunchApplication();
+
+        Mockito.verify(mockMainGui, Mockito.times(0)).initializeGui(Mockito.anyList());
     }
 
     @Test

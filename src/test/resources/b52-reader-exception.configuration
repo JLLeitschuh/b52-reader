@@ -1,0 +1,6 @@
+# Configuration file for unit tests of the MainApplication class.
+
+
+# Cause an exception to be thrown.
+database-driver-class-name = Nonsense
+database-url = Nonsense

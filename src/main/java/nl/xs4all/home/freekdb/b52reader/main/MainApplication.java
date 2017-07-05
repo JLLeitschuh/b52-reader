@@ -92,50 +92,20 @@ public class MainApplication implements MainCallbacks {
      * Initialize and show enough of the application to fetch articles, possibly using background browsers.
      */
     void createAndLaunchApplication() {
-        if (initializeDatabase()) {
-            configuration = initializeConfiguration();
+        configuration = initializeConfiguration();
 
-            if (configuration != null) {
-                mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
+        if (configuration != null && initializeDatabase()) {
+            mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
 
-                backgroundBrowsers = new BackgroundBrowsers(new JWebBrowserFactory(),
-                                                            mainGui.getBackgroundBrowsersPanel());
+            backgroundBrowsers = new BackgroundBrowsers(new JWebBrowserFactory(),
+                                                        mainGui.getBackgroundBrowsersPanel());
 
-                configuration.injectBackgroundBrowsers(backgroundBrowsers);
+            configuration.injectBackgroundBrowsers(backgroundBrowsers);
 
-                currentArticles = getArticles(configuration.getSelectedArticleSources());
+            currentArticles = getArticles(configuration.getSelectedArticleSources());
 
-                mainGui.initializeGui(currentArticles);
-            }
+            mainGui.initializeGui(currentArticles);
         }
-    }
-
-    /**
-     * Initialize the database connection and read the articles & authors.
-     *
-     * @return whether the database initialization was successful.
-     */
-    private boolean initializeDatabase() {
-        boolean result = true;
-
-        try {
-            Class.forName("org.h2.Driver");
-            String databaseUrl = "jdbc:h2:./data/b52-reader-settings";
-            Connection databaseConnection = DriverManager.getConnection(databaseUrl, "b52", "reader");
-
-            if (persistencyHandler.initializeDatabaseConnection(databaseConnection)) {
-                persistencyHandler.createTablesIfNeeded();
-                persistencyHandler.readAuthorsAndArticles();
-            } else {
-                result = false;
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            logger.error("Exception while initializing the database connection.", e);
-
-            result = false;
-        }
-
-        return result;
     }
 
     /**
@@ -155,6 +125,34 @@ public class MainApplication implements MainCallbacks {
         }
 
         return applicationConfiguration;
+    }
+
+    /**
+     * Initialize the database connection and read the articles & authors.
+     *
+     * @return whether the database initialization was successful.
+     */
+    private boolean initializeDatabase() {
+        boolean result = true;
+
+        try {
+            Class.forName(configuration.getDatabaseDriverClassName());
+            String databaseUrl = configuration.getDatabaseUrl();
+            Connection databaseConnection = DriverManager.getConnection(databaseUrl, "b52", "reader");
+
+            if (persistencyHandler.initializeDatabaseConnection(databaseConnection)) {
+                persistencyHandler.createTablesIfNeeded();
+                persistencyHandler.readAuthorsAndArticles();
+            } else {
+                result = false;
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.error("Exception while initializing the database connection.", e);
+
+            result = false;
+        }
+
+        return result;
     }
 
     /**
@@ -194,7 +192,9 @@ public class MainApplication implements MainCallbacks {
 
         saveDataAndCloseDatabase();
 
-        backgroundBrowsers.closeAllBackgroundBrowsers();
+        if (backgroundBrowsers != null) {
+            backgroundBrowsers.closeAllBackgroundBrowsers();
+        }
     }
 
     /**

@@ -84,6 +84,16 @@ public class Configuration {
     private static final String FETCHED_VALUE = "fetched";
 
     /**
+     * Default database driver class name to use for storing data.
+     */
+    private static final String DEFAULT_DATABASE_DRIVER_CLASS_NAME = "org.h2.Driver";
+
+    /**
+     * Default database URL to use for storing data.
+     */
+    private static final String DEFAULT_DATABASE_URL = "jdbc:h2:./data/b52-reader-settings";
+
+    /**
      * Logger for this class.
      */
     private static final Logger logger = LogManager.getLogger();
@@ -112,6 +122,16 @@ public class Configuration {
      * The application window position (from configuration file).
      */
     private Rectangle frameBounds;
+
+    /**
+     * Database driver class name to use for storing data.
+     */
+    private String databaseDriverClassName;
+
+    /**
+     * Database URL to use for storing data.
+     */
+    private String databaseUrl;
 
     /**
      * Background browsers handler.
@@ -152,6 +172,8 @@ public class Configuration {
         selectedArticleSources = new ArrayList<>();
         frameExtendedState = Frame.NORMAL;
         frameBounds = null;
+        databaseDriverClassName = DEFAULT_DATABASE_DRIVER_CLASS_NAME;
+        databaseUrl = DEFAULT_DATABASE_URL;
 
         try {
             Properties configuration = new Properties();
@@ -174,6 +196,11 @@ public class Configuration {
                     frameBounds = getBoundsFromConfiguration(boundsConfiguration);
                 }
             }
+
+            databaseDriverClassName = configuration.getProperty("database-driver-class-name",
+                                                                DEFAULT_DATABASE_DRIVER_CLASS_NAME);
+
+            databaseUrl = configuration.getProperty("database-url", DEFAULT_DATABASE_URL);
 
             selectedArticleSources = allArticleSources.stream()
                     .filter(articleSource -> sourceIds.contains(articleSource.getSourceId()))
@@ -267,6 +294,9 @@ public class Configuration {
 
             configuration.setProperty("window-configuration", windowConfiguration);
 
+            configuration.setProperty("database-driver-class-name", databaseDriverClassName);
+            configuration.setProperty("database-url", databaseUrl);
+
             configuration.store(configurationOutputStream, getConfigurationHeader());
         } catch (IOException e) {
             logger.error("Exception while reading the configuration data.", e);
@@ -338,6 +368,24 @@ public class Configuration {
      */
     public String getFetchedValue() {
         return FETCHED_VALUE;
+    }
+
+    /**
+     * Get the database driver class name to use for storing data.
+     *
+     * @return the database driver class name to use for storing data.
+     */
+    public String getDatabaseDriverClassName() {
+        return databaseDriverClassName;
+    }
+
+    /**
+     * Get the database URL to use for storing data.
+     *
+     * @return the database URL to use for storing data.
+     */
+    public String getDatabaseUrl() {
+        return databaseUrl;
     }
 
     /**
