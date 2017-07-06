@@ -37,6 +37,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.Invocation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PersistencyHandlerJdbcTest {
@@ -57,8 +58,15 @@ public class PersistencyHandlerJdbcTest {
     }
 
     @Test
-    public void testInitializeDatabaseConnection() {
+    public void testInitializeDatabaseConnectionSuccessful() {
         assertTrue(persistencyHandler.initializeDatabaseConnection(mockDatabaseConnection));
+    }
+
+    @Test
+    public void testInitializeDatabaseConnectionWithException() throws SQLException {
+        Mockito.when(mockDatabaseConnection.createStatement()).thenThrow(new SQLException("Create statement failed."));
+
+        assertFalse(persistencyHandler.initializeDatabaseConnection(mockDatabaseConnection));
     }
 
     @Test
@@ -172,10 +180,19 @@ public class PersistencyHandlerJdbcTest {
     }
 
     @Test
-    public void testCloseDatabaseConnection() throws SQLException {
+    public void testCloseDatabaseConnectionSuccessful() throws SQLException {
         createConnectionAndRelatedMocks();
 
         assertTrue(persistencyHandler.closeDatabaseConnection());
+    }
+
+    @Test
+    public void testCloseDatabaseConnectionWithException() throws SQLException {
+        createConnectionAndRelatedMocks();
+
+        Mockito.doThrow(new SQLException("Create statement failed.")).when(mockDatabaseConnection).close();
+
+        assertFalse(persistencyHandler.closeDatabaseConnection());
     }
 
     private void createConnectionAndRelatedMocks() throws SQLException {
