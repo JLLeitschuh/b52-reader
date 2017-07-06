@@ -17,6 +17,7 @@ public interface MainCallbacks {
      *
      * @param frameExtendedState the state of the frame (normal or maximized).
      * @param frameBounds        the bounds of the frame.
+     * @return whether the shutdown was done successfully.
      */
-    void shutdownApplication(int frameExtendedState, Rectangle frameBounds);
+    boolean shutdownApplication(int frameExtendedState, Rectangle frameBounds);
 }

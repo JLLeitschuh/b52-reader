@@ -175,9 +175,12 @@ public class MainApplication implements MainCallbacks {
      * @param frameExtendedState the application window state (<code>Frame.NORMAL</code> or
      *                           <code>Frame.MAXIMIZED_BOTH</code>).
      * @param frameBounds        the application window bounds.
+     * @return whether the shutdown was done successfully.
      */
     @Override
-    public void shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
+    public boolean shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
+        boolean result = true;
+
         try {
             if (configurationUrl != null) {
                 OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());
@@ -188,13 +191,19 @@ public class MainApplication implements MainCallbacks {
             }
         } catch (FileNotFoundException e) {
             logger.error("Exception while writing the configuration file " + configurationUrl, e);
+
+            result = false;
         }
 
-        saveDataAndCloseDatabase();
+        if (result) {
+            saveDataAndCloseDatabase();
 
-        if (backgroundBrowsers != null) {
-            backgroundBrowsers.closeAllBackgroundBrowsers();
+            if (backgroundBrowsers != null) {
+                backgroundBrowsers.closeAllBackgroundBrowsers();
+            }
         }
+
+        return result;
     }
 
     /**

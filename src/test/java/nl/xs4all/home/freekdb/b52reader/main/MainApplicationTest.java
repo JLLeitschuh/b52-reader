@@ -24,6 +24,9 @@ import nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class MainApplicationTest {
     @Test
     public void testCreateAndLaunchApplicationDatabaseWorks() throws MalformedURLException {
@@ -75,7 +78,7 @@ public class MainApplicationTest {
     }
 
     @Test
-    public void testShutdownApplication() throws MalformedURLException {
+    public void testShutdownApplicationSuccessful() throws MalformedURLException {
         MainGui mockMainGui = Mockito.mock(MainGui.class);
         URL configurationUrl = MainApplicationTest.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
         PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
@@ -89,6 +92,24 @@ public class MainApplicationTest {
 
         mainApplication.createAndLaunchApplication();
 
-        mainApplication.shutdownApplication(Frame.MAXIMIZED_BOTH, new Rectangle(1, 2, 3, 4));
+        assertTrue(mainApplication.shutdownApplication(Frame.MAXIMIZED_BOTH, new Rectangle(1, 2, 3, 4)));
+    }
+
+    @Test
+    public void testShutdownApplicationWithException() throws MalformedURLException {
+        MainGui mockMainGui = Mockito.mock(MainGui.class);
+        URL configurationUrl = new URL("file:/this-directory-does-not-exist/so-this-is-not-a-valid-file");
+        PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
+
+        Mockito.when(mockMainGui.getBackgroundBrowsersPanel()).thenReturn(new JPanel());
+
+        Mockito.when(mockPersistencyHandler.initializeDatabaseConnection(Mockito.any(Connection.class)))
+                .thenReturn(true);
+
+        MainApplication mainApplication = new MainApplication(mockMainGui, configurationUrl, mockPersistencyHandler);
+
+        mainApplication.createAndLaunchApplication();
+
+        assertFalse(mainApplication.shutdownApplication(Frame.MAXIMIZED_BOTH, new Rectangle(1, 2, 3, 4)));
     }
 }
