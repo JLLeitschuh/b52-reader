@@ -17,7 +17,7 @@ import java.util.Optional;
 import javax.swing.JPanel;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.BrowserFactory;
-import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

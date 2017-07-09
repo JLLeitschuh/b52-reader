@@ -10,7 +10,7 @@ import java.awt.Color;
 import java.time.format.DateTimeFormatter;
 import javax.swing.Icon;
 
-import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
+import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
 
 /**
  * Some general constants.

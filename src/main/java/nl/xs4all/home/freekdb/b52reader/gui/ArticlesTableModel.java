@@ -10,7 +10,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 public class ArticlesTableModel extends AbstractTableModel {
     private transient List<Article> articles;

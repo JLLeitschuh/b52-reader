@@ -27,13 +27,13 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
-import nl.xs4all.home.freekdb.b52reader.model.Author;
-import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.RssArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.website.ArticleListFetcher;
-import nl.xs4all.home.freekdb.b52reader.sources.website.HtmlHelper;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
+import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.articlesources.RssArticleSource;
+import nl.xs4all.home.freekdb.b52reader.articlesources.nrc.NrcScienceArticleSource;
+import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetcher;
+import nl.xs4all.home.freekdb.b52reader.articlesources.website.HtmlHelper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

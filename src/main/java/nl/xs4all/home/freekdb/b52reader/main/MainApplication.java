@@ -25,11 +25,11 @@ import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
 import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
-import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.model.Author;
-import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.CombinationArticleSource;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
+import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.articlesources.CombinationArticleSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

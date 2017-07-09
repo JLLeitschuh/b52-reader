@@ -17,7 +17,7 @@ Additional goals that could be achieved at a later stage are:
 - give some sort of notification when a new article is published that seems to be important or interesting (for example based on keywords and author);
 - make the experience at least as smooth as using the website directly, so no additional login requests etc.
 
-![A screenshot showing the application.](./documentation/screenshot-1.png)
+![A screenshot showing the application.](src/documentation/screenshot-1.png)
 
 ## Technology
 Java 8 desktop application using the Swing library for the GUI and either [DJ Native Swing](https://github.com/Chrriis/DJ-Native-Swing), [JxBrowser](https://www.teamdev.com/jxbrowser), or [Java-CEF](https://bitbucket.org/chromiumembedded/java-cef) for adding embedded browsers. In principle support Windows, Linux, and macOS (although my personal focus is on Windows and I don't have a macOS test device).

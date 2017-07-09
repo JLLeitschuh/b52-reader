@@ -16,7 +16,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
-import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 @SuppressWarnings("squid:MaximumInheritanceDepth")
 public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {

@@ -6,6 +6,8 @@
 
 package nl.xs4all.home.freekdb.b52reader.general;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -17,9 +17,9 @@ import javax.swing.JPanel;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
-import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
+import nl.xs4all.home.freekdb.b52reader.articlesources.testdata.TestDataArticleSource;
 
 import org.junit.Test;
 import org.mockito.Mockito;

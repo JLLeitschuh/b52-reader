@@ -6,8 +6,8 @@
 
 package nl.xs4all.home.freekdb.b52reader.gui;
 
-import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 
 import org.junit.Before;
 import org.junit.Test;

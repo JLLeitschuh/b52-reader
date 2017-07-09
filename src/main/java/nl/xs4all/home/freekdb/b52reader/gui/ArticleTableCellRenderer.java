@@ -19,8 +19,8 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
-import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 public class ArticleTableCellRenderer extends JPanel implements TableCellRenderer {
     private static final Font BOLD_FONT = new Font("Calibri", Font.BOLD, 14);

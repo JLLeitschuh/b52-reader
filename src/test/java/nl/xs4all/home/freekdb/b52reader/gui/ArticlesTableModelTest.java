@@ -9,7 +9,7 @@ package nl.xs4all.home.freekdb.b52reader.gui;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 import org.junit.Test;
 

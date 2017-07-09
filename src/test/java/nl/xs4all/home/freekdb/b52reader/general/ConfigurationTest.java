@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.xs4all.home.freekdb.b52reader.model.Author;
-import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.sources.ArticleSource;
-import nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
+import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.articlesources.nrc.NrcScienceArticleSource;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -63,13 +63,13 @@ public class ConfigurationTest {
 
         String configurationLines =
                 "source-ids = nrc\n" +
-                "source-test = nl.xs4all.home.freekdb.b52reader.sources.testdata.TestDataArticleSource\n" +
+                "source-test = nl.xs4all.home.freekdb.b52reader.articlesources.testdata.TestDataArticleSource\n" +
                 "source-test-invalid = nl.invalid.InvalidTestDataArticleSource\n" +
                 "source-verge = rss|The Verge|The Verge|https://www.theverge.com/rss/index.xml\n" +
                 "source-verge-invalid = rss|The Verge|The Verge|invalid--https://www.theverge.com/rss/index.xml\n" +
                 "source-nrc-rss = rss|NRC|NRC|https://www.nrc.nl/rss/|wetenschap\n" +
                 "source-invalid-rss = rss|invalid\n" +
-                "source-nrc = nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource\n" +
+                "source-nrc = nl.xs4all.home.freekdb.b52reader.articlesources.nrc.NrcScienceArticleSource\n" +
                 "window-configuration = maximized;0,0,1280x1024";
 
         byte[] configurationLinesBytes = configurationLines.getBytes("UTF-8");
@@ -131,7 +131,7 @@ public class ConfigurationTest {
                 "source-ids = nrc\n" +
                 "source-verge = rss|The Verge|The Verge|https://www.theverge.com/rss/index.xml\n" +
                 "source-nrc-rss = rss|NRC|NRC|https://www.nrc.nl/rss/|wetenschap\n" +
-                "source-nrc = nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource\n" +
+                "source-nrc = nl.xs4all.home.freekdb.b52reader.articlesources.nrc.NrcScienceArticleSource\n" +
                 "window-configuration = maximized;1,2,3x4";
 
         byte[] configurationLinesBytes = configurationLines.getBytes("UTF-8");
@@ -158,7 +158,7 @@ public class ConfigurationTest {
         List<String> expectedSubList = Arrays.asList(
                 "source-ids=nrc",
                 "source-nrc-rss=rss|NRC|Bill Hicks|https\\://www.nrc.nl/rss/|wetenschap",
-                "source-nrc=nl.xs4all.home.freekdb.b52reader.sources.nrc.NrcScienceArticleSource",
+                "source-nrc=nl.xs4all.home.freekdb.b52reader.articlesources.nrc.NrcScienceArticleSource",
                 "source-verge=rss|The Verge|The Verge|https\\://www.theverge.com/rss/index.xml",
                 "database-url=" + escapedDatabaseUrl,
                 "database-driver-class-name=" + configuration.getDatabaseDriverClassName(),

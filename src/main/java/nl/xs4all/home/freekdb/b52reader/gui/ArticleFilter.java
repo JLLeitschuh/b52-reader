@@ -9,8 +9,8 @@ package nl.xs4all.home.freekdb.b52reader.gui;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

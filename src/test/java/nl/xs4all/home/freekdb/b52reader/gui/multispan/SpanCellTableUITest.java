@@ -17,9 +17,9 @@ import javax.swing.Icon;
 import javax.swing.JTextField;
 
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
-import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.model.Author;
-import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandler;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 
 import org.junit.Test;
 import org.mockito.Mockito;

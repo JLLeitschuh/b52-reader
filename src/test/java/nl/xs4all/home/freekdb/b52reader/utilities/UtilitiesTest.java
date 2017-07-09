@@ -12,7 +12,8 @@ import java.time.Month;
 
 import javax.swing.Icon;
 
-import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 import org.junit.Test;
 

@@ -32,7 +32,7 @@ import javax.swing.text.BadLocationException;
 
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
-import nl.xs4all.home.freekdb.b52reader.model.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;

@@ -10,11 +10,11 @@ import java.net.URL;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
-import nl.xs4all.home.freekdb.b52reader.general.EmbeddedBrowserType;
+import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
 import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
-import nl.xs4all.home.freekdb.b52reader.model.database.PersistencyHandlerJdbc;
-import nl.xs4all.home.freekdb.b52reader.utilities.Utilities;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandlerJdbc;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 

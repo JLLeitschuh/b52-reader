@@ -37,8 +37,8 @@ import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanArticleTableCellRender
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
-import nl.xs4all.home.freekdb.b52reader.model.Article;
-import nl.xs4all.home.freekdb.b52reader.model.Author;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -291,7 +291,7 @@ public class MainGui {
     }
 
     /**
-     * Create the GUI table with the custom article renderer and the corresponding data model.
+     * Create the GUI table with the custom article renderer and the corresponding table model.
      *
      * @param articles the (filtered) articles to show in the table.
      * @return the GUI table with the custom article renderer.
@@ -337,7 +337,7 @@ public class MainGui {
     }
 
     /**
-     * Create the GUI span table with the corresponding data model.
+     * Create the GUI span table with the corresponding table model.
      *
      * @param articles the (filtered) articles to show in the table.
      * @return the GUI span table.
