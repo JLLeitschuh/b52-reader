@@ -33,7 +33,7 @@ public class JWebBrowserFactory implements BrowserFactory {
      * @return the new embedded browser.
      */
     @Override
-    public JComponent createBrowser(BrowserListener browserListener) {
+    public JComponent createBrowser(final BrowserListener browserListener) {
         JWebBrowser webBrowser = new JWebBrowser();
 
         webBrowser.setMenuBarVisible(false);
@@ -43,7 +43,7 @@ public class JWebBrowserFactory implements BrowserFactory {
         if (browserListener != null) {
             webBrowser.addWebBrowserListener(new WebBrowserAdapter() {
                 @Override
-                public void locationChanged(WebBrowserNavigationEvent webBrowserNavigationEvent) {
+                public void locationChanged(final WebBrowserNavigationEvent webBrowserNavigationEvent) {
                     super.locationChanged(webBrowserNavigationEvent);
 
                     browserListener.pageLoaded(webBrowser);

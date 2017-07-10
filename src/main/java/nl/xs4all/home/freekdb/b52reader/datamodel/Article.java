@@ -19,45 +19,155 @@ import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Class containing all relevant (meta) data about articles.
+ */
 public class Article {
     /**
      * Logger for this class.
      */
     private static final Logger logger = LogManager.getLogger();
 
+    /**
+     * URL where the article can be found.
+     */
     private final String url;
+
+    /**
+     * Identifier of the article source.
+     */
     private final String sourceId;
+
+    /**
+     * Main author of the article.
+     */
     private final Author author;
+
+    /**
+     * Title of the article.
+     */
     private final String title;
+
+    /**
+     * Normalized title which is used for searching.
+     */
     private final String normalizedTitle;
+
+    /**
+     * Number of words in the title.
+     */
     private final long titleWordCount;
+
+    /**
+     * Date/time of publication.
+     */
     private final ZonedDateTime dateTime;
+
+    /**
+     * First part of the article text.
+     */
     private final String text;
+
+    /**
+     * Number of words in the first part of the article text.
+     */
     private final long textWordCount;
+
+    /**
+     * Number of likes for the article.
+     */
     private final int likes;
 
+    /**
+     * Database record id where this object is stored.
+     */
     private int recordId;
 
+    /**
+     * Whether the user has starred the article.
+     */
     private boolean starred;
+
+    /**
+     * Whether the user has marked the article as read.
+     */
     private boolean read;
+
+    /**
+     * Whether the user has archived the article.
+     */
     private boolean archived;
 
 
+    /**
+     * Builder for article objects.
+     */
     public static class Builder {
-        private String url;
-        private String sourceId;
-        private Author author;
-        private String title;
-        private ZonedDateTime dateTime;
-        private String text;
+        /**
+         * URL where the article can be found.
+         */
+        private final String url;
+
+        /**
+         * Identifier of the article source.
+         */
+        private final String sourceId;
+
+        /**
+         * Main author of the article.
+         */
+        private final Author author;
+
+        /**
+         * Title of the article.
+         */
+        private final String title;
+
+        /**
+         * Date/time of publication.
+         */
+        private final ZonedDateTime dateTime;
+
+        /**
+         * First part of the article text.
+         */
+        private final String text;
+
+        /**
+         * Number of likes for the article.
+         */
         private int likes;
 
+        /**
+         * Database record id where the article object is stored.
+         */
         private int recordId;
 
+        /**
+         * Whether the user has starred the article.
+         */
         private boolean starred;
+
+        /**
+         * Whether the user has marked the article as read.
+         */
         private boolean read;
+
+        /**
+         * Whether the user has archived the article.
+         */
         private boolean archived;
 
+        /**
+         * Create an article builder.
+         *
+         * @param url      URL where the article can be found.
+         * @param sourceId identifier of the article source.
+         * @param author   main author of the article.
+         * @param title    title of the article.
+         * @param dateTime date/time of publication.
+         * @param text     first part of the article text.
+         */
         public Builder(String url, String sourceId, Author author, String title, ZonedDateTime dateTime, String text) {
             this.url = url;
             this.sourceId = sourceId;
@@ -251,12 +361,23 @@ public class Article {
                Objects.equals(likes, other.likes);
     }
 
+    /**
+     * Determine whether the meta data flags starred, read, and archived are equal for two articles.
+     *
+     * @param other the article to compare with.
+     * @return whether the meta data flags starred, read, and archived are equal.
+     */
     public boolean metadataEquals(Article other) {
         return Objects.equals(starred, other.starred) &&
                Objects.equals(read, other.read) &&
                Objects.equals(archived, other.archived);
     }
 
+    /**
+     * Generate a hash code value for this article.
+     *
+     * @return a hash code value for this article.
+     */
     @Override
     public final int hashCode() {
         return Objects.hash(url, sourceId, author, title, dateTime, text, likes);

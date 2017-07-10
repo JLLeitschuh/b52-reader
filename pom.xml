@@ -253,7 +253,7 @@
                 <!--</executions>-->
 
                 <configuration>
-                    <configLocation>src/main/resources/checkstyle.xml</configLocation>
+                    <configLocation>src/configuration/checkstyle.xml</configLocation>
                     <suppressionsLocation>src/configuration/checkstyle-suppressions.xml</suppressionsLocation>
                     <!--
                         Workaround for resolving the suppressions file in a Maven build: always check two
