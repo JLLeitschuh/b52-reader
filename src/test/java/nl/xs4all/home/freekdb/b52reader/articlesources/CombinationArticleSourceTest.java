@@ -27,7 +27,7 @@ public class CombinationArticleSourceTest {
     public void testGetSourceId() {
         CombinationArticleSource combinationArticleSource = new CombinationArticleSource(new ArrayList<>());
 
-        assertEquals("combination", combinationArticleSource.getSourceId());
+        assertEquals("combination: ", combinationArticleSource.getSourceId());
     }
 
     @Test
