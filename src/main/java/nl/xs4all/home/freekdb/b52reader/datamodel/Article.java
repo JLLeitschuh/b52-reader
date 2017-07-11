@@ -19,9 +19,20 @@ import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import lombok.Builder;
+import lombok.Data;
+
 /**
  * Class containing all relevant (meta) data about articles.
+ *
+ * Sonar check S2065 (fields in non-serializable classes should not be "transient") is disabled because by marking the
+ * starred, read, and archived fields as transient, these fields are excluded for the equals and hashCode methods.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
+@Data()
+@Builder
+@SuppressWarnings("squid:S2065")
 public class Article {
     /**
      * Logger for this class.
@@ -81,23 +92,26 @@ public class Article {
     /**
      * Database record id where this object is stored.
      */
+    @SuppressWarnings("squid:S1450")
     private int recordId;
 
     /**
      * Whether the user has starred the article.
      */
-    private boolean starred;
+    private transient boolean starred;
 
     /**
      * Whether the user has marked the article as read.
      */
-    private boolean read;
+    private transient boolean read;
 
     /**
      * Whether the user has archived the article.
      */
-    private boolean archived;
+    private transient boolean archived;
 
+
+    // todo: Replace this hand written Builder class below by the one Lombok creates.
 
     /**
      * Builder for article objects.
@@ -168,7 +182,8 @@ public class Article {
          * @param dateTime date/time of publication.
          * @param text     first part of the article text.
          */
-        public Builder(String url, String sourceId, Author author, String title, ZonedDateTime dateTime, String text) {
+        public Builder(final String url, final String sourceId, final Author author, final String title,
+                       final ZonedDateTime dateTime, final String text) {
             this.url = url;
             this.sourceId = sourceId;
             this.author = author;
@@ -177,81 +192,106 @@ public class Article {
             this.text = text;
         }
 
-        public Builder likes(int likes) {
+        /**
+         * Add the number of likes.
+         *
+         * @param likes the number of likes.
+         * @return the updated builder.
+         */
+        public Builder likes(final int likes) {
             this.likes = likes;
 
             return this;
         }
 
-        public Builder recordId(int recordId) {
+        /**
+         * Add the database record id.
+         *
+         * @param recordId the database record id.
+         * @return the updated builder.
+         */
+        public Builder recordId(final int recordId) {
             this.recordId = recordId;
 
             return this;
         }
 
-        public Builder starred(boolean starred) {
+        /**
+         * Set the starred flag.
+         *
+         * @param starred the starred flag.
+         * @return the updated builder.
+         */
+        public Builder starred(final boolean starred) {
             this.starred = starred;
 
             return this;
         }
 
-        public Builder read(boolean read) {
+        /**
+         * Set the read flag.
+         *
+         * @param read the read flag.
+         * @return the updated builder.
+         */
+        public Builder read(final boolean read) {
             this.read = read;
 
             return this;
         }
 
-        public Builder archived(boolean archived) {
+        /**
+         * Set the archived flag.
+         *
+         * @param archived the archived flag.
+         * @return the updated builder.
+         */
+        public Builder archived(final boolean archived) {
             this.archived = archived;
 
             return this;
         }
 
+        /**
+         * Build the new article.
+         *
+         * @return the article.
+         */
         public Article build() {
-            return new Article(this);
+            return new Article(url, sourceId, author, title, Utilities.normalize(title),
+                               Utilities.calculateWordCount(title), dateTime, text, Utilities.calculateWordCount(text),
+                               likes, recordId, starred, read, archived);
         }
     }
 
 
-    private Article(Builder builder) {
-        this.url = builder.url;
-        this.sourceId = builder.sourceId;
-        this.author = builder.author;
-        this.title = builder.title;
-        this.normalizedTitle = Utilities.normalize(title);
-        this.titleWordCount = Utilities.calculateWordCount(title);
-        this.dateTime = builder.dateTime;
-        this.text = builder.text;
-        this.textWordCount = Utilities.calculateWordCount(text);
-        this.likes = builder.likes;
-
-        this.recordId = builder.recordId;
-
-        this.setStarred(builder.starred);
-        this.setRead(builder.read);
-        this.setArchived(builder.archived);
-    }
-
-    public static Article createArticleFromDatabase(ResultSet resultSet, List<Author> authors) {
+    /**
+     * Create an article based on the database record.
+     *
+     * @param resultSet database record.
+     * @param authors known authors.
+     * @return the article.
+     */
+    public static Article createArticleFromDatabase(final ResultSet resultSet, final List<Author> authors) {
         Article article = null;
 
         try {
-            String url = resultSet.getString("url");
-            String sourceId = resultSet.getString("source_id");
+            final String url = resultSet.getString("url");
+            final String sourceId = resultSet.getString("source_id");
 
-            int authorId = resultSet.getInt("author_id");
-            Author author = authors.stream()
+            final int authorId = resultSet.getInt("author_id");
+            final Author author = authors.stream()
                     .filter(anAuthor -> anAuthor.getRecordId() == authorId)
                     .findFirst()
                     .orElse(null);
 
-            String title = resultSet.getString("title");
-            Timestamp timestamp = resultSet.getTimestamp("date_time");
-            ZonedDateTime dateTime = ZonedDateTime.ofInstant(timestamp.toInstant(), ZoneOffset.UTC);
-            String text = resultSet.getString("text");
-            int likes = resultSet.getInt("likes");
+            final String title = resultSet.getString("title");
+            final Timestamp timestamp = resultSet.getTimestamp("date_time");
+            final ZonedDateTime dateTime = ZonedDateTime.ofInstant(timestamp.toInstant(), ZoneOffset.UTC);
+            final String text = resultSet.getString("text");
+            final int likes = resultSet.getInt("likes");
 
-            int recordId = resultSet.getInt("id");
+            final int recordId = resultSet.getInt("id");
 
             article = new Article.Builder(url, sourceId, author, title, dateTime, text)
                     .likes(likes)
@@ -261,104 +301,20 @@ public class Article {
             article.setStarred(resultSet.getBoolean("starred"));
             article.setRead(resultSet.getBoolean("read"));
             article.setArchived(resultSet.getBoolean("archived"));
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             logger.error("Exception while creating an article from a database record.", e);
         }
 
         return article;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public String getSourceId() {
-        return sourceId;
-    }
-
-    public Author getAuthor() {
-        return author;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getNormalizedTitle() {
-        return normalizedTitle;
-    }
-
-    public ZonedDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public String getText() {
-        return text;
-    }
-
+    /**
+     * Get the number of words in the title and the first part of the article text.
+     *
+     * @return the number of words in the title and the first part of the article text.
+     */
     long getWordCount() {
         return titleWordCount + textWordCount;
-    }
-
-    public int getLikes() {
-        return likes;
-    }
-
-    public int getRecordId() {
-        return recordId;
-    }
-
-    public void setRecordId(int recordId) {
-        this.recordId = recordId;
-    }
-
-    public boolean isStarred() {
-        return starred;
-    }
-
-    public void setStarred(boolean starred) {
-        this.starred = starred;
-    }
-
-    public boolean isRead() {
-        return read;
-    }
-
-    public void setRead(boolean read) {
-        this.read = read;
-    }
-
-    public boolean isArchived() {
-        return archived;
-    }
-
-    public void setArchived(boolean archived) {
-        this.archived = archived;
-    }
-
-    @Override
-    public String toString() {
-        return "[" + recordId + "] Article \"" + title + "\" by " + author;
-    }
-
-    @Override
-    public final boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || !(obj instanceof Article)) {
-            return false;
-        }
-
-        Article other = (Article) obj;
-
-        return Objects.equals(url, other.url) &&
-               Objects.equals(sourceId, other.sourceId) &&
-               Objects.equals(author, other.author) &&
-               Objects.equals(title, other.title) &&
-               Objects.equals(dateTime, other.dateTime) &&
-               Objects.equals(text, other.text) &&
-               Objects.equals(likes, other.likes);
     }
 
     /**
@@ -367,19 +323,9 @@ public class Article {
      * @param other the article to compare with.
      * @return whether the meta data flags starred, read, and archived are equal.
      */
-    public boolean metadataEquals(Article other) {
+    public boolean metadataEquals(final Article other) {
         return Objects.equals(starred, other.starred) &&
                Objects.equals(read, other.read) &&
                Objects.equals(archived, other.archived);
-    }
-
-    /**
-     * Generate a hash code value for this article.
-     *
-     * @return a hash code value for this article.
-     */
-    @Override
-    public final int hashCode() {
-        return Objects.hash(url, sourceId, author, title, dateTime, text, likes);
     }
 }

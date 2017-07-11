@@ -148,6 +148,7 @@ public class ConfigurationTest {
                                                                      .toString()
                                                                      .split(System.lineSeparator()));
 
+        // Note: this test will fail if there is no internet connection (which is required for RSS article sources).
         assertEquals(9, actualConfigurationData.size());
         assertEquals("#" + configuration.getConfigurationHeader(), actualConfigurationData.get(0));
         assertTrue(actualConfigurationData.get(1).startsWith("#"));
