@@ -14,6 +14,8 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 /**
  * Factory for creating embedded JWebBrowser components.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class JWebBrowserFactory implements BrowserFactory {
     /**
@@ -34,11 +36,11 @@ public class JWebBrowserFactory implements BrowserFactory {
      */
     @Override
     public JComponent createBrowser(final BrowserListener browserListener) {
-        JWebBrowser webBrowser = new JWebBrowser();
+        final JWebBrowser webBrowser = new JWebBrowser();
 
-        webBrowser.setMenuBarVisible(false);
         webBrowser.setButtonBarVisible(false);
         webBrowser.setLocationBarVisible(false);
+        webBrowser.setMenuBarVisible(false);
 
         if (browserListener != null) {
             webBrowser.addWebBrowserListener(new WebBrowserAdapter() {

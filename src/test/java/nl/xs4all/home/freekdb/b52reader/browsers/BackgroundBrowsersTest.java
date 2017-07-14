@@ -21,6 +21,8 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for the {@link BackgroundBrowsers} class.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class BackgroundBrowsersTest {
     private BrowserFactory mockBrowserFactory;
