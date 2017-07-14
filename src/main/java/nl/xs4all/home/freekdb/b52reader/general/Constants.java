@@ -14,6 +14,8 @@ import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
 
 /**
  * Some general constants.
+ *
+ * todo: Move these to the Configuration class.
  */
 public class Constants {
     /**
@@ -59,9 +61,14 @@ public class Constants {
 //    public static final String NRC_MAIN_URL = "https://www.nrc.nl/"
 
     /**
-     * Article source ID of the NRC Handelsblad website.
+     * Article source id of the NRC Handelsblad website.
      */
     public static final String NRC_SOURCE_ID = "nrc";
+
+    /**
+     * Article source id of the test data.
+     */
+    public static final String TEST_SOURCE_ID = "test";
 
 //    /**
 //     * Test fetching the html with the list of articles using a background browser.

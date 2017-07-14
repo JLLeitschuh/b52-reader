@@ -16,6 +16,8 @@ import org.jsoup.nodes.Document;
 
 /**
  * Fetcher for getting the html from a website with a list of articles for an article source.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class ArticleListFetcher {
     /**
@@ -55,8 +57,8 @@ public class ArticleListFetcher {
      *                             <code>true</code> (it can be <code>null</code> otherwise).
      * @param htmlHelper           the html helper for getting and parsing html.
      */
-    public ArticleListFetcher(String url, boolean useBackgroundBrowser, BackgroundBrowsers backgroundBrowsers,
-                              HtmlHelper htmlHelper) {
+    public ArticleListFetcher(final String url, final boolean useBackgroundBrowser,
+                              final BackgroundBrowsers backgroundBrowsers, final HtmlHelper htmlHelper) {
         this.url = url;
         this.useBackgroundBrowser = useBackgroundBrowser;
         this.backgroundBrowsers = backgroundBrowsers;
@@ -73,7 +75,7 @@ public class ArticleListFetcher {
 
         try {
             if (useBackgroundBrowser) {
-                String htmlContent = backgroundBrowsers.getHtmlContent(url);
+                final String htmlContent = backgroundBrowsers.getHtmlContent(url);
 
                 if (htmlContent != null) {
                     articleListDocument = htmlHelper.parseHtml(htmlContent);
@@ -81,7 +83,7 @@ public class ArticleListFetcher {
             } else {
                 articleListDocument = htmlHelper.getHtmlAsDocument(url);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.error("Exception while fetching list of articles from web site " + url + ".", e);
         }
 

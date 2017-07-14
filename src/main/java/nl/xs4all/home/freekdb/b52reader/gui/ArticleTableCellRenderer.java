@@ -18,98 +18,188 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
+/**
+ * The custom renderer that shows each article in the GUI table.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
+ */
 public class ArticleTableCellRenderer extends JPanel implements TableCellRenderer {
-    private static final Font BOLD_FONT = new Font("Calibri", Font.BOLD, 14);
-    private static final Font REGULAR_FONT = new Font("Calibri", Font.PLAIN, 14);
+    /**
+     * Name of the font.
+     */
+    private static final String FONT_NAME = "Calibri";
 
-    private static final Map<String, Color> COLOR_MAP = ImmutableMap.of(
-            "nrc", new Color(144, 238, 144),
-            "test", Color.ORANGE
+    /**
+     * Bold font for title and author.
+     */
+    private static final Font BOLD_FONT = new Font(FONT_NAME, Font.BOLD, 14);
+
+    /**
+     * Regular font for likes, date/time, and text.
+     */
+    private static final Font REGULAR_FONT = new Font(FONT_NAME, Font.PLAIN, 14);
+
+    /**
+     * Map with background colors for specific source ids.
+     */
+    private static final Map<String, Color> BACKGROUND_COLOR_MAP = ImmutableMap.of(
+            Constants.NRC_SOURCE_ID, new Color(144, 238, 144),
+            Constants.TEST_SOURCE_ID, Color.ORANGE
     );
 
+    /**
+     * Default background color for this renderer.
+     */
     private static Color defaultBackgroundColor;
 
-    private JLabel starredLabel;
-    private JLabel readLabel;
-    private JLabel titleLabel;
-    private JLabel likesLabel;
-    private JLabel authorLabel;
-    private JLabel dateTimeLabel;
-    private JLabel textLabel;
+    /**
+     * Starred/unstarred icon label.
+     */
+    private final JLabel starredLabel;
 
-    // todo: Use layout managers?
+    /**
+     * Read/unread label.
+     */
+    private final JLabel readLabel;
+
+    /**
+     * Title label.
+     */
+    private final JLabel titleLabel;
+
+    /**
+     * Number of likes label.
+     */
+    private final JLabel likesLabel;
+
+    /**
+     * Author name label.
+     */
+    private final JLabel authorLabel;
+
+    /**
+     * Date/time label.
+     */
+    private final JLabel dateTimeLabel;
+
+    /**
+     * Text label.
+     */
+    private final JLabel textLabel;
+
+    /**
+     * X-coordinate of the title and text component.
+     */
+    private int titleAndTextX;
+
+    /**
+     * Construct a GUI table cell renderer for articles.
+     */
     public ArticleTableCellRenderer() {
         super(null);
 
-        int starredX = 4;
-        int starredWidth = 36;
-        int readX = starredX + starredWidth;
-        int readWidth = 24;
-        int titleX = readX + readWidth;
-        int titleWidth = 400;
-        int likesX = titleX + titleWidth + 154;
-        int likesWidth = 38;
-        int authorX = likesX + likesWidth + 2;
-        int authorWidth = 160;
-        int dateTimeX = authorX + authorWidth;
-        int dateTimeWidth = 120;
+        // Note: layout has currently been done without layout managers.
 
         starredLabel = new JLabel();
-        starredLabel.setBounds(starredX, 3, starredWidth, 40);
+        readLabel = new JLabel();
+        titleLabel = new JLabel();
+        likesLabel = new JLabel();
+        authorLabel = new JLabel();
+        dateTimeLabel = new JLabel();
+        textLabel = new JLabel();
+
         starredLabel.setFont(BOLD_FONT);
+        readLabel.setFont(BOLD_FONT);
+        titleLabel.setFont(BOLD_FONT);
+        likesLabel.setFont(REGULAR_FONT);
+        authorLabel.setFont(BOLD_FONT);
+        dateTimeLabel.setFont(REGULAR_FONT);
+        textLabel.setFont(REGULAR_FONT);
+
+        positionAndAddTopComponents();
+        positionAndAddBottomComponent();
+    }
+
+    /**
+     * Position the top components and add them to the renderer.
+     */
+    private void positionAndAddTopComponents() {
+        final int starredX = 4;
+        final int starredWidth = 36;
+        final int readX = starredX + starredWidth;
+        final int readWidth = 24;
+
+        titleAndTextX = readX + readWidth;
+
+        final int titleWidth = 400;
+        final int likesX = titleAndTextX + titleWidth + 154;
+        final int likesWidth = 38;
+        final int authorX = likesX + likesWidth + 2;
+        final int authorWidth = 160;
+        final int dateTimeX = authorX + authorWidth;
+        final int dateTimeWidth = 120;
+
+        final int topRowY = 3;
+        final int flagsHeight = 40;
+        final int topTextComponentsHeight = 18;
+
+        starredLabel.setBounds(starredX, topRowY, starredWidth, flagsHeight);
         add(starredLabel);
 
-        readLabel = new JLabel();
-        readLabel.setBounds(readX, 3, readWidth, 40);
-        readLabel.setFont(BOLD_FONT);
+        readLabel.setBounds(readX, topRowY, readWidth, flagsHeight);
         add(readLabel);
 
-        titleLabel = new JLabel();
-        titleLabel.setBounds(titleX, 3, titleWidth, 18);
-        titleLabel.setFont(BOLD_FONT);
+        titleLabel.setBounds(titleAndTextX, topRowY, titleWidth, topTextComponentsHeight);
         add(titleLabel);
 
-        likesLabel = new JLabel();
-        likesLabel.setBounds(likesX, 3, likesWidth, 18);
-        likesLabel.setFont(REGULAR_FONT);
+        likesLabel.setBounds(likesX, topRowY, likesWidth, topTextComponentsHeight);
         add(likesLabel);
 
-        authorLabel = new JLabel();
-        authorLabel.setBounds(authorX, 3, authorWidth, 18);
-        authorLabel.setFont(BOLD_FONT);
+        authorLabel.setBounds(authorX, topRowY, authorWidth, topTextComponentsHeight);
         add(authorLabel);
 
-        dateTimeLabel = new JLabel();
-        dateTimeLabel.setBounds(dateTimeX, 3, dateTimeWidth, 18);
-        dateTimeLabel.setFont(REGULAR_FONT);
+        dateTimeLabel.setBounds(dateTimeX, topRowY, dateTimeWidth, topTextComponentsHeight);
         add(dateTimeLabel);
+    }
 
-        textLabel = new JLabel();
-        textLabel.setBounds(titleX, 20, 1600, 24);
-        textLabel.setFont(REGULAR_FONT);
+    /**
+     * Position the bottom component and add it to the renderer.
+     */
+    private void positionAndAddBottomComponent() {
+        final int bottomRowY = 20;
+        final int textWidth = 1600;
+        final int textHeight = 24;
+
+        textLabel.setBounds(titleAndTextX, bottomRowY, textWidth, textHeight);
         add(textLabel);
     }
 
-    static void setDefaultBackgroundColor(Color defaultBackgroundColor) {
+    /**
+     * Set the default background color for this renderer.
+     *
+     * @param defaultBackgroundColor the default background color.
+     */
+    static void setDefaultBackgroundColor(final Color defaultBackgroundColor) {
         ArticleTableCellRenderer.defaultBackgroundColor = defaultBackgroundColor;
     }
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-                                                   int row, int column) {
-        Article article = (Article) value;
+    public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
+                                                   final boolean hasFocus, final int row, final int column) {
+        final Article article = (Article) value;
 
         this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : getBackgroundColor(article.getSourceId()));
 
-        String iconFileName = "32x32-" + (article.isStarred() ? "Full_Star_Yellow" : "Empty_Star") + ".png";
+        final String iconFileName = "32x32-" + (article.isStarred() ? "Full_Star_Yellow" : "Empty_Star") + ".png";
         starredLabel.setIcon(Utilities.getIconResource(iconFileName));
 
         readLabel.setVisible(!article.isRead());
         readLabel.setText(article.isRead() ? "R" : "U");
+
         titleLabel.setText(article.getTitle());
         likesLabel.setText("+" + article.getLikes());
         authorLabel.setText(article.getAuthor() != null ? article.getAuthor().getName() : "");
@@ -123,7 +213,13 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         return this;
     }
 
-    private Color getBackgroundColor(String sourceId) {
-        return COLOR_MAP.getOrDefault(sourceId, defaultBackgroundColor);
+    /**
+     * Get the background color that is configured for the specified source id.
+     *
+     * @param sourceId the source id to get the background color for.
+     * @return the background color that is configured for the specified source id.
+     */
+    private Color getBackgroundColor(final String sourceId) {
+        return BACKGROUND_COLOR_MAP.getOrDefault(sourceId, defaultBackgroundColor);
     }
 }

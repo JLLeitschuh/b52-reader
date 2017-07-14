@@ -203,8 +203,8 @@ public class Article {
      * @return whether the meta data flags starred, read, and archived are equal.
      */
     public boolean metadataEquals(final Article other) {
-        return Objects.equals(starred, other.starred) &&
-               Objects.equals(read, other.read) &&
-               Objects.equals(archived, other.archived);
+        return Objects.equals(starred, other.starred)
+               && Objects.equals(read, other.read)
+               && Objects.equals(archived, other.archived);
     }
 }
