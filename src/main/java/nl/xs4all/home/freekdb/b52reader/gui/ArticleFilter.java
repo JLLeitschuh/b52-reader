@@ -23,6 +23,8 @@ import org.apache.logging.log4j.Logger;
  * <li>"is:starred" matches starred articles, and "is:" also works with unstarred, read, and unread.</li>
  * </ul>
  * You can also combine them: "author:Cara is:starred is:read" will show articles by Cara that are starred and read.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class ArticleFilter implements Predicate<Article> {
     /**
@@ -38,7 +40,7 @@ public class ArticleFilter implements Predicate<Article> {
     /**
      * Prefix for filtering on the article's state: starred or unstarred, and read or unread.
      */
-    private static final String IS_PREFIX = "is:";
+    private static final String STATE_PREFIX = "is:";
 
     /**
      * Keyword to filter for starred articles.
@@ -90,15 +92,15 @@ public class ArticleFilter implements Predicate<Article> {
      *
      * @param filterText the filter text that will be parsed for one or more filter parts.
      */
-    public ArticleFilter(String filterText) {
+    public ArticleFilter(final String filterText) {
         Arrays.stream(filterText.split(" ")).forEach(filterPart -> {
-            if (filterPart.startsWith(AUTHOR_PREFIX) && filterPart.length() > AUTHOR_PREFIX.length()) {
+            if (isFilterType(AUTHOR_PREFIX, filterPart)) {
                 normalizedAuthorName = Utilities.normalize(filterPart.substring(AUTHOR_PREFIX.length()));
                 logger.debug("Filter on author: {}", normalizedAuthorName);
-            } else if (filterPart.startsWith(TITLE_PREFIX) && filterPart.length() > TITLE_PREFIX.length()) {
+            } else if (isFilterType(TITLE_PREFIX, filterPart)) {
                 normalizedTitle = Utilities.normalize(filterPart.substring(TITLE_PREFIX.length()));
                 logger.debug("Filter on title: {}", normalizedTitle);
-            } else if (filterPart.startsWith(IS_PREFIX) && filterPart.length() > IS_PREFIX.length()) {
+            } else if (isFilterType(STATE_PREFIX, filterPart)) {
                 handleStateFilter(filterPart);
             } else if (!"".equals(filterPart.trim())) {
                 // Incomplete filter parts will be ignored.
@@ -107,8 +109,24 @@ public class ArticleFilter implements Predicate<Article> {
         });
     }
 
-    private void handleStateFilter(String filterPart) {
-        String state = filterPart.substring(IS_PREFIX.length()).toLowerCase();
+    /**
+     * Check whether this filter part matches the specified type of filter.
+     *
+     * @param typePrefix the type prefix that should be matched (like <code>AUTHOR_PREFIX</code>).
+     * @param filterPart the part of the filter that is being matched.
+     * @return whether this filter part matches the specified type of filter.
+     */
+    private boolean isFilterType(final String typePrefix, final String filterPart) {
+        return filterPart.startsWith(typePrefix) && filterPart.length() > typePrefix.length();
+    }
+
+    /**
+     * Handle filtering related to the state of the article (starred or read).
+     *
+     * @param filterPart the part of the filter related to state.
+     */
+    private void handleStateFilter(final String filterPart) {
+        final String state = filterPart.substring(STATE_PREFIX.length()).toLowerCase();
 
         if (STARRED_STATE.equals(state) || UNSTARRED_STATE.equals(state)) {
             starred = STARRED_STATE.equals(state);
@@ -126,18 +144,42 @@ public class ArticleFilter implements Predicate<Article> {
      * @return whether the article matches the filter.
      */
     @Override
-    public boolean test(Article article) {
-        boolean authorOk = normalizedAuthorName == null
+    public boolean test(final Article article) {
+        return isAuthorOk(article) && isTitleOk(article) && isStateOk(article);
+    }
+
+    /**
+     * Test whether a specified article matches the author filter.
+     *
+     * @param article the article to match against the author filter.
+     * @return whether the article matches the author filter.
+     */
+    private boolean isAuthorOk(final Article article) {
+        return normalizedAuthorName == null
                            || article.getAuthor() == null
                            || article.getAuthor().getNormalizedName().contains(normalizedAuthorName);
+    }
 
-        boolean titleOk = normalizedTitle == null
-                          || article.getTitle() == null
-                          || article.getNormalizedTitle().contains(normalizedTitle);
+    /**
+     * Test whether a specified article matches the title filter.
+     *
+     * @param article the article to match against the title filter.
+     * @return whether the article matches the title filter.
+     */
+    private boolean isTitleOk(final Article article) {
+        return normalizedTitle == null
+               || article.getTitle() == null
+               || article.getNormalizedTitle().contains(normalizedTitle);
+    }
 
-        boolean stateOk = (starred == null || starred == article.isStarred())
-                          && (read == null || read == article.isRead());
-
-        return authorOk && titleOk && stateOk;
+    /**
+     * Test whether a specified article matches the state filter.
+     *
+     * @param article the article to match against the state filter.
+     * @return whether the article matches the state filter.
+     */
+    private boolean isStateOk(final Article article) {
+        return (starred == null || starred == article.isStarred())
+               && (read == null || read == article.isRead());
     }
 }
