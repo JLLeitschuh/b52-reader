@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import nl.xs4all.home.freekdb.b52reader.general.Configuration;
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
+import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
+import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetcher;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
-import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetcher;
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import org.apache.logging.log4j.LogManager;
@@ -84,10 +84,9 @@ public class NrcScienceArticleSource implements ArticleSource {
             // We create a new article object even if it is already stored, because we want to be able to compare the
             // articles in memory to the stored article to see whether an update of a stored article is needed.
             Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-            Article article = new Article.Builder(url, Constants.NRC_SOURCE_ID, author, title, zonedDateTime, text)
-                    .likes(1234)
-                    .recordId(-1 - newArticles.size())
-                    .build();
+            Article article = Article.builder().url(url).sourceId(Constants.NRC_SOURCE_ID).author(author).title(title)
+                    .dateTime(zonedDateTime).text(text).likes(1234).recordId(-1 - newArticles.size())
+                            .build();
 
             Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));
 

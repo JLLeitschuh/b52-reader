@@ -9,11 +9,10 @@ package nl.xs4all.home.freekdb.b52reader.utilities;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.time.Month;
-
 import javax.swing.Icon;
 
-import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import org.junit.Test;
 
@@ -87,11 +86,13 @@ public class UtilitiesTest {
 
     @Test
     public void testCopyPreviousDataIfAvailableNull() {
-        Article originalArticle = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
-                                                      null, "text").likes(496).recordId(6).build();
+        Article originalArticle = Article.builder().url("http://www.nrc.nl/").sourceId("nrc").title("title")
+                .text("text").likes(496).recordId(6)
+                .build();
 
-        Article article = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
-                                              null, "text").likes(496).recordId(6).build();
+        Article article = Article.builder().url("http://www.nrc.nl/").sourceId("nrc").title("title")
+                .text("text").likes(496).recordId(6)
+                .build();
 
         Utilities.copyPreviousDataIfAvailable(article, null);
         assertEquals(originalArticle, article);
@@ -99,11 +100,13 @@ public class UtilitiesTest {
 
     @Test
     public void testCopyPreviousDataIfAvailableObject() {
-        Article article = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
-                                              null, "text").likes(496).recordId(6).build();
+        Article article = Article.builder().url("http://www.nrc.nl/").sourceId("nrc").title("title")
+                .text("text").likes(496).recordId(6)
+                .build();
 
-        Article previousArticle = new Article.Builder("http://www.nrc.nl/", "nrc", null, "title",
-                                                      null, "text").likes(496).recordId(6).build();
+        Article previousArticle = Article.builder().url("http://www.nrc.nl/").sourceId("nrc").title("title")
+                .text("text").likes(496).recordId(6)
+                .build();
 
         previousArticle.setStarred(!article.isStarred());
         previousArticle.setRead(!article.isRead());

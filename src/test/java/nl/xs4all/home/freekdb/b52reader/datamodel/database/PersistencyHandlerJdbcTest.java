@@ -145,14 +145,14 @@ public class PersistencyHandlerJdbcTest {
         int newAuthorId = 496;
         Author newAuthor = new Author(newAuthorName, newAuthorId);
 
-        Article existingArticle =
-                new Article.Builder("generic string value", "source-id",
-                                    new Author("Cara Santa Maria", 28), "title",
-                                    Utilities.createDate(2017, Month.JUNE, 28), "text").build();
+        Article existingArticle = Article.builder().url("generic string value").sourceId("source-id")
+                .author(new Author("Cara Santa Maria", 28)).title("title")
+                .dateTime(Utilities.createDate(2017, Month.JUNE, 28)).text("text")
+                .build();
 
-        Article newlyFetchedArticle =
-                new Article.Builder("url2", "source-id", newAuthor, "title",
-                                    Utilities.createDate(2017, Month.JUNE, 28), "text").build();
+        Article newlyFetchedArticle = Article.builder().url("url2").sourceId("source-id").author(newAuthor)
+                .title("title").dateTime(Utilities.createDate(2017, Month.JUNE, 28)).text("text")
+                .build();
 
         ArrayList<Article> currentArticles = new ArrayList<>(Arrays.asList(existingArticle, newlyFetchedArticle));
 
@@ -204,10 +204,9 @@ public class PersistencyHandlerJdbcTest {
         String articleStringValue = "generic string value";
         ZonedDateTime publishingDateTime = Utilities.createDate(2017, Month.JUNE, 27);
 
-        article = new Article.Builder(articleStringValue, articleStringValue, author, articleStringValue,
-                                      publishingDateTime, articleStringValue)
-                .recordId(articleIntValue)
-                .likes(articleIntValue)
+        article = Article.builder().url(articleStringValue).sourceId(articleStringValue).author(author)
+                .title(articleStringValue).dateTime(publishingDateTime).text(articleStringValue)
+                .recordId(articleIntValue).likes(articleIntValue)
                 .build();
 
         ResultSet mockResultSetAuthor = Mockito.mock(ResultSet.class);

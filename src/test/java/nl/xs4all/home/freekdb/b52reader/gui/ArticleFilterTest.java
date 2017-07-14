@@ -25,9 +25,8 @@ public class ArticleFilterTest {
     public void setUp() {
         Author author = new Author("Cara Santa Maria", 1);
 
-        article = new Article.Builder("url", "test", author, "Title of an article", null,
-                                      "Some of the text of the article. Just a few lines.")
-                .likes(496)
+        article = Article.builder().url("url").sourceId("test").author(author).title("Title of an article")
+                .text("Some of the text of the article. Just a few lines.").likes(496)
                 .build();
 
         article.setStarred(true);
@@ -66,8 +65,7 @@ public class ArticleFilterTest {
 
     @Test
     public void testFilterCornerCases() {
-        Article articleTwo = new Article.Builder("url", "test", null, null, null,
-                                                 "Text")
+        Article articleTwo = Article.builder().url("url").sourceId("test").text("Text")
                 .build();
 
         articleTwo.setStarred(true);

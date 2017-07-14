@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import org.junit.Test;
@@ -32,9 +31,8 @@ public class ArticleTest {
         String url = "www.test.org";
         ZonedDateTime date = Utilities.createDate(2000, Month.JANUARY, 1);
 
-        Article article = new Article.Builder(url, "test", null, "Title", date, "text")
-                .likes(1024)
-                .recordId(6)
+        Article article = Article.builder().url(url).sourceId("test").title("Title").dateTime(date).text("text")
+                .likes(1024).recordId(6)
                 .build();
 
         assertArticle(article, url, null, date, false, false);
@@ -45,9 +43,8 @@ public class ArticleTest {
         String url = "www.test.org";
         ZonedDateTime date = Utilities.createDate(2000, Month.JANUARY, 1);
 
-        Article article = new Article.Builder(url, "test", null, "Title", date, "text")
-                .likes(1024)
-                .recordId(6)
+        Article article = Article.builder().url(url).sourceId("test").title("Title").dateTime(date).text("text")
+                .likes(1024).recordId(6)
                 .build();
 
 
@@ -127,13 +124,11 @@ public class ArticleTest {
 
     @Test
     public void testMetadataEquals() {
-        Article article1 = new Article.Builder("url", "test", null, "Title", null, "text")
-                .likes(1024)
+        Article article1 = Article.builder().url("url").sourceId("test").title("Title").text("text").likes(1024)
                 .recordId(6)
                 .build();
 
-        Article article2 = new Article.Builder("url", "test", null, "Title", null, "text")
-                .likes(1024)
+        Article article2 = Article.builder().url("url").sourceId("test").title("Title").text("text").likes(1024)
                 .recordId(6)
                 .build();
 

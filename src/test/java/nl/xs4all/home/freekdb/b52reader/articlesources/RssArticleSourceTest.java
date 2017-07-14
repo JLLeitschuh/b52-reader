@@ -138,19 +138,15 @@ public class RssArticleSourceTest {
                                                   List<Article> actualArticles) {
         List<Article> expectedArticles = new ArrayList<>();
 
-        Article article = new Article.Builder(null, SOURCE_ID, testAuthor, ARTICLE_TITLE_1,
-                                              actualArticles.get(0).getDateTime(), ARTICLE_TEXT)
-                .likes(1234)
-                .recordId(-1)
+        Article article = Article.builder().sourceId(SOURCE_ID).author(testAuthor).title(ARTICLE_TITLE_1)
+                .dateTime(actualArticles.get(0).getDateTime()).text(ARTICLE_TEXT).likes(1234).recordId(-1)
                 .build();
 
         expectedArticles.add(article);
 
         if (expectTwoArticles) {
-            article = new Article.Builder(null, SOURCE_ID, testAuthor, ARTICLE_TITLE_2,
-                                          actualArticles.get(1).getDateTime(), "")
-                    .likes(1234)
-                    .recordId(-2)
+            article = Article.builder().sourceId(SOURCE_ID).author(testAuthor).title(ARTICLE_TITLE_2)
+                    .dateTime(actualArticles.get(1).getDateTime()).text("").likes(1234).recordId(-2)
                     .build();
 
             expectedArticles.add(article);

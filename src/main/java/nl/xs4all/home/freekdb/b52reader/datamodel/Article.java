@@ -24,14 +24,13 @@ import lombok.Data;
 
 /**
  * Class containing all relevant (meta) data about articles.
- *
+ * <p>
  * Sonar check S2065 (fields in non-serializable classes should not be "transient") is disabled because by marking the
  * starred, read, and archived fields as transient, these fields are excluded for the equals and hashCode methods.
  *
  * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
-@Data()
-@Builder
+@Data
 @SuppressWarnings("squid:S2065")
 public class Article {
     /**
@@ -110,166 +109,47 @@ public class Article {
      */
     private transient boolean archived;
 
-
-    // todo: Replace this hand written Builder class below by the one Lombok creates.
-
     /**
-     * Builder for article objects.
+     * Construct an article.
+     *
+     * @param url      URL where the article can be found.
+     * @param sourceId identifier of the article source.
+     * @param author   main author of the article.
+     * @param title    title of the article.
+     * @param dateTime date/time of publication.
+     * @param text     first part of the article text.
+     * @param likes    number of likes for the article.
+     * @param recordId database record id where this object is stored.
+     * @param starred  whether the user has starred the article.
+     * @param read     whether the user has marked the article as read.
+     * @param archived whether the user has archived the article.
      */
-    public static class Builder {
-        /**
-         * URL where the article can be found.
-         */
-        private final String url;
-
-        /**
-         * Identifier of the article source.
-         */
-        private final String sourceId;
-
-        /**
-         * Main author of the article.
-         */
-        private final Author author;
-
-        /**
-         * Title of the article.
-         */
-        private final String title;
-
-        /**
-         * Date/time of publication.
-         */
-        private final ZonedDateTime dateTime;
-
-        /**
-         * First part of the article text.
-         */
-        private final String text;
-
-        /**
-         * Number of likes for the article.
-         */
-        private int likes;
-
-        /**
-         * Database record id where the article object is stored.
-         */
-        private int recordId;
-
-        /**
-         * Whether the user has starred the article.
-         */
-        private boolean starred;
-
-        /**
-         * Whether the user has marked the article as read.
-         */
-        private boolean read;
-
-        /**
-         * Whether the user has archived the article.
-         */
-        private boolean archived;
-
-        /**
-         * Create an article builder.
-         *
-         * @param url      URL where the article can be found.
-         * @param sourceId identifier of the article source.
-         * @param author   main author of the article.
-         * @param title    title of the article.
-         * @param dateTime date/time of publication.
-         * @param text     first part of the article text.
-         */
-        public Builder(final String url, final String sourceId, final Author author, final String title,
-                       final ZonedDateTime dateTime, final String text) {
-            this.url = url;
-            this.sourceId = sourceId;
-            this.author = author;
-            this.title = title;
-            this.dateTime = dateTime;
-            this.text = text;
-        }
-
-        /**
-         * Add the number of likes.
-         *
-         * @param likes the number of likes.
-         * @return the updated builder.
-         */
-        public Builder likes(final int likes) {
-            this.likes = likes;
-
-            return this;
-        }
-
-        /**
-         * Add the database record id.
-         *
-         * @param recordId the database record id.
-         * @return the updated builder.
-         */
-        public Builder recordId(final int recordId) {
-            this.recordId = recordId;
-
-            return this;
-        }
-
-        /**
-         * Set the starred flag.
-         *
-         * @param starred the starred flag.
-         * @return the updated builder.
-         */
-        public Builder starred(final boolean starred) {
-            this.starred = starred;
-
-            return this;
-        }
-
-        /**
-         * Set the read flag.
-         *
-         * @param read the read flag.
-         * @return the updated builder.
-         */
-        public Builder read(final boolean read) {
-            this.read = read;
-
-            return this;
-        }
-
-        /**
-         * Set the archived flag.
-         *
-         * @param archived the archived flag.
-         * @return the updated builder.
-         */
-        public Builder archived(final boolean archived) {
-            this.archived = archived;
-
-            return this;
-        }
-
-        /**
-         * Build the new article.
-         *
-         * @return the article.
-         */
-        public Article build() {
-            return new Article(url, sourceId, author, title, Utilities.normalize(title),
-                               Utilities.calculateWordCount(title), dateTime, text, Utilities.calculateWordCount(text),
-                               likes, recordId, starred, read, archived);
-        }
+    @Builder
+    @SuppressWarnings("squid:S00107")
+    public Article(final String url, final String sourceId, final Author author, final String title,
+                   final ZonedDateTime dateTime, final String text, final int likes, final int recordId,
+                   final boolean starred, final boolean read, final boolean archived) {
+        this.url = url;
+        this.sourceId = sourceId;
+        this.author = author;
+        this.title = title;
+        this.normalizedTitle = Utilities.normalize(title);
+        this.titleWordCount = Utilities.calculateWordCount(title);
+        this.dateTime = dateTime;
+        this.text = text;
+        this.textWordCount = Utilities.calculateWordCount(text);
+        this.likes = likes;
+        this.recordId = recordId;
+        this.starred = starred;
+        this.read = read;
+        this.archived = archived;
     }
-
 
     /**
      * Create an article based on the database record.
      *
      * @param resultSet database record.
-     * @param authors known authors.
+     * @param authors   known authors.
      * @return the article.
      */
     public static Article createArticleFromDatabase(final ResultSet resultSet, final List<Author> authors) {
@@ -293,9 +173,8 @@ public class Article {
 
             final int recordId = resultSet.getInt("id");
 
-            article = new Article.Builder(url, sourceId, author, title, dateTime, text)
-                    .likes(likes)
-                    .recordId(recordId)
+            article = Article.builder().url(url).sourceId(sourceId).author(author).title(title).dateTime(dateTime)
+                    .text(text).likes(likes).recordId(recordId)
                     .build();
 
             article.setStarred(resultSet.getBoolean("starred"));

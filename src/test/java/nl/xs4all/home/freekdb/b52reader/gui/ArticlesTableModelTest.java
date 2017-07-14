@@ -56,6 +56,7 @@ public class ArticlesTableModelTest {
     }
 
     private Article createArticle(String url) {
-        return new Article.Builder(url, "source-id", null, "title", null, "text").build();
+        return Article.builder().url(url).sourceId("source-id").title("title")
+                .build();
     }
 }

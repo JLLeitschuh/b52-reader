@@ -13,12 +13,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import nl.xs4all.home.freekdb.b52reader.general.Configuration;
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
+import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetcher;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
-import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetcher;
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -95,16 +95,14 @@ public class NrcScienceArticleSourceTest {
 
     // todo: Pass a Clock object to the NrcScienceArticleSource class instead of copying date/times here.
     private List<Article> prepareExpectedArticles(Author testAuthor, List<Article> actualArticles) {
-        Article article1 = new Article.Builder(configuration.getNrcMainUrl() + "article-1", "nrc", testAuthor,
-                                              "title-1", actualArticles.get(0).getDateTime(), "text-1")
-                .likes(1234)
-                .recordId(-1)
+        Article article1 = Article.builder().url(configuration.getNrcMainUrl() + "article-1").sourceId("nrc")
+                .author(testAuthor).title("title-1").dateTime(actualArticles.get(0).getDateTime()).text("text-1")
+                .likes(1234).recordId(-1)
                 .build();
 
-        Article article2 = new Article.Builder(configuration.getNrcMainUrl() + "article-2", "nrc", testAuthor,
-                                               "title-2", actualArticles.get(1).getDateTime(), "text-2")
-                .likes(1234)
-                .recordId(-2)
+        Article article2 = Article.builder().url(configuration.getNrcMainUrl() + "article-2").sourceId("nrc")
+                .author(testAuthor).title("title-2").dateTime(actualArticles.get(1).getDateTime()).text("text-2")
+                .likes(1234).recordId(-2)
                 .build();
 
         return new ArrayList<>(Arrays.asList(article1, article2));

@@ -10,12 +10,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.time.Month;
 import java.time.ZonedDateTime;
-
 import javax.swing.JTable;
 
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import org.junit.Test;
@@ -31,9 +30,7 @@ public class ArticleTableCellRendererTest {
         ArticleTableCellRenderer.setDefaultBackgroundColor(Color.YELLOW);
 
         String unknownSourceId = "unknown source id";
-        Article article = new Article.Builder("url", unknownSourceId, null, "title", null,
-                                              "text")
-                .likes(1)
+        Article article = Article.builder().url("url").sourceId(unknownSourceId).title("title").text("text").likes(1)
                 .build();
 
         Component rendererComponent =
@@ -48,8 +45,8 @@ public class ArticleTableCellRendererTest {
         Author author = new Author("Test Author", 1);
         ZonedDateTime date = Utilities.createDate(2002, Month.FEBRUARY, 20);
 
-        Article article = new Article.Builder("url", "test", author, "title", date, "text")
-                .likes(1)
+        Article article = Article.builder().url("url").sourceId("test").author(author).title("title").dateTime(date)
+                .text("text").likes(1)
                 .build();
 
         article.setStarred(true);

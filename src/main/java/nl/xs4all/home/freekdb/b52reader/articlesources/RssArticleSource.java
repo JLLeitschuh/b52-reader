@@ -119,13 +119,12 @@ public class RssArticleSource implements ArticleSource {
 
         // We create new article objects, because we want to be able to compare the articles in memory to the
         // stored articles to see whether an update of a stored article is needed.
-        Author author = entryAuthor != null
+        final Author author = entryAuthor != null
                 ? entryAuthor
                 : previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
 
-        Article article = new Article.Builder(url, sourceId, author, title, zonedDateTime, text)
-                .likes(1234)
-                .recordId(articleId)
+        final Article article = Article.builder().url(url).sourceId(sourceId).author(author).title(title)
+                .dateTime(zonedDateTime).text(text).likes(1234).recordId(articleId)
                 .build();
 
         Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));

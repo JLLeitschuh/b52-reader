@@ -17,7 +17,6 @@ import java.awt.event.WindowListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -30,9 +29,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 
+import nl.xs4all.home.freekdb.b52reader.TestUtilities;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
-import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
@@ -212,7 +212,7 @@ public class MainGuiTest {
         Mockito.when(mockConfiguration.getFetchedValue()).thenReturn(fetchedValue);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
-        mainGui.initializeGui(getSixTestArticles());
+        mainGui.initializeGui(TestUtilities.getSixTestArticles());
 
         waitForGuiTasks();
 
@@ -245,7 +245,7 @@ public class MainGuiTest {
         Mockito.when(mockConfiguration.useSpanTable()).thenReturn(testType == CHANGE_TEXT);
 
         mainGui.initializeBackgroundBrowsersPanel(mockFrame, mockConfiguration);
-        mainGui.initializeGui(getSixTestArticles());
+        mainGui.initializeGui(TestUtilities.getSixTestArticles());
 
         waitForGuiTasks();
 
@@ -277,25 +277,6 @@ public class MainGuiTest {
         }
 
         checkArticlesInGui(testType, mainGui, table.getRowCount());
-    }
-
-    private List<Article> getSixTestArticles() {
-        return Arrays.asList(
-                new Article.Builder("u1", "s1", null, "Title1", null, "Text 1.")
-                        .starred(true).read(true)
-                        .build(),
-                new Article.Builder("u2", "s2", null, "Title2", null, "Text 2.")
-                        .build(),
-                new Article.Builder("u3", "s3", null, "Title3", null, "Text 3.")
-                        .starred(true).read(true).archived(true)
-                        .build(),
-                new Article.Builder("u4", "s4", null, "Title4", null, "Text 4.")
-                        .build(),
-                new Article.Builder("u5", "s5", null, "Title5", null, "Text 5.")
-                        .build(),
-                new Article.Builder("u6", "s6", null, "Title6", null, "Text 6.")
-                        .build()
-        );
     }
 
     private void checkArticlesInGui(FilterTestType testType, MainGui mainGui, int tableRowCount)
@@ -356,7 +337,7 @@ public class MainGuiTest {
     private void testClickInTable(boolean firstStarred, boolean firstRead, boolean spanTable, boolean selectRow,
                                   int xMouseEvent)
             throws InterruptedException, InvocationTargetException {
-        List<Article> testArticles = getSixTestArticles();
+        List<Article> testArticles = TestUtilities.getSixTestArticles();
         testArticles.get(0).setStarred(firstStarred);
         testArticles.get(0).setRead(firstRead);
 

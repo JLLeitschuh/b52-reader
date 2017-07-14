@@ -60,12 +60,10 @@ public class CombinationArticleSourceTest {
         List<Article> articles = new ArrayList<>();
 
         for (int articleIndex = 0; articleIndex < articleCount; articleIndex++) {
-            Article article = new Article.Builder("https://test.org/article-" + articleIndex, sourceId, testAuthor,
-                                                  "title-" + articleIndex,
-                                                  Utilities.createDate(2017, Month.JUNE, articleIndex + 1),
-                                                  "text-" + articleIndex)
-                    .likes(6 * articleIndex)
-                    .recordId(articleIndex)
+            Article article = Article.builder().url("https://test.org/article-" + articleIndex).sourceId(sourceId)
+                    .author(testAuthor).title("title-" + articleIndex)
+                    .dateTime(Utilities.createDate(2017, Month.JUNE, articleIndex + 1))
+                    .text("text-" + articleIndex).likes(6 * articleIndex).recordId(articleIndex)
                     .build();
 
             articles.add(article);

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import nl.xs4all.home.freekdb.b52reader.TestUtilities;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
@@ -34,7 +35,7 @@ public class SpanCellTableModelTest {
 
     @Before
     public void setUp() throws IOException {
-        articles = getSixTestArticles();
+        articles = TestUtilities.getSixTestArticles();
 
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
 
@@ -115,24 +116,5 @@ public class SpanCellTableModelTest {
         tableModel.setColumnsAndData(null, null, null, null);
 
         assertNull(tableModel.getArticle(0));
-    }
-
-    private List<Article> getSixTestArticles() {
-        return Arrays.asList(
-                new Article.Builder("u1", "s1", null, "Title1", null, "Text 1.")
-                        .starred(true).read(true)
-                        .build(),
-                new Article.Builder("u2", "s2", null, "Title2", null, "Text 2.")
-                        .build(),
-                new Article.Builder("u3", "s3", null, "Title3", null, "Text 3.")
-                        .starred(true).read(true).archived(true)
-                        .build(),
-                new Article.Builder("u4", "s4", null, "Title4", null, "Text 4.")
-                        .build(),
-                new Article.Builder("u5", "s5", null, "Title5", null, "Text 5.")
-                        .build(),
-                new Article.Builder("u6", "s6", null, "Title6", null, "Text 6.")
-                        .build()
-        );
     }
 }

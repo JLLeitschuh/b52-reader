@@ -16,6 +16,7 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JTextField;
 
+import nl.xs4all.home.freekdb.b52reader.TestUtilities;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
@@ -78,7 +79,7 @@ public class SpanCellTableUITest {
     }
 
     private SpanCellTableModel createTableModel() throws IOException {
-        List<Article> articles = getSixTestArticles();
+        List<Article> articles = TestUtilities.getSixTestArticles();
 
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
 
@@ -95,24 +96,5 @@ public class SpanCellTableUITest {
         tableModel.setColumnsAndData(columnNames, columnClasses, articles, article -> true);
 
         return tableModel;
-    }
-
-    private List<Article> getSixTestArticles() {
-        return Arrays.asList(
-                new Article.Builder("u1", "s1", null, "Title1", null, "Text 1.")
-                        .starred(true).read(true)
-                        .build(),
-                new Article.Builder("u2", "s2", null, "Title2", null, "Text 2.")
-                        .build(),
-                new Article.Builder("u3", "s3", null, "Title3", null, "Text 3.")
-                        .starred(true).read(true).archived(true)
-                        .build(),
-                new Article.Builder("u4", "s4", null, "Title4", null, "Text 4.")
-                        .build(),
-                new Article.Builder("u5", "s5", null, "Title5", null, "Text 5.")
-                        .build(),
-                new Article.Builder("u6", "s6", null, "Title6", null, "Text 6.")
-                        .build()
-        );
     }
 }
