@@ -8,6 +8,7 @@ package nl.xs4all.home.freekdb.b52reader.browsers;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -18,6 +19,8 @@ import org.mockito.Mockito;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the {@link BackgroundBrowsers} class.
@@ -29,19 +32,21 @@ public class BackgroundBrowsersTest {
     private JWebBrowser mockJWebBrowser;
     private BrowserListener browserListener;
     private String htmlContent;
+    private boolean testCloseAllBackgroundBrowsersFinished;
 
     @Test
     public void testGetHtmlContent() throws IllegalAccessException {
-        String url = "https://freekdb.home.xs4all.nl/";
-        String inProgressHtmlContent = "<html><body>Working...</body></html>";
-        String expectedHtmlContent = "<html><body>Hi there!</body></html>";
+        final String url = "https://freekdb.home.xs4all.nl/";
+        final String inProgressHtmlContent = "<html><body>Working...</body></html>";
+        final String expectedHtmlContent = "<html><body>Hi there!</body></html>";
+
         htmlContent = "This is clearly different from the expected html content...";
 
         prepareMockObjects(inProgressHtmlContent, expectedHtmlContent);
 
-        JPanel backgroundBrowsersPanel = new JPanel();
+        final JPanel backgroundBrowsersPanel = new JPanel();
 
-        BackgroundBrowsers backgroundBrowsers = new BackgroundBrowsers(mockBrowserFactory, backgroundBrowsersPanel);
+        final BackgroundBrowsers backgroundBrowsers = new BackgroundBrowsers(mockBrowserFactory, backgroundBrowsersPanel);
 
         Thread getHtmlContentThread = new Thread(
                 () -> htmlContent = backgroundBrowsers.getHtmlContent(url, 2000)
@@ -58,6 +63,47 @@ public class BackgroundBrowsersTest {
                 .until(() -> expectedHtmlContent.equals(htmlContent));
 
         assertEquals(expectedHtmlContent, htmlContent);
+    }
+
+    @Test
+    public void testCloseAllBackgroundBrowsersFilled() throws IllegalAccessException {
+        // todo: Use prepareMockObjects here as well?
+
+        final JWebBrowser mockBrowser = Mockito.mock(JWebBrowser.class);
+
+        // Initialize the private Container.component field to prevent a null pointer exception later.
+        FieldUtils.writeField(mockBrowser, "component", new ArrayList<>(), true);
+
+
+        Mockito.when(mockBrowser.navigate(Mockito.anyString())).thenAnswer(
+                invocationOnMock -> {
+                    Awaitility.await().atLeast(10000, TimeUnit.MILLISECONDS)
+                            .until(() -> testCloseAllBackgroundBrowsersFinished);
+
+                    return false;
+                }
+        );
+
+        final BrowserFactory mockBrowserFactory = Mockito.mock(BrowserFactory.class);
+        Mockito.when(mockBrowserFactory.createBrowser(Mockito.any(BrowserListener.class))).thenReturn(mockBrowser);
+
+        final BackgroundBrowsers backgroundBrowsers = new BackgroundBrowsers(mockBrowserFactory, new JPanel());
+
+        final Thread getHtmlThread = new Thread(() -> backgroundBrowsers.getHtmlContent("", 10000));
+        getHtmlThread.start();
+
+        Awaitility.await().atMost(10000, TimeUnit.MILLISECONDS).until(backgroundBrowsers::webBrowsersActive);
+
+        assertTrue(backgroundBrowsers.webBrowsersActive());
+        backgroundBrowsers.closeAllBackgroundBrowsers();
+        assertFalse(backgroundBrowsers.webBrowsersActive());
+
+        testCloseAllBackgroundBrowsersFinished = true;
+    }
+
+    @Test
+    public void testCloseAllBackgroundBrowsersEmpty() {
+        new BackgroundBrowsers(null, null).closeAllBackgroundBrowsers();
     }
 
     private void prepareMockObjects(String inProgressHtmlContent, String expectedHtmlContent) throws IllegalAccessException {

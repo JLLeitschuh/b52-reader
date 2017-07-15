@@ -97,7 +97,7 @@ public class BackgroundBrowsers {
 
             boolean done = false;
             int waitCount = 0;
-            int maxWaitCount = maxWaitTimeMs / 100;
+            final int maxWaitCount = maxWaitTimeMs / 100;
             while (!done && waitCount < maxWaitCount) {
                 //noinspection BusyWait
                 Thread.sleep(100);
@@ -114,9 +114,9 @@ public class BackgroundBrowsers {
                                     () -> URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent())
                             );
 
-                            String htmlContent = URL_TO_HTML_CONTENT.get(url);
-                            logger.trace("Html content: " +
-                                         htmlContent.substring(0, Math.min(100, htmlContent.length())));
+                            final String htmlContent = URL_TO_HTML_CONTENT.get(url);
+                            logger.trace("Html content: "
+                                         + htmlContent.substring(0, Math.min(100, htmlContent.length())));
                         }
                     } else {
                         done = true;
@@ -143,8 +143,8 @@ public class BackgroundBrowsers {
      *
      * @param url the url for which the html content should be retrieved.
      */
-    private void launchBackgroundBrowser(String url) {
-        JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
+    private void launchBackgroundBrowser(final String url) {
+        final JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
                 browser -> URL_TO_HTML_CONTENT.put(url, ((JWebBrowser) browser).getHTMLContent())
         );
 
@@ -160,10 +160,10 @@ public class BackgroundBrowsers {
      *
      * @param url the url for which the html content should be retrieved.
      */
-    private void closeBackgroundBrowser(String url) {
+    private void closeBackgroundBrowser(final String url) {
         logger.debug("Closing the background browser for url " + url);
 
-        JWebBrowser webBrowser = URL_TO_WEB_BROWSER.get(url);
+        final JWebBrowser webBrowser = URL_TO_WEB_BROWSER.get(url);
 
         if (webBrowser != null) {
             try {
@@ -183,6 +183,15 @@ public class BackgroundBrowsers {
     }
 
     /**
+     * Report whether there are background web browsers active.
+     *
+     * @return true if at least one background web browser is active.
+     */
+    public boolean webBrowsersActive() {
+        return !webBrowsers.isEmpty();
+    }
+
+    /**
      * Close all background browsers that for some reason have not been closed yet.
      */
     public void closeAllBackgroundBrowsers() {
@@ -195,6 +204,9 @@ public class BackgroundBrowsers {
         URL_TO_WEB_BROWSER.clear();
         URL_TO_HTML_CONTENT.clear();
         webBrowsers.clear();
-        backgroundBrowsersPanel.removeAll();
+
+        if (backgroundBrowsersPanel != null) {
+            backgroundBrowsersPanel.removeAll();
+        }
     }
 }
