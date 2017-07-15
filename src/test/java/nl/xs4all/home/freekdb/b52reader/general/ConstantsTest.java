@@ -16,6 +16,8 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for the {@link Constants} class.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class ConstantsTest {
     @Test

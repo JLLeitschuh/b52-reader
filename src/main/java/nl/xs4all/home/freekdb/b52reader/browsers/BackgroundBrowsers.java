@@ -23,6 +23,8 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 /**
  * This class allows invisible browsers to be running in the background to get html content of a specific url.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class BackgroundBrowsers {
     /**
@@ -34,6 +36,11 @@ public class BackgroundBrowsers {
      * Map of URLs to html content.
      */
     private static final Map<String, String> URL_TO_HTML_CONTENT = new HashMap<>();
+
+    /**
+     * The default maximum wait time (in milliseconds) for retrieving html content.
+     */
+    private static final int DEFAULT_MAXIMUM_WAIT_TIME_MS = 10000;
 
     /**
      * Logger for this class.
@@ -61,7 +68,7 @@ public class BackgroundBrowsers {
      * @param browserFactory          the browser factory for creating embedded browsers.
      * @param backgroundBrowsersPanel the (invisible) panel to which the browsers can be added (to allow them to work).
      */
-    public BackgroundBrowsers(BrowserFactory browserFactory, JPanel backgroundBrowsersPanel) {
+    public BackgroundBrowsers(final BrowserFactory browserFactory, final JPanel backgroundBrowsersPanel) {
         this.browserFactory = browserFactory;
         this.backgroundBrowsersPanel = backgroundBrowsersPanel;
         this.webBrowsers = new ArrayList<>();
@@ -73,8 +80,8 @@ public class BackgroundBrowsers {
      * @param url the url for which the html content should be retrieved.
      * @return the html content that was retrieved or null.
      */
-    public String getHtmlContent(String url) {
-        return getHtmlContent(url, 10000);
+    public String getHtmlContent(final String url) {
+        return getHtmlContent(url, DEFAULT_MAXIMUM_WAIT_TIME_MS);
     }
 
     /**
@@ -93,38 +100,7 @@ public class BackgroundBrowsers {
 
             SwingUtilities.invokeAndWait(() -> launchBackgroundBrowser(url));
 
-            logger.debug("Waiting for html content...");
-
-            boolean done = false;
-            int waitCount = 0;
-            final int maxWaitCount = maxWaitTimeMs / 100;
-            while (!done && waitCount < maxWaitCount) {
-                //noinspection BusyWait
-                Thread.sleep(100);
-
-                if (URL_TO_HTML_CONTENT.containsKey(url)) {
-                    // Some systems provide some kind of intermediate "in progress" html content.
-                    if (URL_TO_HTML_CONTENT.get(url).contains("Working...")) {
-                        logger.debug("Working...");
-
-                        if (waitCount % 10 == 0) {
-                            logger.trace("Refresh html content.");
-
-                            SwingUtilities.invokeAndWait(
-                                    () -> URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent())
-                            );
-
-                            final String htmlContent = URL_TO_HTML_CONTENT.get(url);
-                            logger.trace("Html content: "
-                                         + htmlContent.substring(0, Math.min(100, htmlContent.length())));
-                        }
-                    } else {
-                        done = true;
-                    }
-                }
-
-                waitCount++;
-            }
+            waitForHtmlContent(url, maxWaitTimeMs);
 
             if (URL_TO_HTML_CONTENT.containsKey(url)) {
                 logger.debug("Html content size: {} characters.", URL_TO_HTML_CONTENT.get(url).length());
@@ -136,6 +112,54 @@ public class BackgroundBrowsers {
         }
 
         return URL_TO_HTML_CONTENT.get(url);
+    }
+
+    /**
+     * Wait for html content to be received.
+     *
+     * @param url           the url for which the html content should be retrieved.
+     * @param maxWaitTimeMs the maximum amount of time to wait (in milliseconds).
+     * @throws InterruptedException      if waiting somehow fails or is interrupted.
+     * @throws InvocationTargetException if getting the html content from the browser fails.
+     */
+    private void waitForHtmlContent(final String url, final int maxWaitTimeMs)
+            throws InterruptedException, InvocationTargetException {
+        logger.debug("Waiting for html content...");
+
+        boolean done = false;
+        int waitCount = 0;
+        final int waitTimePerIterationMs = 100;
+        final int maxWaitCount = maxWaitTimeMs / waitTimePerIterationMs;
+
+        while (!done && waitCount < maxWaitCount) {
+            Thread.sleep(waitTimePerIterationMs);
+
+            if (URL_TO_HTML_CONTENT.containsKey(url)) {
+                // Some systems provide some kind of intermediate "in progress" html content.
+                if (URL_TO_HTML_CONTENT.get(url).contains("Working...")) {
+                    logger.debug("Html page is being constructed...");
+
+                    final int refreshEveryXthIteration = 10;
+
+                    if (waitCount % refreshEveryXthIteration == 0) {
+                        logger.trace("Refresh html content.");
+
+                        SwingUtilities.invokeAndWait(
+                                () -> URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent())
+                        );
+
+                        final String htmlContent = URL_TO_HTML_CONTENT.get(url);
+                        final int maxHtmlContentLengthToLog = 120;
+                        final int endIndex = Math.min(maxHtmlContentLengthToLog, htmlContent.length());
+                        logger.trace("Html content: " + htmlContent.substring(0, endIndex));
+                    }
+                } else {
+                    done = true;
+                }
+            }
+
+            waitCount++;
+        }
     }
 
     /**
@@ -187,7 +211,7 @@ public class BackgroundBrowsers {
      *
      * @return true if at least one background web browser is active.
      */
-    public boolean webBrowsersActive() {
+    boolean webBrowsersActive() {
         return !webBrowsers.isEmpty();
     }
 
