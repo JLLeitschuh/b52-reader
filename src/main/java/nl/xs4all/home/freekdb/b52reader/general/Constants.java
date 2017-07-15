@@ -19,7 +19,7 @@ import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
  */
 public class Constants {
     /**
-     * Private constructor to hide the implicit public one.
+     * Private constructor to hide the implicit public one, since this class is not meant to be instantiated.
      */
     private Constants() {
         // Should not be called.

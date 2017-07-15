@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Utilities {
     /**
-     * Private constructor to hide the implicit public one.
+     * Private constructor to hide the implicit public one, since this class is not meant to be instantiated.
      */
     private Utilities() {
         // Should not be called.

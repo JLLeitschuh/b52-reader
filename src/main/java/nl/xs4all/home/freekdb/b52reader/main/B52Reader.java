@@ -18,12 +18,7 @@ import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
-// todo: Use Lombok.
-// todo: Use Guice.
-// todo: Use JPA/Hibernate.
-// todo: Use Checkstyle.
-// todo: Use FindBugs.
-// todo: Use PMD/CPD.
+// todo: Wish list: use Lombok, Guice, JPA/Hibernate, Checkstyle, FindBugs, and PMD/CPD.
 
 /**
  * The b52-reader main class which creates the application and launches it.
@@ -34,7 +29,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
  */
 public class B52Reader {
     /**
-     * This private constructor hides the default explicit one, since this class is not meant to be instantiated.
+     * Private constructor to hide the implicit public one, since this class is not meant to be instantiated.
      */
     private B52Reader() {
         // Should not be called.
