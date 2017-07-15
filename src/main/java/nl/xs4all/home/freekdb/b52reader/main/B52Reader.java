@@ -8,13 +8,13 @@ package nl.xs4all.home.freekdb.b52reader.main;
 
 import java.net.URL;
 
-import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
+import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandlerJdbc;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
 import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
-import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandlerJdbc;
-import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
@@ -29,26 +29,35 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
  * The b52-reader main class which creates the application and launches it.
  * <p>
  * mvn exec:java -Dexec.mainClass="nl.xs4all.home.freekdb.b52reader.main.B52Reader"
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class B52Reader {
+    /**
+     * This private constructor hides the default explicit one, since this class is not meant to be instantiated.
+     */
+    private B52Reader() {
+        // Should not be called.
+    }
+
     /**
      * The main method that starts the application and takes care of some library initialization.
      *
      * @param arguments the (currently unused) command-line parameters.
      */
-    public static void main(String[] arguments) {
+    public static void main(final String[] arguments) {
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
             Utilities.ignoreStandardErrorStream();
 
             NativeInterface.open();
         }
 
-        MainGui mainGui = new MainGui(new ManyBrowsersPanel(new JWebBrowserFactory()));
-        URL configurationUrl = B52Reader.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
-        PersistencyHandlerJdbc persistencyHandler = new PersistencyHandlerJdbc();
+        final MainGui mainGui = new MainGui(new ManyBrowsersPanel(new JWebBrowserFactory()));
+        final URL configurationUrl = B52Reader.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
+        final PersistencyHandlerJdbc persistencyHandler = new PersistencyHandlerJdbc();
 
-        MainApplication mainApplication = new MainApplication(mainGui, configurationUrl, persistencyHandler);
-        
+        final MainApplication mainApplication = new MainApplication(mainGui, configurationUrl, persistencyHandler);
+
         mainApplication.createAndLaunchApplication();
 
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {

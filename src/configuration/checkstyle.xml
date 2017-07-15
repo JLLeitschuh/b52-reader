@@ -283,7 +283,11 @@
         </module>
 
         <module name="TrailingComment"/>
-        <module name="UncommentedMain"/>
+
+        <module name="UncommentedMain">
+            <property name="excludedClasses" value="\.B52Reader$"/>
+        </module>
+
         <module name="StaticVariableName"/>
         <module name="FileContentsHolder"/>
 
