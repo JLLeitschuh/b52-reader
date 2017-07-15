@@ -154,8 +154,10 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
     }
 
     @Override
-    public Author getOrCreateAuthor(String name) {
-        return storedAuthorsMap.getOrDefault(name, new Author(name, -28));
+    public Author getOrCreateAuthor(final String name) {
+        final int impossibleRecordId = -28;
+
+        return storedAuthorsMap.getOrDefault(name, new Author(name, impossibleRecordId));
     }
 
     @Override
@@ -211,20 +213,20 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         }
     }
 
-    private void updateObjectAuthorIds(List<Author> authors) {
-        Map<String, Author> authorsMap = authors.stream()
+    private void updateObjectAuthorIds(final List<Author> authors) {
+        final Map<String, Author> authorsMap = authors.stream()
                 .collect(Collectors.toMap(Author::getName, Function.identity()));
 
         try (ResultSet authorsResultSet = statement.executeQuery("select distinct * from author")) {
             while (authorsResultSet.next()) {
-                int id = authorsResultSet.getInt("id");
-                String name = authorsResultSet.getString("name");
+                final int id = authorsResultSet.getInt("id");
+                final String name = authorsResultSet.getString("name");
 
                 if (authorsMap.containsKey(name)) {
-                    authorsMap.get(name).setRecordId(id);
+                    authorsMap.put(name, new Author(name, id));
                 }
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             logger.error("Exception while reading authors from the database.", e);
         }
     }

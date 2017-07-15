@@ -23,7 +23,7 @@ import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 /**
- * The custom renderer that shows each article in the GUI table.
+ * Custom renderer for the GUI table that shows each article in a row.
  *
  * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */

@@ -90,6 +90,8 @@ public class Article {
 
     /**
      * Database record id where this object is stored.
+     *
+     * todo: make this field final as well and replace objects when this field needs to change?
      */
     @SuppressWarnings("squid:S1450")
     private int recordId;

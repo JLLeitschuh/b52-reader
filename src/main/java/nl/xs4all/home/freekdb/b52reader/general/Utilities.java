@@ -31,8 +31,14 @@ public class Utilities {
     private Utilities() {
         // Should not be called.
     }
-    
-    public static String normalize(String text) {
+
+    /**
+     * Normalize a string by stripping all accents and converting it to lowercase.
+     *
+     * @param text the text to normalized.
+     * @return the normalized version of text.
+     */
+    public static String normalize(final String text) {
         return text != null ? StringUtils.stripAccents(text).toLowerCase() : null;
     }
 
