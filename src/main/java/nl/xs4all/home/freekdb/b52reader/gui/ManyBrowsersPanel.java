@@ -27,6 +27,8 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 /**
  * GUI panel which can handle multiple browsers and show one of them.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class ManyBrowsersPanel extends JPanel {
     /**

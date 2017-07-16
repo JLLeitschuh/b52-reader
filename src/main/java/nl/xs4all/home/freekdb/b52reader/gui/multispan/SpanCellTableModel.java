@@ -21,12 +21,13 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.Predicate;
+
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
-import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
 
@@ -84,12 +85,12 @@ public class SpanCellTableModel extends DefaultTableModel {
         if (articles != null) {
             articles.forEach(article -> {
                 newDataVector.add(listToVector(Arrays.asList(
-                        isFetched.test(article) ? configuration.getFetchedValue() : "",
-                        article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
-                        article.isRead() ? "" : "unread",
-                        article.getTitle(),
-                        article.getAuthor(),
-                        article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
+                    isFetched.test(article) ? configuration.getFetchedValue() : "",
+                    article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
+                    article.isRead() ? "" : "unread",
+                    article.getTitle(),
+                    article.getAuthor(),
+                    article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
                 )));
 
                 newDataVector.add(listToVector(Arrays.asList("", "", "", article.getText())));
@@ -192,7 +193,7 @@ public class SpanCellTableModel extends DefaultTableModel {
 
     Article getArticle(int rowIndex) {
         return (articles != null && rowIndex >= 0 && rowIndex < articles.size())
-                ? articles.get(rowIndex)
-                : null;
+            ? articles.get(rowIndex)
+            : null;
     }
 }

@@ -26,20 +26,22 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
-import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
-import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.articlesources.RssArticleSource;
 import nl.xs4all.home.freekdb.b52reader.articlesources.nrc.NrcScienceArticleSource;
 import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetcher;
 import nl.xs4all.home.freekdb.b52reader.articlesources.website.HtmlHelper;
+import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
+import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Configuration functionality (most settings are stored in and read from the configuration file).
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class Configuration {
     /**

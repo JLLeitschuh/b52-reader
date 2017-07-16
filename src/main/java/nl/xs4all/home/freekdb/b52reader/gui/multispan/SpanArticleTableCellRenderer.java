@@ -15,14 +15,14 @@ import java.util.Map;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 
 @SuppressWarnings("squid:MaximumInheritanceDepth")
 public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
     private static final Map<String, Color> COLOR_MAP = ImmutableMap.of(
-            "nrc", new Color(144, 238, 144),
-            "test", Color.ORANGE
+        "nrc", new Color(144, 238, 144),
+        "test", Color.ORANGE
     );
 
     private static Color defaultBackgroundColor;
@@ -40,8 +40,8 @@ public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
         Article article = ((SpanCellTableModel) table.getModel()).getArticle(row / 2);
 
         rendererComponent.setBackground(isSelected
-                                                ? Constants.NICE_LIGHT_BLUE
-                                                : getBackgroundColor(article.getSourceId()));
+                                            ? Constants.NICE_LIGHT_BLUE
+                                            : getBackgroundColor(article.getSourceId()));
 
         return rendererComponent;
     }

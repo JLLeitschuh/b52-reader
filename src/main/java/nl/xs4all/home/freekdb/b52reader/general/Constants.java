@@ -8,6 +8,7 @@ package nl.xs4all.home.freekdb.b52reader.general;
 
 import java.awt.Color;
 import java.time.format.DateTimeFormatter;
+
 import javax.swing.Icon;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
@@ -15,6 +16,8 @@ import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
 /**
  * Some general constants.
  *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
+ * <p>
  * todo: Move these to the Configuration class.
  */
 public class Constants {

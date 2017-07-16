@@ -11,6 +11,8 @@ import javax.swing.JComponent;
 /**
  * Interface for factories that create embedded browser components.
  *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
+ *
  * todo: Create abstract EmbeddedBrowserPanel class to unify even more functionality?
  */
 public interface BrowserFactory {

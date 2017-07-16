@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,13 +33,13 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
+import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanArticleTableCellRenderer;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTable;
 import nl.xs4all.home.freekdb.b52reader.gui.multispan.SpanCellTableModel;
 import nl.xs4all.home.freekdb.b52reader.main.MainCallbacks;
-import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
-import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,6 +48,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Main class responsible for the GUI.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class MainGui {
     /**
@@ -260,9 +263,9 @@ public class MainGui {
         Article previouslySelectedArticle = selectedArticle;
 
         filteredArticles = currentArticles.stream()
-                .filter(new ArticleFilter(filterTextField.getText()))
-                .filter(article -> !article.isArchived())
-                .collect(Collectors.toList());
+            .filter(new ArticleFilter(filterTextField.getText()))
+            .filter(article -> !article.isArchived())
+            .collect(Collectors.toList());
 
         if (configuration.useSpanTable()) {
             tableModel = createSpanTableModel(filteredArticles);
@@ -394,7 +397,7 @@ public class MainGui {
         List<String> columnNames = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
 
         List<Class<?>> columnClasses = Arrays.asList(
-                String.class, Icon.class, String.class, String.class, Author.class, String.class
+            String.class, Icon.class, String.class, String.class, Author.class, String.class
         );
 
         int[] columnIndices2 = {3, 4, 5};

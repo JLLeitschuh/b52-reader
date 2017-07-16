@@ -27,6 +27,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Generic article source that fetches data from an rss feed.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class RssArticleSource implements ArticleSource {
     /**

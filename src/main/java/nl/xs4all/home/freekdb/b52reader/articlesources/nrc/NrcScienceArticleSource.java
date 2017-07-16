@@ -29,6 +29,8 @@ import org.jsoup.select.Elements;
 
 /**
  * Article source for the science section of NRC Handelsblad (a Dutch newspaper).
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class NrcScienceArticleSource implements ArticleSource {
     /**

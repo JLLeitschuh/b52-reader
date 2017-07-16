@@ -10,6 +10,8 @@ import javax.swing.JComponent;
 
 /**
  * Interface for listening to embedded browser events.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public interface BrowserListener {
     /**

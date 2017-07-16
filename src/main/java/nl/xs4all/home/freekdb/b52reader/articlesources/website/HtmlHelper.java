@@ -14,6 +14,8 @@ import org.jsoup.nodes.Document;
 /**
  * This class uses the Jsoup library to provide some html fetching functions. Having these methods in non static form
  * improves testability.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class HtmlHelper {
     /**

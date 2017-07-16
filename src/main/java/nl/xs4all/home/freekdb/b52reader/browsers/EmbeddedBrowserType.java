@@ -8,6 +8,8 @@ package nl.xs4all.home.freekdb.b52reader.browsers;
 
 /**
  * The different options that are available for embedded browsers.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public enum EmbeddedBrowserType {
     /**

@@ -33,6 +33,8 @@ import org.apache.logging.log4j.Logger;
  * Enable storage of articles and authors in an H2 database.
  * <p>
  * If performance is not good enough: http://h2database.com/html/performance.html.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class PersistencyHandlerJdbc implements PersistencyHandler {
     private static final String ARTICLE_TABLE_NAME = "article";

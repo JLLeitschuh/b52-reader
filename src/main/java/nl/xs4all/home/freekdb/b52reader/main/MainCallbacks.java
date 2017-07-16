@@ -10,6 +10,8 @@ import java.awt.Rectangle;
 
 /**
  * A callback interface for methods called from the GUI and implemented by the main application class (B52Reader).
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public interface MainCallbacks {
     /**

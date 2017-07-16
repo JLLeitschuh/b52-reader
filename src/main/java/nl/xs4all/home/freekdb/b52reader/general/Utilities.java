@@ -23,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility methods for the entire application.
+ *
+ * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class Utilities {
     /**
