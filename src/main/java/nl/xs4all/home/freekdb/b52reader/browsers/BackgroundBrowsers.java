@@ -115,6 +115,23 @@ public class BackgroundBrowsers {
     }
 
     /**
+     * Launch a background browser and add a listener that puts the html content in the <code>URL_TO_HTML_CONTENT</code>.
+     *
+     * @param url the url for which the html content should be retrieved.
+     */
+    private void launchBackgroundBrowser(final String url) {
+        final JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
+            browser -> updateHtmlContent(url, (JWebBrowser) browser)
+        );
+
+        URL_TO_WEB_BROWSER.put(url, webBrowser);
+        webBrowsers.add(webBrowser);
+        backgroundBrowsersPanel.add(webBrowser);
+
+        webBrowser.navigate(url);
+    }
+
+    /**
      * Wait for html content to be received.
      *
      * @param url           the url for which the html content should be retrieved.
@@ -144,9 +161,7 @@ public class BackgroundBrowsers {
                     if (waitCount % refreshEveryXthIteration == 0) {
                         logger.trace("Refresh html content.");
 
-                        SwingUtilities.invokeAndWait(
-                                () -> URL_TO_HTML_CONTENT.put(url, URL_TO_WEB_BROWSER.get(url).getHTMLContent())
-                        );
+                        SwingUtilities.invokeAndWait(() -> updateHtmlContent(url, URL_TO_WEB_BROWSER.get(url)));
 
                         final String htmlContent = URL_TO_HTML_CONTENT.get(url);
                         final int maxHtmlContentLengthToLog = 120;
@@ -163,20 +178,13 @@ public class BackgroundBrowsers {
     }
 
     /**
-     * Launch a background browser and add a listener that puts the html content in the <code>URL_TO_HTML_CONTENT</code>.
+     * Update the html content map for the specified url.
      *
-     * @param url the url for which the html content should be retrieved.
+     * @param url     the url for which the html content should be updated.
+     * @param browser the browser to use for getting the html content.
      */
-    private void launchBackgroundBrowser(final String url) {
-        final JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
-                browser -> URL_TO_HTML_CONTENT.put(url, ((JWebBrowser) browser).getHTMLContent())
-        );
-
-        URL_TO_WEB_BROWSER.put(url, webBrowser);
-        webBrowsers.add(webBrowser);
-        backgroundBrowsersPanel.add(webBrowser);
-
-        webBrowser.navigate(url);
+    private void updateHtmlContent(final String url, final JWebBrowser browser) {
+        URL_TO_HTML_CONTENT.put(url, browser.getHTMLContent());
     }
 
     /**
