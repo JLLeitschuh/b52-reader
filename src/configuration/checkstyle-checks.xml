@@ -13,6 +13,11 @@
   - Author: Freek de Bruijn (fdbdbr@gmail.com).
 -->
 
+<!--
+  todo: Compare these checks to https://github.com/checkstyle/checkstyle/blob/master/config/checkstyle_checks.xml
+        and Google checks & Sun checks.
+-->
+
 <module name="Checker">
 
     <property name="severity" value="error"/>
@@ -20,6 +25,8 @@
     <module name="SuppressionFilter">
         <property name="file" value="src/configuration/checkstyle-suppressions.xml"/>
     </module>
+
+    <module name="SuppressWarningsFilter"/>
 
     <module name="JavadocPackage"/>
 
@@ -31,6 +38,7 @@
 
         <property name="cacheFile" value="target/checkstyle/cache"/>
 
+        <module name="ArrayTypeStyle"/>
         <module name="MissingDeprecated"/>
 
         <module name="MissingOverride">
@@ -38,6 +46,7 @@
         </module>
 
         <module name="SuppressWarnings"/>
+        <module name="SuppressWarningsHolder"/>
 
         <module name="JavadocMethod">
             <property name="allowUndeclaredRTE" value="true"/>

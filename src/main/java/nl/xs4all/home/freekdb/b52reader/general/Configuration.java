@@ -43,16 +43,22 @@ import org.apache.logging.log4j.Logger;
  *
  * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
+@SuppressWarnings("checkstyle:multiplestringliterals")
 public class Configuration {
-    /**
-     * Property key for source-ids: the selected article sources that are configured to be read.
-     */
-    private static final String SOURCE_IDS_KEY = "source-ids";
-
     /**
      * The name and version of the application.
      */
     private static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6";
+
+    /**
+     * Prefix for source ids and source configurations.
+     */
+    private static final String SOURCE_PREFIX = "source-";
+
+    /**
+     * Property key for source ids: the selected article sources that are configured to be read.
+     */
+    private static final String SOURCE_IDS_KEY = SOURCE_PREFIX + "ids";
 
     /**
      * The maximum number of browsers that are loaded in the background.
@@ -86,6 +92,21 @@ public class Configuration {
     private static final String FETCHED_VALUE = "fetched";
 
     /**
+     * Property key for the database driver class name.
+     */
+    private static final String DATABASE_DRIVER_CLASS_NAME_KEY = "database-driver-class-name";
+
+    /**
+     * Property key for the database URL.
+     */
+    private static final String DATABASE_URL_KEY = "database-url";
+
+    /**
+     * Property key for the window configuration.
+     */
+    private static final String WINDOWS_CONFIGURATION_KEY = "window-configuration";
+
+    /**
      * Default database driver class name to use for storing data.
      */
     private static final String DEFAULT_DATABASE_DRIVER_CLASS_NAME = "org.h2.Driver";
@@ -94,6 +115,40 @@ public class Configuration {
      * Default database URL to use for storing data.
      */
     private static final String DEFAULT_DATABASE_URL = "jdbc:h2:./data/b52-reader-settings";
+
+    /**
+     * Separator for source ids.
+     */
+    //@SuppressWarnings("checkstyle:multiplestringliterals")
+    private static final String SOURCE_IDS_SEPARATOR = ",";
+    //private static final String SOURCE_IDS_SEPARATOR = ",[ignore]".substring(0, 1)
+
+    /**
+     * Frame state maximized (in windows configuration).
+     */
+    private static final String FRAME_STATE_MAXIMIZED = "maximized";
+
+    /**
+     * Prefix for bounds (before x-coordinate).
+     */
+    private static final String BOUNDS_PREFIX = ";";
+
+    /**
+     * Separator for bounds (between x-coordinate, y-coordinate, and width).
+     */
+    //@SuppressWarnings("checkstyle:multiplestringliterals")
+    private static final String BOUNDS_SEPARATOR = ",";
+
+    /**
+     * Prefix for RSS configuration.
+     */
+    private static final String RSS_CONFIGURATION_PREFIX = "rss|";
+
+    /**
+     * Separator for RSS configuration.
+     */
+    @SuppressWarnings("EmptyAlternationBranch")
+    private static final String RSS_CONFIGURATION_SEPARATOR = "|";
 
     /**
      * Logger for this class.
@@ -147,8 +202,9 @@ public class Configuration {
      * @param configurationInputStream the input stream that contains the configuration data.
      * @param persistencyHandler       the handler for persistency functionality: storing and retrieving data in the
      *                                 database.
+     * @throws IOException if an error occurred when reading from the configuration input stream.
      */
-    public Configuration(InputStream configurationInputStream, PersistencyHandler persistencyHandler)
+    public Configuration(final InputStream configurationInputStream, final PersistencyHandler persistencyHandler)
             throws IOException {
         this(configurationInputStream, persistencyHandler, false);
     }
@@ -163,13 +219,14 @@ public class Configuration {
      * @param articleListWithBrowser   whether to use a background browser for fetching the html with the list of
      *                                 articles, which is for example necessary when the html page is dynamically
      *                                 generated.
+     * @throws IOException if an error occurred when reading from the configuration input stream.
      */
-    public Configuration(InputStream configurationInputStream, PersistencyHandler persistencyHandler,
-                         boolean articleListWithBrowser)
+    public Configuration(final InputStream configurationInputStream, final PersistencyHandler persistencyHandler,
+                         final boolean articleListWithBrowser)
             throws IOException {
         this.persistencyHandler = persistencyHandler;
 
-        List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
+        final List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
         allArticleSources = new ArrayList<>();
         selectedArticleSources = new ArrayList<>();
         frameExtendedState = Frame.NORMAL;
@@ -178,36 +235,38 @@ public class Configuration {
         databaseUrl = DEFAULT_DATABASE_URL;
 
         try {
-            Properties configuration = new Properties();
+            final Properties configuration = new Properties();
 
             configuration.load(configurationInputStream);
 
-            String sourceIdsProperty = configuration.getProperty(SOURCE_IDS_KEY, "nrc,test");
+            final String sourceIdsProperty = configuration.getProperty(SOURCE_IDS_KEY, "nrc,test");
             sourceIds.clear();
-            sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(",")));
+            sourceIds.addAll(Arrays.asList(sourceIdsProperty.split(SOURCE_IDS_SEPARATOR)));
 
             addConfiguredSources(configuration, articleListWithBrowser);
 
-            String windowConfiguration = configuration.getProperty("window-configuration");
+            final String windowConfiguration = configuration.getProperty(WINDOWS_CONFIGURATION_KEY);
 
             if (windowConfiguration != null) {
-                frameExtendedState = windowConfiguration.startsWith("maximized") ? Frame.MAXIMIZED_BOTH : Frame.NORMAL;
+                frameExtendedState = windowConfiguration.startsWith(FRAME_STATE_MAXIMIZED)
+                    ? Frame.MAXIMIZED_BOTH
+                    : Frame.NORMAL;
 
-                if (windowConfiguration.contains(";")) {
-                    String boundsConfiguration = windowConfiguration.substring(windowConfiguration.indexOf(';') + 1);
+                if (windowConfiguration.contains(BOUNDS_PREFIX)) {
+                    final String boundsConfiguration = windowConfiguration.substring(windowConfiguration.indexOf(';') + 1);
                     frameBounds = getBoundsFromConfiguration(boundsConfiguration);
                 }
             }
 
-            databaseDriverClassName = configuration.getProperty("database-driver-class-name",
+            databaseDriverClassName = configuration.getProperty(DATABASE_DRIVER_CLASS_NAME_KEY,
                                                                 DEFAULT_DATABASE_DRIVER_CLASS_NAME);
 
-            databaseUrl = configuration.getProperty("database-url", DEFAULT_DATABASE_URL);
+            databaseUrl = configuration.getProperty(DATABASE_URL_KEY, DEFAULT_DATABASE_URL);
 
             selectedArticleSources = allArticleSources.stream()
-                    .filter(articleSource -> sourceIds.contains(articleSource.getSourceId()))
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
+                .filter(articleSource -> sourceIds.contains(articleSource.getSourceId()))
+                .collect(Collectors.toList());
+        } catch (final IOException e) {
             logger.error("Exception while reading the configuration data.", e);
 
             throw e;
@@ -255,7 +314,7 @@ public class Configuration {
      *
      * @param backgroundBrowsers the background browsers handler.
      */
-    public void injectBackgroundBrowsers(BackgroundBrowsers backgroundBrowsers) {
+    public void injectBackgroundBrowsers(final BackgroundBrowsers backgroundBrowsers) {
         this.backgroundBrowsers = backgroundBrowsers;
     }
 
@@ -267,46 +326,55 @@ public class Configuration {
      * @param frameBounds               the application window bounds.
      * @return whether the configuration was successfully written.
      */
-    public boolean writeConfiguration(OutputStream configurationOutputStream, int frameExtendedState,
-                                      Rectangle frameBounds) {
+    public boolean writeConfiguration(final OutputStream configurationOutputStream, final int frameExtendedState,
+                                      final Rectangle frameBounds) {
         boolean result = true;
 
         try {
-            Properties configuration = new Properties();
+            final Properties configuration = new Properties();
 
-            String sourceIds = selectedArticleSources.stream()
-                    .map(ArticleSource::getSourceId)
-                    .collect(Collectors.joining(","));
+            final String sourceIds = selectedArticleSources.stream()
+                .map(ArticleSource::getSourceId)
+                .collect(Collectors.joining(SOURCE_IDS_SEPARATOR));
 
             configuration.setProperty(SOURCE_IDS_KEY, sourceIds);
 
             for (ArticleSource articleSource : allArticleSources) {
-                String parameters = articleSource instanceof RssArticleSource
-                        ? getRssParameters((RssArticleSource) articleSource)
-                        : articleSource.getClass().getName();
+                final String parameters = articleSource instanceof RssArticleSource
+                    ? getRssParameters((RssArticleSource) articleSource)
+                    : articleSource.getClass().getName();
 
-                configuration.setProperty("source-" + articleSource.getSourceId(), parameters);
+                configuration.setProperty(SOURCE_PREFIX + articleSource.getSourceId(), parameters);
             }
 
-            String windowConfiguration = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : "maximized") +
-                                         (frameBounds != null
-                                                 ? ";" + frameBounds.x + "," + frameBounds.y + "," +
-                                                   frameBounds.width + "x" + frameBounds.height
-                                                 : "");
+            final String windowConfiguration
+                = (frameExtendedState != Frame.MAXIMIZED_BOTH ? "normal" : FRAME_STATE_MAXIMIZED)
+                  + (frameBounds != null ? getFrameBoundsConfiguration(frameBounds) : "");
 
-            configuration.setProperty("window-configuration", windowConfiguration);
+            configuration.setProperty(WINDOWS_CONFIGURATION_KEY, windowConfiguration);
 
-            configuration.setProperty("database-driver-class-name", databaseDriverClassName);
-            configuration.setProperty("database-url", databaseUrl);
+            configuration.setProperty(DATABASE_DRIVER_CLASS_NAME_KEY, databaseDriverClassName);
+            configuration.setProperty(DATABASE_URL_KEY, databaseUrl);
 
             configuration.store(configurationOutputStream, getConfigurationHeader());
-        } catch (IOException e) {
-            logger.error("Exception while reading the configuration data.", e);
+        } catch (final IOException e) {
+            logger.error("Exception while writing the configuration data.", e);
 
             result = false;
         }
 
         return result;
+    }
+
+    /**
+     * Get the frame bounds in a format suitable for storing the configuration.
+     *
+     * @param frameBounds the application window bounds.
+     * @return the frame bounds in a format suitable for storing the configuration.
+     */
+    private String getFrameBoundsConfiguration(final Rectangle frameBounds) {
+        return BOUNDS_PREFIX + frameBounds.x + BOUNDS_SEPARATOR + frameBounds.y + BOUNDS_SEPARATOR
+               + frameBounds.width + "x" + frameBounds.height;
     }
 
     /**
@@ -398,18 +466,16 @@ public class Configuration {
      *                               articles, which is for example necessary when the html page is dynamically
      *                               generated.
      */
-    private void addConfiguredSources(Properties configuration, boolean articleListWithBrowser) {
-        String sourcePrefix = "source-";
-
+    private void addConfiguredSources(final Properties configuration, final boolean articleListWithBrowser) {
         Collections.list(configuration.propertyNames()).forEach(name -> {
-            String propertyName = (String) name;
+            final String propertyName = (String) name;
 
-            if (propertyName.startsWith(sourcePrefix) && !propertyName.equals(SOURCE_IDS_KEY)) {
-                String sourceId = propertyName.substring(sourcePrefix.length());
-                String sourceConfiguration = configuration.getProperty(propertyName);
+            if (propertyName.startsWith(SOURCE_PREFIX) && !propertyName.equals(SOURCE_IDS_KEY)) {
+                final String sourceId = propertyName.substring(SOURCE_PREFIX.length());
+                final String sourceConfiguration = configuration.getProperty(propertyName);
 
-                ArticleSource articleSource = createArticleSource(sourceId, sourceConfiguration,
-                                                                  articleListWithBrowser);
+                final ArticleSource articleSource = createArticleSource(sourceId, sourceConfiguration,
+                                                                        articleListWithBrowser);
 
                 if (articleSource != null) {
                     allArticleSources.add(articleSource);
@@ -428,58 +494,76 @@ public class Configuration {
      *                               generated.
      * @return the new article source object.
      */
-    private ArticleSource createArticleSource(String sourceId, String sourceConfiguration,
-                                              boolean articleListWithBrowser) {
+    private ArticleSource createArticleSource(final String sourceId, final String sourceConfiguration,
+                                              final boolean articleListWithBrowser) {
         ArticleSource articleSource = null;
 
         try {
-            if (sourceConfiguration.startsWith("rss|")) {
-                String[] configurationItems = sourceConfiguration.split("\\|");
+            if (sourceConfiguration.startsWith(RSS_CONFIGURATION_PREFIX)) {
+                final String[] configurationItems = sourceConfiguration.split("\\" + RSS_CONFIGURATION_SEPARATOR);
+                final int minimumRssConfigurationItems = 4;
 
-                if (configurationItems.length >= 4) {
+                if (configurationItems.length >= minimumRssConfigurationItems) {
                     articleSource = (ArticleSource) constructRssArticleSource(configurationItems, sourceId);
                 }
             } else {
-                Class<?> sourceClass = Class.forName(sourceConfiguration);
+                final Class<?> sourceClass = Class.forName(sourceConfiguration);
 
                 if (sourceClass.equals(NrcScienceArticleSource.class)) {
                     // This configuration needs to become more generic: WebSiteArticleSource as a base class?
 
-                    Constructor<?> constructor = NrcScienceArticleSource.class.getConstructor(ArticleListFetcher.class,
-                                                                                              Configuration.class);
+                    final Constructor<?> constructor
+                        = NrcScienceArticleSource.class.getConstructor(ArticleListFetcher.class, Configuration.class);
 
-                    String url = getNrcMainUrl() + "sectie/wetenschap/";
+                    final String url = getNrcMainUrl() + "sectie/wetenschap/";
 
-                    BackgroundBrowsers backgroundBrowsersHandler = articleListWithBrowser
-                            ? backgroundBrowsers
-                            : null;
+                    final BackgroundBrowsers backgroundBrowsersHandler = articleListWithBrowser
+                        ? backgroundBrowsers
+                        : null;
 
-                    ArticleListFetcher fetcher = new ArticleListFetcher(url, articleListWithBrowser,
-                                                                        backgroundBrowsersHandler, new HtmlHelper());
+                    final ArticleListFetcher fetcher = new ArticleListFetcher(url, articleListWithBrowser,
+                                                                              backgroundBrowsersHandler,
+                                                                              new HtmlHelper());
 
                     articleSource = (ArticleSource) constructor.newInstance(fetcher, this);
                 } else {
                     articleSource = (ArticleSource) sourceClass.getConstructor().newInstance();
                 }
             }
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException |
-                InvocationTargetException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException
+            | InvocationTargetException e) {
             logger.error("Exception while initializing article source " + sourceId + ".", e);
         }
 
         return articleSource;
     }
 
-    private Object constructRssArticleSource(String[] configurationItems, String sourceId) {
+    /**
+     * Construct an RSS article source using the specified configuration items and source id. The RSS feed is also
+     * created; network access is required to do this.
+     *
+     * @param configurationItems the configuration items to use.
+     * @param sourceId           the source id.
+     * @return the new RSS article source.
+     */
+    private Object constructRssArticleSource(final String[] configurationItems, final String sourceId) {
         Object source = null;
 
         try {
-            String feedName = configurationItems[1];
-            Author defaultAuthor = persistencyHandler.getOrCreateAuthor(configurationItems[2]);
-            URL feedUrl = new URL(configurationItems[3]);
-            String categoryName = configurationItems.length >= 5 ? configurationItems[4] : null;
+            final int feedNameIndex = 1;
+            final int authorNameIndex = 2;
+            final int feedUrlIndex = 3;
+            final int categoryNameIndex = 4;
 
-            SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
+            final String feedName = configurationItems[feedNameIndex];
+            final Author defaultAuthor = persistencyHandler.getOrCreateAuthor(configurationItems[authorNameIndex]);
+            final URL feedUrl = new URL(configurationItems[feedUrlIndex]);
+
+            final String categoryName = configurationItems.length > categoryNameIndex
+                ? configurationItems[categoryNameIndex]
+                : null;
+
+            final SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
 
             source = new RssArticleSource(sourceId, feed, feedName, defaultAuthor, feedUrl, categoryName);
         } catch (FeedException | IOException e) {
@@ -495,10 +579,17 @@ public class Configuration {
      * @param boundsConfiguration the bounds configuration.
      * @return the rectangle with the window bounds.
      */
-    private Rectangle getBoundsFromConfiguration(String boundsConfiguration) {
-        int[] bounds = Arrays.stream(boundsConfiguration.split("[,x]")).mapToInt(Integer::parseInt).toArray();
+    private Rectangle getBoundsFromConfiguration(final String boundsConfiguration) {
+        final int xIndex = 0;
+        final int yIndex = 1;
+        final int widthIndex = 2;
+        final int heightIndex = 3;
 
-        return new Rectangle(bounds[0], bounds[1], bounds[2], bounds[3]);
+        final int[] bounds = Arrays.stream(boundsConfiguration.split("[" + BOUNDS_SEPARATOR + "x]"))
+            .mapToInt(Integer::parseInt)
+            .toArray();
+
+        return new Rectangle(bounds[xIndex], bounds[yIndex], bounds[widthIndex], bounds[heightIndex]);
     }
 
     /**
@@ -507,12 +598,13 @@ public class Configuration {
      * @param rssSource the RSS article source.
      * @return the configuration parameters for an RSS article source.
      */
-    private String getRssParameters(RssArticleSource rssSource) {
-        String authorName = rssSource.getDefaultAuthor() != null
-                ? rssSource.getDefaultAuthor().getName()
-                : rssSource.getFeedName();
+    private String getRssParameters(final RssArticleSource rssSource) {
+        final String authorName = rssSource.getDefaultAuthor() != null
+            ? rssSource.getDefaultAuthor().getName()
+            : rssSource.getFeedName();
 
-        return "rss|" + rssSource.getFeedName() + "|" + authorName + "|" +
-               rssSource.getFeedUrl() + (rssSource.getCategoryName() != null ? "|" + rssSource.getCategoryName() : "");
+        return RSS_CONFIGURATION_PREFIX + rssSource.getFeedName() + RSS_CONFIGURATION_SEPARATOR + authorName
+               + RSS_CONFIGURATION_SEPARATOR + rssSource.getFeedUrl()
+               + (rssSource.getCategoryName() != null ? RSS_CONFIGURATION_SEPARATOR + rssSource.getCategoryName() : "");
     }
 }

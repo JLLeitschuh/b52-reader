@@ -129,7 +129,7 @@ public class MainGui {
      *
      * @param manyBrowsersPanel the panel with many embedded browsers, of which only one can be visible.
      */
-    public MainGui(ManyBrowsersPanel manyBrowsersPanel) {
+    public MainGui(final ManyBrowsersPanel manyBrowsersPanel) {
         this.manyBrowsersPanel = manyBrowsersPanel;
     }
 
@@ -138,7 +138,7 @@ public class MainGui {
      *
      * @param mainCallbacks the handler for the callback functions of the main program.
      */
-    public void setMainCallbacks(MainCallbacks mainCallbacks) {
+    public void setMainCallbacks(final MainCallbacks mainCallbacks) {
         this.mainCallbacks = mainCallbacks;
     }
 
@@ -149,7 +149,7 @@ public class MainGui {
      * @param frame         the application frame that will contain the GUI.
      * @param configuration the application configuration.
      */
-    public void initializeBackgroundBrowsersPanel(JFrame frame, Configuration configuration) {
+    public void initializeBackgroundBrowsersPanel(final JFrame frame, final Configuration configuration) {
         this.backgroundBrowsersPanel = new JPanel();
         this.backgroundBrowsersPanel.setVisible(false);
 
@@ -175,7 +175,7 @@ public class MainGui {
      *
      * @param articles the list of current articles to show in the GUI.
      */
-    public void initializeGui(List<Article> articles) {
+    public void initializeGui(final List<Article> articles) {
         this.currentArticles = articles;
         this.filteredArticles = articles;
 
@@ -183,8 +183,8 @@ public class MainGui {
         backgroundBrowserCount = 0;
         backgroundArticleIndex = 1;
 
-        Timer backgroundTasksTimer = new Timer(configuration.getBackgroundTimerDelay(),
-                                               actionEvent -> handleBackgroundTasks());
+        final Timer backgroundTasksTimer
+            = new Timer(configuration.getBackgroundTimerDelay(), actionEvent -> handleBackgroundTasks());
 
         backgroundTasksTimer.setInitialDelay(configuration.getBackgroundTimerInitialDelay());
         backgroundTasksTimer.start();
@@ -201,12 +201,12 @@ public class MainGui {
      * some of the  actions need to be performed from the EDT (like showing the first browser when creating the table).
      */
     private void finishGuiInitialization() {
-        JPanel northPanel = new JPanel(new BorderLayout());
+        final JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
         table = configuration.useSpanTable() ? createSpanTable(currentArticles) : createCustomRendererTable(currentArticles);
 
-        JScrollPane scrollPane = new JScrollPane(table);
+        final JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(10000, 200));
         northPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -215,7 +215,7 @@ public class MainGui {
 
         frame.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent windowEvent) {
+            public void windowClosing(final WindowEvent windowEvent) {
                 super.windowClosing(windowEvent);
 
                 frameClosing();
@@ -229,24 +229,24 @@ public class MainGui {
      * @return the panel with the filter field.
      */
     private JPanel createFilterPanel() {
-        JPanel filterPanel = new JPanel();
+        final JPanel filterPanel = new JPanel();
         filterPanel.add(new JLabel("Filter:"));
 
         filterTextField = new JTextField("", 64);
 
         filterTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent documentEvent) {
+            public void insertUpdate(final DocumentEvent documentEvent) {
                 filterAndShowArticles();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent documentEvent) {
+            public void removeUpdate(final DocumentEvent documentEvent) {
                 filterAndShowArticles();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent documentEvent) {
+            public void changedUpdate(final DocumentEvent documentEvent) {
                 filterAndShowArticles();
             }
         });
@@ -260,7 +260,7 @@ public class MainGui {
      * Filter the articles and update the GUI.
      */
     private void filterAndShowArticles() {
-        Article previouslySelectedArticle = selectedArticle;
+        final Article previouslySelectedArticle = selectedArticle;
 
         filteredArticles = currentArticles.stream()
             .filter(new ArticleFilter(filterTextField.getText()))
@@ -281,7 +281,7 @@ public class MainGui {
         if (!filteredArticles.isEmpty()) {
             boolean selectFirstArticle = true;
 
-            int previousIndex = filteredArticles.indexOf(previouslySelectedArticle);
+            final int previousIndex = filteredArticles.indexOf(previouslySelectedArticle);
             if (previousIndex != -1) {
                 table.getSelectionModel().setSelectionInterval(previousIndex, previousIndex);
                 selectFirstArticle = false;
@@ -299,12 +299,12 @@ public class MainGui {
      * @param articles the (filtered) articles to show in the table.
      * @return the GUI table with the custom article renderer.
      */
-    private JTable createCustomRendererTable(List<Article> articles) {
+    private JTable createCustomRendererTable(final List<Article> articles) {
         ArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
         tableModel = new ArticlesTableModel(articles);
 
-        JTable customRendererTable = new JTable(tableModel);
+        final JTable customRendererTable = new JTable(tableModel);
         customRendererTable.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
         customRendererTable.setRowHeight(42);
         customRendererTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -324,10 +324,10 @@ public class MainGui {
         });
 
         customRendererTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedArticleIndex = getSelectedArticleIndex();
+            final int selectedArticleIndex = getSelectedArticleIndex();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
-                Article article = filteredArticles.get(selectedArticleIndex);
+                final Article article = filteredArticles.get(selectedArticleIndex);
                 selectArticle(article, selectedArticleIndex);
             }
         });
@@ -345,12 +345,12 @@ public class MainGui {
      * @param articles the (filtered) articles to show in the table.
      * @return the GUI span table.
      */
-    private JTable createSpanTable(List<Article> articles) {
+    private JTable createSpanTable(final List<Article> articles) {
         SpanArticleTableCellRenderer.setDefaultBackgroundColor(frame.getBackground());
 
         tableModel = createSpanTableModel(articles);
 
-        JTable spanTable = new SpanCellTable(tableModel);
+        final JTable spanTable = new SpanCellTable(tableModel);
         spanTable.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
         spanTable.setRowHeight(21);
         spanTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -369,7 +369,7 @@ public class MainGui {
 
         spanTable.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
+            public void mouseClicked(final MouseEvent mouseEvent) {
                 super.mouseClicked(mouseEvent);
 
                 handleTableClick(mouseEvent);
@@ -377,7 +377,7 @@ public class MainGui {
         });
 
         spanTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedArticleIndex = getSelectedArticleIndex();
+            final int selectedArticleIndex = getSelectedArticleIndex();
 
             if (selectedArticleIndex >= 0 && !listSelectionEvent.getValueIsAdjusting()) {
                 selectArticle(filteredArticles.get(selectedArticleIndex), selectedArticleIndex);
@@ -393,17 +393,17 @@ public class MainGui {
      * @param articles the (filtered) articles to put in the table model.
      * @return the GUI span table model.
      */
-    private TableModel createSpanTableModel(List<Article> articles) {
-        List<String> columnNames = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
+    private TableModel createSpanTableModel(final List<Article> articles) {
+        final List<String> columnNames = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
 
-        List<Class<?>> columnClasses = Arrays.asList(
+        final List<Class<?>> columnClasses = Arrays.asList(
             String.class, Icon.class, String.class, String.class, Author.class, String.class
         );
 
-        int[] columnIndices2 = {3, 4, 5};
+        final int[] columnIndices2 = {3, 4, 5};
 
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
-        SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnNames.size(), configuration);
+        final SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnNames.size(), configuration);
 
         spanTableModel.setColumnsAndData(columnNames, columnClasses, articles,
                                          article -> manyBrowsersPanel.hasBrowserForUrl(article.getUrl()));
@@ -420,8 +420,8 @@ public class MainGui {
      *
      * @param table the GUI table with the articles.
      */
-    private void setTableColumnWidths(JTable table) {
-        TableColumnModel columnModel = table.getColumnModel();
+    private void setTableColumnWidths(final JTable table) {
+        final TableColumnModel columnModel = table.getColumnModel();
 
         for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
             columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 100 : 800);
@@ -433,12 +433,12 @@ public class MainGui {
      *
      * @param mouseEvent the mouse event (to determine the column index).
      */
-    private void handleTableClick(MouseEvent mouseEvent) {
-        int selectedArticleIndex = getSelectedArticleIndex();
+    private void handleTableClick(final MouseEvent mouseEvent) {
+        final int selectedArticleIndex = getSelectedArticleIndex();
 
         if (selectedArticleIndex != -1) {
-            Article clickedArticle = filteredArticles.get(selectedArticleIndex);
-            int columnIndex = getColumnIndexFromClick(mouseEvent);
+            final Article clickedArticle = filteredArticles.get(selectedArticleIndex);
+            final int columnIndex = getColumnIndexFromClick(mouseEvent);
             boolean updateArticleList = false;
 
             if (columnIndex == 1) {
@@ -476,8 +476,8 @@ public class MainGui {
      * @param mouseEvent the related mouse event.
      * @return the column index corresponding to the mouse click event.
      */
-    private int getColumnIndexFromClick(MouseEvent mouseEvent) {
-        int columnIndex;
+    private int getColumnIndexFromClick(final MouseEvent mouseEvent) {
+        final int columnIndex;
 
         if (configuration.useSpanTable()) {
             columnIndex = table.columnAtPoint(mouseEvent.getPoint());
@@ -501,8 +501,8 @@ public class MainGui {
      * @param article      the article to select.
      * @param articleIndex the index of the article (to show in the window title).
      */
-    private void selectArticle(Article article, int articleIndex) {
-        String articleCounterAndSize = (articleIndex + 1) + "/" + filteredArticles.size();
+    private void selectArticle(final Article article, final int articleIndex) {
+        final String articleCounterAndSize = (articleIndex + 1) + "/" + filteredArticles.size();
         frame.setTitle(configuration.getApplicationNameAndVersion() + " - " + articleCounterAndSize);
 
         selectedArticle = article;
@@ -517,10 +517,10 @@ public class MainGui {
     private void handleBackgroundTasks() {
         logger.debug("Handle background tasks.");
 
-        if (backgroundBrowserCount < configuration.getBackgroundBrowserMaxCount() &&
-            backgroundArticleIndex < currentArticles.size()) {
+        if (backgroundBrowserCount < configuration.getBackgroundBrowserMaxCount()
+            && backgroundArticleIndex < currentArticles.size()) {
 
-            String url = currentArticles.get(backgroundArticleIndex).getUrl();
+            final String url = currentArticles.get(backgroundArticleIndex).getUrl();
 
             if (!manyBrowsersPanel.hasBrowserForUrl(url)) {
                 logger.debug("Background: prepare browser " + (backgroundBrowserCount + 1) + ".");
@@ -535,13 +535,24 @@ public class MainGui {
             logger.debug("Check fetched status for {} rows.", tableModel.getRowCount() / 2);
 
             for (int rowIndex = 0; rowIndex < tableModel.getRowCount() / 2; rowIndex++) {
-                if (manyBrowsersPanel.hasBrowserForUrl(currentArticles.get(rowIndex).getUrl()) &&
-                    Objects.equals(tableModel.getValueAt(rowIndex * 2, 0), "")) {
-                    tableModel.setValueAt(configuration.getFetchedValue(), rowIndex * 2, 0);
+                if (fetchedShouldBeSet(rowIndex)) {
                     logger.debug("Set column 0 for row {} to fetched.", rowIndex);
+                    tableModel.setValueAt(configuration.getFetchedValue(), rowIndex * 2, 0);
                 }
             }
         }
+    }
+
+    /**
+     * Check whether the fetched value should be set for this row: there is a browser for the URL and the fetched cell
+     * is empty.
+     *
+     * @param rowIndex the row index for which to check.
+     * @return whether the fetched value should be set
+     */
+    private boolean fetchedShouldBeSet(final int rowIndex) {
+        return manyBrowsersPanel.hasBrowserForUrl(currentArticles.get(rowIndex).getUrl())
+               && Objects.equals(tableModel.getValueAt(rowIndex * 2, 0), "");
     }
 
     /**
