@@ -19,6 +19,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
+import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
@@ -97,10 +98,19 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
     private int titleAndTextX;
 
     /**
-     * Construct a GUI table cell renderer for articles.
+     * Configuration object.
      */
-    public ArticleTableCellRenderer() {
+    private final transient Configuration configuration;
+
+    /**
+     * Construct a GUI table cell renderer for articles.
+     *
+     * @param configuration the configuration object.
+     */
+    public ArticleTableCellRenderer(final Configuration configuration) {
         super(null);
+
+        this.configuration = configuration;
 
         // Note: layout has currently been done without layout managers.
 
@@ -192,7 +202,7 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
                                                    final boolean hasFocus, final int row, final int column) {
         final Article article = (Article) value;
 
-        this.setBackground(isSelected ? Constants.NICE_LIGHT_BLUE : getBackgroundColor(article.getSourceId()));
+        this.setBackground(isSelected ? configuration.getNiceLightBlue() : getBackgroundColor(article.getSourceId()));
 
         final String iconFileName = "32x32-" + (article.isStarred() ? "Full_Star_Yellow" : "Empty_Star") + ".png";
         starredLabel.setIcon(Utilities.getIconResource(iconFileName));
@@ -205,7 +215,7 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         authorLabel.setText(article.getAuthor() != null ? article.getAuthor().getName() : "");
 
         dateTimeLabel.setText(article.getDateTime() != null
-                                      ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime())
+                                      ? configuration.getDateTimeFormatLonger().format(article.getDateTime())
                                       : "");
 
         textLabel.setText(article.getText());

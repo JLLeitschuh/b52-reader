@@ -6,6 +6,7 @@
 
 package nl.xs4all.home.freekdb.b52reader.general;
 
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
@@ -13,10 +14,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
@@ -193,8 +196,13 @@ public class ConfigurationTest {
 
         // The asserts below are rather silly. Is there a better way to check this configuration functionality?
 
+        final String expectedFormatter = DateTimeFormatter.ofPattern("EEE dd-MMM HH:mm").toString();
+
         assertEquals("B52 reader 0.0.6", configuration.getApplicationNameAndVersion());
+        assertEquals(expectedFormatter, configuration.getDateTimeFormatLonger().toString());
         assertEquals(6, configuration.getBackgroundBrowserMaxCount());
+        assertEquals(new Color(205, 230, 247), configuration.getNiceLightBlue());
+        assertEquals(EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING, configuration.getEmbeddedBrowserType());
         assertEquals(1200, configuration.getBackgroundTimerInitialDelay());
         assertEquals(1000, configuration.getBackgroundTimerDelay());
         assertEquals("fetched", configuration.getFetchedValue());

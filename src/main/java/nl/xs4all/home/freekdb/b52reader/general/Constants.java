@@ -6,9 +6,6 @@
 
 package nl.xs4all.home.freekdb.b52reader.general;
 
-import java.awt.Color;
-import java.time.format.DateTimeFormatter;
-
 import javax.swing.Icon;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
@@ -32,16 +29,16 @@ public class Constants {
 //     * The name and version of the application.
 //     */
 //    public static final String APPLICATION_NAME_AND_VERSION = "B52 reader 0.0.6"
-
-    /**
-     * The date/time format with day of week, day of month, month name, hours, and minutes. Example: "Mon 15-May 22:28".
-     */
-    public static final DateTimeFormatter DATE_TIME_FORMAT_LONGER = DateTimeFormatter.ofPattern("EEE dd-MMM HH:mm");
-
-    /**
-     * Nice light blue color (used for selected rows in the table).
-     */
-    public static final Color NICE_LIGHT_BLUE = new Color(205, 230, 247);
+//
+//    /**
+//     * The date/time format with day of week, day of month, month name, hours, and minutes. Example: "Mon 15-May 22:28".
+//     */
+//    public static final DateTimeFormatter DATE_TIME_FORMAT_LONGER = DateTimeFormatter.ofPattern("EEE dd-MMM HH:mm");
+//
+//    /**
+//     * Nice light blue color (used for selected rows in the table).
+//     */
+//    public static final Color NICE_LIGHT_BLUE = new Color(205, 230, 247);
 
     /**
      * The embedded browser type that is currently used.

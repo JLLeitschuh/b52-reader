@@ -18,7 +18,7 @@ import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
-// todo: Wish list: use Lombok, Guice, JPA/Hibernate, Checkstyle, FindBugs, and PMD/CPD.
+// todo: Use more tools from the wish list: Checkstyle, Lombok, Guice, JPA/Hibernate, FindBugs, and PMD/CPD.
 
 /**
  * The b52-reader main class which creates the application and launches it.
@@ -52,6 +52,10 @@ public class B52Reader {
         final PersistencyHandlerJdbc persistencyHandler = new PersistencyHandlerJdbc();
 
         final MainApplication mainApplication = new MainApplication(mainGui, configurationUrl, persistencyHandler);
+
+        // todo: during the initialization of the Configuration object, the PersistencyHandler object is used before it
+        //       is initialized (in the Configuration.constructRssArticleSource method:
+        //       "... defaultAuthor = persistencyHandler.getOrCreateAuthor..."
 
         mainApplication.createAndLaunchApplication();
 

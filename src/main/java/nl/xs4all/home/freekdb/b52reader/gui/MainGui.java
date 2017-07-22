@@ -305,7 +305,7 @@ public class MainGui {
         tableModel = new ArticlesTableModel(articles);
 
         final JTable customRendererTable = new JTable(tableModel);
-        customRendererTable.setDefaultRenderer(Article.class, new ArticleTableCellRenderer());
+        customRendererTable.setDefaultRenderer(Article.class, new ArticleTableCellRenderer(configuration));
         customRendererTable.setRowHeight(42);
         customRendererTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         customRendererTable.getSelectionModel().setSelectionInterval(0, 0);
@@ -351,7 +351,7 @@ public class MainGui {
         tableModel = createSpanTableModel(articles);
 
         final JTable spanTable = new SpanCellTable(tableModel);
-        spanTable.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer());
+        spanTable.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer(configuration));
         spanTable.setRowHeight(21);
         spanTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         spanTable.setAutoCreateRowSorter(true);

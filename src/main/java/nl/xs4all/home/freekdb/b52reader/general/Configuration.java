@@ -11,6 +11,7 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +34,7 @@ import nl.xs4all.home.freekdb.b52reader.articlesources.nrc.NrcScienceArticleSour
 import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetcher;
 import nl.xs4all.home.freekdb.b52reader.articlesources.website.HtmlHelper;
 import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
+import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 
@@ -59,6 +62,21 @@ public class Configuration {
      * Property key for source ids: the selected article sources that are configured to be read.
      */
     private static final String SOURCE_IDS_KEY = SOURCE_PREFIX + "ids";
+
+    /**
+     * The date/time format with day of week, day of month, month name, hours, and minutes. Example: "Mon 15-May 22:28".
+     */
+    private static final DateTimeFormatter DATE_TIME_FORMAT_LONGER = DateTimeFormatter.ofPattern("EEE dd-MMM HH:mm");
+
+    /**
+     * Nice light blue color (used for selected rows in the table).
+     */
+    private static final Color NICE_LIGHT_BLUE = new Color(205, 230, 247);
+
+    /**
+     * The embedded browser type that is currently being used.
+     */
+    private static final EmbeddedBrowserType EMBEDDED_BROWSER_TYPE = EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING;
 
     /**
      * The maximum number of browsers that are loaded in the background.
@@ -384,6 +402,34 @@ public class Configuration {
      */
     public String getApplicationNameAndVersion() {
         return APPLICATION_NAME_AND_VERSION;
+    }
+
+    /**
+     * Get the date/time format with day of week, day of month, month name, hours, and minutes. A formatted date/time
+     * could for example look like this: "Mon 15-May 22:28".
+     *
+     * @return the date/time format with day of week, day of month, month name, hours, and minutes.
+     */
+    public DateTimeFormatter getDateTimeFormatLonger() {
+        return DATE_TIME_FORMAT_LONGER;
+    }
+
+    /**
+     * Get the nice light blue color (used for selected rows in the table).
+     *
+     * @return the nice light blue color.
+     */
+    public Color getNiceLightBlue() {
+        return NICE_LIGHT_BLUE;
+    }
+
+    /**
+     * Get the embedded browser type that is currently being used.
+     *
+     * @return the embedded browser type that is currently being used.
+     */
+    public EmbeddedBrowserType getEmbeddedBrowserType() {
+        return EMBEDDED_BROWSER_TYPE;
     }
 
     /**

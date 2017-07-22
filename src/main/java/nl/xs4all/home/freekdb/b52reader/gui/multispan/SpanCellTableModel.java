@@ -90,7 +90,9 @@ public class SpanCellTableModel extends DefaultTableModel {
                     article.isRead() ? "" : "unread",
                     article.getTitle(),
                     article.getAuthor(),
-                    article.getDateTime() != null ? Constants.DATE_TIME_FORMAT_LONGER.format(article.getDateTime()) : ""
+                    article.getDateTime() != null
+                        ? configuration.getDateTimeFormatLonger().format(article.getDateTime())
+                        : ""
                 )));
 
                 newDataVector.add(listToVector(Arrays.asList("", "", "", article.getText())));
