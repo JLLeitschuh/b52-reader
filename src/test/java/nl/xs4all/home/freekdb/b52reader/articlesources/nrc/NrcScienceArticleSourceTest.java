@@ -35,8 +35,7 @@ public class NrcScienceArticleSourceTest {
     public void setUp() throws IOException {
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
 
-        configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
-                                          Mockito.mock(PersistencyHandler.class));
+        configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
     }
 
     @Test

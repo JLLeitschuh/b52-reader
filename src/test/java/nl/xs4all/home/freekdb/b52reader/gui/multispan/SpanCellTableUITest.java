@@ -20,7 +20,6 @@ import nl.xs4all.home.freekdb.b52reader.TestUtilities;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
-import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -83,8 +82,7 @@ public class SpanCellTableUITest {
 
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
 
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
-                                                        Mockito.mock(PersistencyHandler.class));
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
 
         List<String> columnNames = Arrays.asList("fetched", "starred", "read", "title", "author", "date/time");
 

@@ -35,8 +35,6 @@ import nl.xs4all.home.freekdb.b52reader.articlesources.website.ArticleListFetche
 import nl.xs4all.home.freekdb.b52reader.articlesources.website.HtmlHelper;
 import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
 import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
-import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
-import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -174,11 +172,6 @@ public class Configuration {
     private static final Logger logger = LogManager.getLogger();
 
     /**
-     * Handler for persistency functionality: storing and retrieving data in the database.
-     */
-    private final PersistencyHandler persistencyHandler;
-
-    /**
      * Selected article sources (from configuration file).
      */
     private List<ArticleSource> selectedArticleSources;
@@ -218,13 +211,10 @@ public class Configuration {
      * <code>allArticleSources</code> lists.
      *
      * @param configurationInputStream the input stream that contains the configuration data.
-     * @param persistencyHandler       the handler for persistency functionality: storing and retrieving data in the
-     *                                 database.
      * @throws IOException if an error occurred when reading from the configuration input stream.
      */
-    public Configuration(final InputStream configurationInputStream, final PersistencyHandler persistencyHandler)
-            throws IOException {
-        this(configurationInputStream, persistencyHandler, false);
+    public Configuration(final InputStream configurationInputStream) throws IOException {
+        this(configurationInputStream, false);
     }
 
     /**
@@ -232,18 +222,13 @@ public class Configuration {
      * <code>allArticleSources</code> lists.
      *
      * @param configurationInputStream the input stream that contains the configuration data.
-     * @param persistencyHandler       the handler for persistency functionality: storing and retrieving data in the
-     *                                 database.
      * @param articleListWithBrowser   whether to use a background browser for fetching the html with the list of
      *                                 articles, which is for example necessary when the html page is dynamically
      *                                 generated.
      * @throws IOException if an error occurred when reading from the configuration input stream.
      */
-    public Configuration(final InputStream configurationInputStream, final PersistencyHandler persistencyHandler,
-                         final boolean articleListWithBrowser)
+    public Configuration(final InputStream configurationInputStream, final boolean articleListWithBrowser)
             throws IOException {
-        this.persistencyHandler = persistencyHandler;
-
         final List<String> sourceIds = new ArrayList<>(Arrays.asList("nrc", "test"));
         allArticleSources = new ArrayList<>();
         selectedArticleSources = new ArrayList<>();
@@ -428,7 +413,7 @@ public class Configuration {
      *
      * @return the embedded browser type that is currently being used.
      */
-    public EmbeddedBrowserType getEmbeddedBrowserType() {
+    EmbeddedBrowserType getEmbeddedBrowserType() {
         return EMBEDDED_BROWSER_TYPE;
     }
 
@@ -602,7 +587,7 @@ public class Configuration {
             final int categoryNameIndex = 4;
 
             final String feedName = configurationItems[feedNameIndex];
-            final Author defaultAuthor = persistencyHandler.getOrCreateAuthor(configurationItems[authorNameIndex]);
+            final String defaultAuthorName = configurationItems[authorNameIndex];
             final URL feedUrl = new URL(configurationItems[feedUrlIndex]);
 
             final String categoryName = configurationItems.length > categoryNameIndex
@@ -611,7 +596,7 @@ public class Configuration {
 
             final SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
 
-            source = new RssArticleSource(sourceId, feed, feedName, defaultAuthor, feedUrl, categoryName);
+            source = new RssArticleSource(sourceId, feed, feedName, defaultAuthorName, feedUrl, categoryName);
         } catch (FeedException | IOException e) {
             logger.error("Exception while fetching articles from an RSS feed.", e);
         }
@@ -645,8 +630,8 @@ public class Configuration {
      * @return the configuration parameters for an RSS article source.
      */
     private String getRssParameters(final RssArticleSource rssSource) {
-        final String authorName = rssSource.getDefaultAuthor() != null
-            ? rssSource.getDefaultAuthor().getName()
+        final String authorName = rssSource.getDefaultAuthorName() != null
+            ? rssSource.getDefaultAuthorName()
             : rssSource.getFeedName();
 
         return RSS_CONFIGURATION_PREFIX + rssSource.getFeedName() + RSS_CONFIGURATION_SEPARATOR + authorName

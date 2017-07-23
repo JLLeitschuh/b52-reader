@@ -38,8 +38,8 @@ import static org.junit.Assert.assertNull;
 public class RssArticleSourceTest {
     private static final String SOURCE_ID = "test-source-id";
     private static final String FEED_NAME = "Some rss feed";
-    private static final Author TEST_AUTHOR_1 = new Author("Test Author", 6);
-    private static final Author TEST_AUTHOR_2 = new Author("Test Author II", 28);
+    private static final String TEST_AUTHOR_1 = "Test Author";
+    private static final String TEST_AUTHOR_2 = "Test Author II";
     private static final String CATEGORY_NAME = "category-name";
     private static final String ARTICLE_TITLE_1 = "entry-title-1";
     private static final String ARTICLE_TITLE_2 = "entry-title-2";
@@ -59,7 +59,7 @@ public class RssArticleSourceTest {
 
         assertEquals(SOURCE_ID, rssArticleSource.getSourceId());
         assertEquals(FEED_NAME, rssArticleSource.getFeedName());
-        assertEquals(TEST_AUTHOR_1, rssArticleSource.getDefaultAuthor());
+        assertEquals(TEST_AUTHOR_1, rssArticleSource.getDefaultAuthorName());
         assertEquals(feedUrl, rssArticleSource.getFeedUrl());
         assertNull(rssArticleSource.getCategoryName());
     }
@@ -80,13 +80,15 @@ public class RssArticleSourceTest {
     public void testGetArticlesCategoryNull() {
         PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
 
-        RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID, createMockFeed(mockPersistencyHandler, false), FEED_NAME,
-                                                                 TEST_AUTHOR_1, feedUrl, null);
+        RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID,
+                                                                 createMockFeed(false),
+                                                                 FEED_NAME, TEST_AUTHOR_1, feedUrl, null);
 
         List<Article> actualArticles = rssArticleSource.getArticles(mockPersistencyHandler,
                                                                     new HashMap<>(), new HashMap<>());
 
-        assertEquals(prepareExpectedArticles(TEST_AUTHOR_1, true, actualArticles), actualArticles);
+        final Author author = mockPersistencyHandler.getOrCreateAuthor(TEST_AUTHOR_1);
+        assertEquals(prepareExpectedArticles(author, true, actualArticles), actualArticles);
     }
 
     @Test
@@ -94,7 +96,7 @@ public class RssArticleSourceTest {
         PersistencyHandler mockPersistencyHandler = Mockito.mock(PersistencyHandler.class);
 
         // The default author is TEST_AUTHOR_1, but the mock feed should provide the name of TEST_AUTHOR_2.
-        SyndFeed mockFeed = createMockFeed(mockPersistencyHandler, true);
+        SyndFeed mockFeed = createMockFeed(true);
 
         RssArticleSource rssArticleSource = new RssArticleSource(SOURCE_ID, mockFeed, FEED_NAME,
                                                                  TEST_AUTHOR_1, feedUrl, CATEGORY_NAME);
@@ -102,12 +104,11 @@ public class RssArticleSourceTest {
         List<Article> actualArticles = rssArticleSource.getArticles(mockPersistencyHandler,
                                                                     new HashMap<>(), new HashMap<>());
 
-        assertEquals(prepareExpectedArticles(TEST_AUTHOR_2, false, actualArticles), actualArticles);
+        final Author author = mockPersistencyHandler.getOrCreateAuthor(TEST_AUTHOR_2);
+        assertEquals(prepareExpectedArticles(author, false, actualArticles), actualArticles);
     }
 
-    private SyndFeed createMockFeed(PersistencyHandler mockPersistencyHandler, boolean addExtraFields) {
-        Mockito.when(mockPersistencyHandler.getOrCreateAuthor(TEST_AUTHOR_2.getName())).thenReturn(TEST_AUTHOR_2);
-
+    private SyndFeed createMockFeed(boolean addExtraFields) {
         SyndFeed mockFeed = Mockito.mock(SyndFeed.class);
         SyndEntry mockEntry1 = Mockito.mock(SyndEntry.class);
         SyndEntry mockEntry2 = Mockito.mock(SyndEntry.class);
@@ -126,7 +127,7 @@ public class RssArticleSourceTest {
             Date date = Date.from(Utilities.createDate(1882, Month.JUNE, 28).toInstant());
 
             Mockito.when(mockEntry1.getCategories()).thenReturn(Collections.singletonList(category));
-            Mockito.when(mockEntry1.getAuthor()).thenReturn(TEST_AUTHOR_2.getName());
+            Mockito.when(mockEntry1.getAuthor()).thenReturn(TEST_AUTHOR_2);
             Mockito.when(mockEntry1.getPublishedDate()).thenReturn(date);
         }
 

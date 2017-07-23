@@ -15,11 +15,9 @@ import java.util.Vector;
 import nl.xs4all.home.freekdb.b52reader.TestUtilities;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
-import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -39,8 +37,7 @@ public class SpanCellTableModelTest {
 
         byte[] configurationLinesBytes = "".getBytes("UTF-8");
 
-        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes),
-                                                        Mockito.mock(PersistencyHandler.class));
+        Configuration configuration = new Configuration(new ByteArrayInputStream(configurationLinesBytes));
 
         tableModel = new SpanCellTableModel(articles, COLUMN_COUNT, configuration);
     }

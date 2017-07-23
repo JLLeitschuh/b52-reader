@@ -123,7 +123,7 @@ public class MainApplication implements MainCallbacks {
             if (configurationUrl != null) {
                 final InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
 
-                applicationConfiguration = new Configuration(configurationInputStream, persistencyHandler);
+                applicationConfiguration = new Configuration(configurationInputStream);
             }
         } catch (final IOException e) {
             logger.error("Exception while reading the configuration file " + configurationUrl, e);

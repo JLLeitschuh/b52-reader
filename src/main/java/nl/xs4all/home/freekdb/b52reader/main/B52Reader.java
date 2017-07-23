@@ -53,10 +53,6 @@ public class B52Reader {
 
         final MainApplication mainApplication = new MainApplication(mainGui, configurationUrl, persistencyHandler);
 
-        // todo: during the initialization of the Configuration object, the PersistencyHandler object is used before it
-        //       is initialized (in the Configuration.constructRssArticleSource method:
-        //       "... defaultAuthor = persistencyHandler.getOrCreateAuthor..."
-
         mainApplication.createAndLaunchApplication();
 
         if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING) {
