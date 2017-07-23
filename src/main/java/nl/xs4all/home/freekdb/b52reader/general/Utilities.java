@@ -44,31 +44,63 @@ public class Utilities {
         return text != null ? StringUtils.stripAccents(text).toLowerCase() : null;
     }
 
-    public static int calculateWordCount(String text) {
+    /**
+     * Estimate the number of words in a specific text.
+     *
+     * @param text text to estimate the word count for.
+     * @return estimation of number of words in a text.
+     */
+    public static int estimateWordCount(final String text) {
         return text == null || text.trim().isEmpty() ? 0 : text.trim().split("\\s+").length;
     }
 
-    public static Icon getIconResource(String iconFileName) {
-        URL iconFileUrl = Utilities.class.getClassLoader().getResource(iconFileName);
+    /**
+     * Get an icon from a specific resource file.
+     *
+     * @param iconFileName file name of icon resource.
+     * @return icon from a resource file.
+     */
+    public static Icon getIconResource(final String iconFileName) {
+        final URL iconFileUrl = Utilities.class.getClassLoader().getResource(iconFileName);
 
         return (iconFileUrl != null) ? new ImageIcon(iconFileUrl.getFile()) : null;
     }
 
-    public static String countAndWord(int count, String word) {
+    /**
+     * Create a string with a specific count, a space, and a specific word. If count is not equal to one, an 's'
+     * character is added to the word. Some examples: "0 bikes", "1 programmer", and "6 guitarists".
+     *
+     * @param count number of times that applies to the word.
+     * @param word word to include in the string (the plural form should require the addition of an 's' character).
+     * @return "[count] [word](s)" (if count is not equal to one, an 's' character is added).
+     */
+    public static String countAndWord(final int count, final String word) {
         return count + " " + word + (count != 1 ? "s" : "");
     }
 
-    public static ZonedDateTime createDate(int year, Month month, int dayOfMonth) {
+    /**
+     * Create a zoned date(/time). The time part is empty.
+     *
+     * @param year year.
+     * @param month month.
+     * @param dayOfMonth day of the month.
+     * @return <code>ZonedDateTime</code> object.
+     */
+    public static ZonedDateTime createDate(final int year, final Month month, final int dayOfMonth) {
         return ZonedDateTime.of(year, month.getValue(), dayOfMonth, 0, 0, 0, 0,
                                 ZoneOffset.UTC);
     }
 
+    /**
+     * Ignore characters written to the standard error stream. This is used because the dj-nativeswing library sometimes
+     * has difficulties with the contents of the clipboard, resulting in <code>ClassNotFoundException</code>s.
+     */
     public static void ignoreStandardErrorStream() {
         // Ignore characters written to the standard error stream, since the dj-nativeswing library sometimes has
         // difficulties with the contents of the clipboard, resulting in ClassNotFoundException-s.
         System.setErr(new PrintStream(new OutputStream() {
             @Override
-            public void write(int b) throws IOException {
+            public void write(final int b) throws IOException {
                 // Ignore it.
             }
         }));
@@ -80,7 +112,7 @@ public class Utilities {
      * @param article         the new article.
      * @param previousArticle the previous article (or null if not available).
      */
-    public static void copyPreviousDataIfAvailable(Article article, Article previousArticle) {
+    public static void copyPreviousDataIfAvailable(final Article article, final Article previousArticle) {
         if (previousArticle != null) {
             article.setStarred(previousArticle.isStarred());
             article.setRead(previousArticle.isRead());

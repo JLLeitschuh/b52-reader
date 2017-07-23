@@ -136,10 +136,10 @@ public class Article {
         this.author = author;
         this.title = title;
         this.normalizedTitle = Utilities.normalize(title);
-        this.titleWordCount = Utilities.calculateWordCount(title);
+        this.titleWordCount = Utilities.estimateWordCount(title);
         this.dateTime = dateTime;
         this.text = text;
-        this.textWordCount = Utilities.calculateWordCount(text);
+        this.textWordCount = Utilities.estimateWordCount(text);
         this.likes = likes;
         this.recordId = recordId;
         this.starred = starred;

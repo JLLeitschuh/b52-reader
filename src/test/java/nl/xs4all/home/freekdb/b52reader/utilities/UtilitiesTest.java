@@ -45,9 +45,9 @@ public class UtilitiesTest {
 
     @Test
     public void testCalculateWordCount() {
-        assertEquals(6, Utilities.calculateWordCount("This line is a simple test..._;-)"));
-        assertEquals(0, Utilities.calculateWordCount(null));
-        assertEquals(0, Utilities.calculateWordCount(""));
+        assertEquals(6, Utilities.estimateWordCount("This line is a simple test..._;-)"));
+        assertEquals(0, Utilities.estimateWordCount(null));
+        assertEquals(0, Utilities.estimateWordCount(""));
     }
 
     @Test
