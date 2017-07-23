@@ -83,7 +83,7 @@ public class MainApplication implements MainCallbacks {
      * @param configurationUrl   the URL pointing to the configuration data.
      * @param persistencyHandler the persistency handler that should be used.
      */
-    MainApplication(MainGui mainGui, URL configurationUrl, PersistencyHandler persistencyHandler) {
+    MainApplication(final MainGui mainGui, final URL configurationUrl, final PersistencyHandler persistencyHandler) {
         this.mainGui = mainGui;
         this.persistencyHandler = persistencyHandler;
         this.configurationUrl = configurationUrl;
@@ -113,17 +113,19 @@ public class MainApplication implements MainCallbacks {
 
     /**
      * Initialize the configuration with data from the configuration file.
+     *
+     * @return the configuration object.
      */
     private Configuration initializeConfiguration() {
         Configuration applicationConfiguration = null;
 
         try {
             if (configurationUrl != null) {
-                InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
+                final InputStream configurationInputStream = new FileInputStream(configurationUrl.getFile());
 
                 applicationConfiguration = new Configuration(configurationInputStream, persistencyHandler);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.error("Exception while reading the configuration file " + configurationUrl, e);
         }
 
@@ -140,8 +142,8 @@ public class MainApplication implements MainCallbacks {
 
         try {
             Class.forName(configuration.getDatabaseDriverClassName());
-            String databaseUrl = configuration.getDatabaseUrl();
-            Connection databaseConnection = DriverManager.getConnection(databaseUrl, "b52", "reader");
+            final String databaseUrl = configuration.getDatabaseUrl();
+            final Connection databaseConnection = DriverManager.getConnection(databaseUrl, "b52", "reader");
 
             if (persistencyHandler.initializeDatabaseConnection(databaseConnection)) {
                 persistencyHandler.createTablesIfNeeded();
@@ -164,9 +166,9 @@ public class MainApplication implements MainCallbacks {
      * @param articleSources the configured article sources.
      * @return the current articles.
      */
-    private List<Article> getArticles(List<ArticleSource> articleSources) {
-        Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
-        Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
+    private List<Article> getArticles(final List<ArticleSource> articleSources) {
+        final Map<String, Article> storedArticlesMap = persistencyHandler.getStoredArticlesMap();
+        final Map<String, Author> storedAuthorsMap = persistencyHandler.getStoredAuthorsMap();
 
         return new CombinationArticleSource(articleSources).getArticles(persistencyHandler, storedArticlesMap,
                                                                         storedAuthorsMap);
@@ -181,18 +183,18 @@ public class MainApplication implements MainCallbacks {
      * @return whether the shutdown was done successfully.
      */
     @Override
-    public boolean shutdownApplication(int frameExtendedState, Rectangle frameBounds) {
+    public boolean shutdownApplication(final int frameExtendedState, final Rectangle frameBounds) {
         boolean result = true;
 
         try {
             if (configurationUrl != null) {
-                OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());
+                final OutputStream configurationOutputStream = new FileOutputStream(configurationUrl.getFile());
 
                 if (!configuration.writeConfiguration(configurationOutputStream, frameExtendedState, frameBounds)) {
                     logger.error("Error while writing the configuration file " + configurationUrl);
                 }
             }
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             logger.error("Exception while writing the configuration file " + configurationUrl, e);
 
             result = false;
