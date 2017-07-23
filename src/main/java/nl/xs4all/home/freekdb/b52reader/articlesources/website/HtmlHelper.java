@@ -24,7 +24,7 @@ public class HtmlHelper {
      * @param htmlContent the html content to parse.
      * @return the parsed Jsoup document.
      */
-    public Document parseHtml(String htmlContent) {
+    public Document parseHtml(final String htmlContent) {
         return Jsoup.parse(htmlContent);
     }
 
@@ -35,7 +35,7 @@ public class HtmlHelper {
      * @return the parsed Jsoup document.
      * @throws IOException when getting the html content fails.
      */
-    public Document getHtmlAsDocument(String url) throws IOException {
+    public Document getHtmlAsDocument(final String url) throws IOException {
         return Jsoup.connect(url).get();
     }
 }
