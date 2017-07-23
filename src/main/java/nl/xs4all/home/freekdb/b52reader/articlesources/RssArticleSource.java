@@ -25,54 +25,52 @@ import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+
 /**
  * Generic article source that fetches data from an rss feed.
  *
  * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
+@Data
 public class RssArticleSource implements ArticleSource {
     /**
      * Logger for this class.
      */
     private static final Logger logger = LogManager.getLogger();
 
+    /**
+     * Source id that identifies this article source.
+     */
     private final String sourceId;
+
+    /**
+     * RSS feed for reading articles from this source.
+     */
+    @Getter(AccessLevel.NONE)
     private final SyndFeed feed;
+
+    /**
+     * Name of the RSS feed.
+     */
     private final String feedName;
+
+    /**
+     * Default author name in case no author is found for an article (often equal to the feed name).
+     */
     private final String defaultAuthorName;
+
+    /**
+     * URL of the RSS feed.
+     */
     private final URL feedUrl;
+
+    /**
+     * Optional category name that can be used to only get a subset of the RSS feed articles.
+     */
     private final String categoryName;
-
-    public RssArticleSource(final String sourceId, final SyndFeed feed, final String feedName,
-                            final String defaultAuthorName, final URL feedUrl, final String categoryName) {
-        this.sourceId = sourceId;
-        this.feed = feed;
-        this.feedName = feedName;
-        this.defaultAuthorName = defaultAuthorName;
-        this.feedUrl = feedUrl;
-        this.categoryName = categoryName;
-    }
-
-    @Override
-    public String getSourceId() {
-        return sourceId;
-    }
-
-    public String getFeedName() {
-        return feedName;
-    }
-
-    public String getDefaultAuthorName() {
-        return defaultAuthorName;
-    }
-
-    public URL getFeedUrl() {
-        return feedUrl;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
 
     @Override
     public List<Article> getArticles(final PersistencyHandler persistencyHandler,
@@ -82,8 +80,8 @@ public class RssArticleSource implements ArticleSource {
 
         for (SyndEntry entry : feed.getEntries()) {
             if (categoryMatches(entry)) {
-                newArticles.add(createArticle(previousArticlesMap, previousAuthorsMap, persistencyHandler, entry,
-                                              -1 - newArticles.size()));
+                newArticles.add(createArticle(entry, -1 - newArticles.size(), previousArticlesMap,
+                                              previousAuthorsMap, persistencyHandler));
             }
         }
 
@@ -94,16 +92,32 @@ public class RssArticleSource implements ArticleSource {
         return newArticles;
     }
 
+    /**
+     * Test whether the configured category name is not set or matches one of the category names associated with the
+     * specified RSS feed entry.
+     *
+     * @param entry RSS feed entry to test.
+     * @return whether the configured category name is not set or matches the specified RSS feed entry.
+     */
     private boolean categoryMatches(final SyndEntry entry) {
         return categoryName == null
                || entry.getCategories().stream().anyMatch(category -> category.getName().equalsIgnoreCase(categoryName));
     }
 
-    private Article createArticle(final Map<String, Article> previousArticlesMap,
+    /**
+     * Create an article for an RSS feed entry.
+     *
+     * @param entry               RSS feed entry that is the basis for this article.
+     * @param articleId           article id to use.
+     * @param previousArticlesMap previously available articles.
+     * @param previousAuthorsMap  previously available authors.
+     * @param persistencyHandler  persistency handler that provides access to database.
+     * @return article for an RSS feed entry.
+     */
+    private Article createArticle(final SyndEntry entry, final int articleId,
+                                  final Map<String, Article> previousArticlesMap,
                                   final Map<String, Author> previousAuthorsMap,
-                                  final PersistencyHandler persistencyHandler,
-                                  final SyndEntry entry,
-                                  final int articleId) {
+                                  final PersistencyHandler persistencyHandler) {
         final String url = entry.getLink();
         final String title = entry.getTitle();
 
@@ -121,7 +135,7 @@ public class RssArticleSource implements ArticleSource {
         final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(dateTime.toInstant(), ZoneOffset.UTC);
 
         // We create new article objects, because we want to be able to compare the articles in memory to the
-        // stored articles to see whether an update of a stored article is needed.
+        // stored articles to see whether an article is an update of a stored article or a new article.
         final Author author = entryAuthor != null
             ? entryAuthor
             : previousAuthorsMap.getOrDefault(defaultAuthorName, persistencyHandler.getOrCreateAuthor(defaultAuthorName));
