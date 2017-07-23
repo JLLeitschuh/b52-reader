@@ -34,7 +34,7 @@ import javax.swing.table.TableModel;
 public class SpanCellTable extends JTable {
     private SpanCellTableModel tableModel;
 
-    public SpanCellTable(TableModel tableModel) {
+    public SpanCellTable(final TableModel tableModel) {
         super(tableModel);
 
         this.tableModel = (SpanCellTableModel) tableModel;

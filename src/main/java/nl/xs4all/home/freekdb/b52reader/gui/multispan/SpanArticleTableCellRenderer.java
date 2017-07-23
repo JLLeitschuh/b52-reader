@@ -17,6 +17,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
+import nl.xs4all.home.freekdb.b52reader.general.Constants;
 
 /**
  * Custom renderer for the <code>{@link SpanCellTable}</code> GUI table.
@@ -29,8 +30,8 @@ public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
      * Map with background colors for specific source ids.
      */
     private static final Map<String, Color> COLOR_MAP = ImmutableMap.of(
-        "nrc", new Color(144, 238, 144),
-        "test", Color.ORANGE
+        Constants.NRC_SOURCE_ID, new Color(144, 238, 144),
+        Constants.TEST_SOURCE_ID, Color.ORANGE
     );
 
     /**
@@ -66,7 +67,7 @@ public class SpanArticleTableCellRenderer extends DefaultTableCellRenderer {
     public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
                                                    final boolean hasFocus, final int row, final int column) {
         final Component rendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-                                                                          column);
+                                                                                column);
 
         final Article article = ((SpanCellTableModel) table.getModel()).getArticle(row / 2);
 
