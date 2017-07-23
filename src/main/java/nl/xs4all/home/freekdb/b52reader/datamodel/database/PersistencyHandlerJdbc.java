@@ -324,10 +324,8 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                 }
             }
 
-            if (!newArticles.isEmpty()) {
-                logger.info("Wrote {} to the database.",
-                            Utilities.countAndWord(newArticles.size(), "new article"));
-            }
+            logger.info("Wrote {} to the database.",
+                        Utilities.countAndWord(newArticles.size(), "new article"));
         } catch (final SQLException e) {
             logger.error("Exception while inserting articles into the database.", e);
         }
