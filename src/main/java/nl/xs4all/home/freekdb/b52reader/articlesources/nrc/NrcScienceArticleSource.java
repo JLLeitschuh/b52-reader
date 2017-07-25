@@ -38,13 +38,28 @@ public class NrcScienceArticleSource implements ArticleSource {
      */
     private static final Logger logger = LogManager.getLogger();
 
+    /**
+     * Fetcher to get list of science articles from NRC website.
+     */
     private final ArticleListFetcher articleListFetcher;
 
+    /**
+     * Configuration with settings.
+     */
     private final Configuration configuration;
 
+    /**
+     * Persistency handler to communicate with database.
+     */
     private PersistencyHandler persistencyHandler;
 
-    public NrcScienceArticleSource(ArticleListFetcher articleListFetcher, Configuration configuration) {
+    /**
+     * Construct an article source for the science section of NRC Handelsblad (a Dutch newspaper).
+     *
+     * @param articleListFetcher article fetcher to get list of science articles from NRC website.
+     * @param configuration      configuration with settings.
+     */
+    public NrcScienceArticleSource(final ArticleListFetcher articleListFetcher, final Configuration configuration) {
         this.articleListFetcher = articleListFetcher;
         this.configuration = configuration;
     }
@@ -55,15 +70,16 @@ public class NrcScienceArticleSource implements ArticleSource {
     }
 
     @Override
-    public List<Article> getArticles(PersistencyHandler persistencyHandler, Map<String, Article> previousArticlesMap,
-                                     Map<String, Author> previousAuthorsMap) {
+    public List<Article> getArticles(final PersistencyHandler persistencyHandler,
+                                     final Map<String, Article> previousArticlesMap,
+                                     final Map<String, Author> previousAuthorsMap) {
         this.persistencyHandler = persistencyHandler;
-        List<Article> newArticles = new ArrayList<>();
+        final List<Article> newArticles = new ArrayList<>();
 
-        Document articleListDocument = articleListFetcher.getArticleListDocument();
+        final Document articleListDocument = articleListFetcher.getArticleListDocument();
 
         if (articleListDocument != null) {
-            parseArticles(previousArticlesMap, previousAuthorsMap, newArticles, articleListDocument);
+            parseArticles(newArticles, articleListDocument, previousArticlesMap, previousAuthorsMap);
         }
 
         logger.info("Fetched {} from the NRC website.",
@@ -72,23 +88,34 @@ public class NrcScienceArticleSource implements ArticleSource {
         return newArticles;
     }
 
-    private void parseArticles(Map<String, Article> previousArticlesMap, Map<String, Author> previousAuthorsMap,
-                               List<Article> newArticles, Document articleListDocument) {
-        Elements articleElements = articleListDocument.select(".nmt-item__link");
-        Author defaultAuthor = persistencyHandler.getOrCreateAuthor("NRC science");
+    /**
+     * Parse the fetched html document with science article data and add all articles to the specified list, while using
+     * previously found articles and authors.
+     *
+     * @param newArticles         list to add articles to.
+     * @param articleListDocument html document with article data.
+     * @param previousArticlesMap previously available articles.
+     * @param previousAuthorsMap  previously available authors.
+     */
+    private void parseArticles(final List<Article> newArticles, final Document articleListDocument,
+                               final Map<String, Article> previousArticlesMap,
+                               final Map<String, Author> previousAuthorsMap) {
+        final Elements articleElements = articleListDocument.select(".nmt-item__link");
+        final Author defaultAuthor = persistencyHandler.getOrCreateAuthor("NRC science");
 
         for (Element articleElement : articleElements) {
-            String url = configuration.getNrcMainUrl() + articleElement.attr("href");
-            String title = articleElement.getElementsByClass("nmt-item__headline").text();
-            ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
-            String text = articleElement.getElementsByClass("nmt-item__teaser").text();
+            final String url = configuration.getNrcMainUrl() + articleElement.attr("href");
+            final String title = articleElement.getElementsByClass("nmt-item__headline").text();
+            final ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
+            final String text = articleElement.getElementsByClass("nmt-item__teaser").text();
 
             // We create a new article object even if it is already stored, because we want to be able to compare the
             // articles in memory to the stored article to see whether an update of a stored article is needed.
-            Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
-            Article article = Article.builder().url(url).sourceId(Constants.NRC_SOURCE_ID).author(author).title(title)
-                    .dateTime(zonedDateTime).text(text).likes(1234).recordId(-1 - newArticles.size())
-                            .build();
+            final int dummyLikeCount = 1234;
+            final Author author = previousAuthorsMap.getOrDefault(defaultAuthor.getName(), defaultAuthor);
+            final Article article = Article.builder().url(url).sourceId(Constants.NRC_SOURCE_ID).author(author)
+                .title(title).dateTime(zonedDateTime).text(text).likes(dummyLikeCount).recordId(-1 - newArticles.size())
+                .build();
 
             Utilities.copyPreviousDataIfAvailable(article, previousArticlesMap.get(url));
 
