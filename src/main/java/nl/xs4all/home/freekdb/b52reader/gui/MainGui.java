@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.Icon;
@@ -78,9 +79,8 @@ public class MainGui {
     private Article selectedArticle;
 
     /**
-     * Article index for next article to load in the background.
-     * <p>
-     * todo: Should we load articles from the filtered articles list (instead of from all current articles list)?
+     * Article index for next article to load in the background. Currently we load articles from the full list with all
+     * articles, but we could change that to loading articles from the filtered list.
      */
     private int backgroundArticleIndex;
 
@@ -206,8 +206,10 @@ public class MainGui {
 
         table = configuration.useSpanTable() ? createSpanTable(currentArticles) : createCustomRendererTable(currentArticles);
 
+        final int tableWidth = 10000;
+        final int tableHeight = 200;
         final JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(new Dimension(10000, 200));
+        scrollPane.setPreferredSize(new Dimension(tableWidth, tableHeight));
         northPanel.add(scrollPane, BorderLayout.CENTER);
 
         frame.getContentPane().add(northPanel, BorderLayout.NORTH);
@@ -232,7 +234,8 @@ public class MainGui {
         final JPanel filterPanel = new JPanel();
         filterPanel.add(new JLabel("Filter:"));
 
-        filterTextField = new JTextField("", 64);
+        final int filterWidthInColumns = 64;
+        filterTextField = new JTextField("", filterWidthInColumns);
 
         filterTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -275,8 +278,7 @@ public class MainGui {
             ((ArticlesTableModel) tableModel).setArticles(filteredArticles);
         }
 
-        frame.setTitle(configuration.getApplicationNameAndVersion() + " - " + (!filteredArticles.isEmpty() ? "1" : "0")
-                       + "/" + filteredArticles.size());
+        updateFrameTitle(filteredArticles.isEmpty() ? -1 : 0);
 
         if (!filteredArticles.isEmpty()) {
             boolean selectFirstArticle = true;
@@ -294,6 +296,16 @@ public class MainGui {
     }
 
     /**
+     * Update frame title to show application name, version, selected article (one based), and filtered article count.
+     *
+     * @param articleIndex (zero based) article index to show in frame title.
+     */
+    private void updateFrameTitle(final int articleIndex) {
+        frame.setTitle(String.format("%s - %d/%d", configuration.getApplicationNameAndVersion(),
+                                     articleIndex + 1, filteredArticles.size()));
+    }
+
+    /**
      * Create the GUI table with the custom article renderer and the corresponding table model.
      *
      * @param articles the (filtered) articles to show in the table.
@@ -304,9 +316,10 @@ public class MainGui {
 
         tableModel = new ArticlesTableModel(articles);
 
+        final int rowHeight = 42;
         final JTable customRendererTable = new JTable(tableModel);
         customRendererTable.setDefaultRenderer(Article.class, new ArticleTableCellRenderer(configuration));
-        customRendererTable.setRowHeight(42);
+        customRendererTable.setRowHeight(rowHeight);
         customRendererTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         customRendererTable.getSelectionModel().setSelectionInterval(0, 0);
 
@@ -316,7 +329,7 @@ public class MainGui {
 
         customRendererTable.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
+            public void mouseClicked(final MouseEvent mouseEvent) {
                 super.mouseClicked(mouseEvent);
 
                 handleTableClick(mouseEvent);
@@ -350,9 +363,10 @@ public class MainGui {
 
         tableModel = createSpanTableModel(articles);
 
+        final int rowHeight = 21;
         final JTable spanTable = new SpanCellTable(tableModel);
         spanTable.setDefaultRenderer(Object.class, new SpanArticleTableCellRenderer(configuration));
-        spanTable.setRowHeight(21);
+        spanTable.setRowHeight(rowHeight);
         spanTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         spanTable.setAutoCreateRowSorter(true);
 
@@ -405,8 +419,8 @@ public class MainGui {
         // todo: Base the ArticleSpanTableModel/SpanCellTableModel on AbstractTableModel (like the ArticlesTableModel)?
         final SpanCellTableModel spanTableModel = new SpanCellTableModel(articles, columnNames.size(), configuration);
 
-        spanTableModel.setColumnsAndData(columnNames, columnClasses, articles,
-                                         article -> manyBrowsersPanel.hasBrowserForUrl(article.getUrl()));
+        final Predicate<Article> isFetched = article -> manyBrowsersPanel.hasBrowserForUrl(article.getUrl());
+        spanTableModel.setColumnsAndData(columnNames, columnClasses, articles, isFetched);
 
         for (int rowIndex = 1; rowIndex < 2 * articles.size(); rowIndex += 2) {
             spanTableModel.getTableSpans().combine(new int[]{rowIndex}, columnIndices2);
@@ -423,8 +437,10 @@ public class MainGui {
     private void setTableColumnWidths(final JTable table) {
         final TableColumnModel columnModel = table.getColumnModel();
 
+        final int columnWidthFlag = 100;
+        final int columnWidthRegular = 800;
         for (int columnIndex = 0; columnIndex < columnModel.getColumnCount(); columnIndex++) {
-            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? 100 : 800);
+            columnModel.getColumn(columnIndex).setPreferredWidth(columnIndex <= 2 ? columnWidthFlag : columnWidthRegular);
         }
     }
 
@@ -482,14 +498,7 @@ public class MainGui {
         if (configuration.useSpanTable()) {
             columnIndex = table.columnAtPoint(mouseEvent.getPoint());
         } else {
-            // todo: Get rid of these magic numbers (36 and 60) below.
-            if (mouseEvent.getX() < 36) {
-                columnIndex = 1;
-            } else if (mouseEvent.getX() < 60) {
-                columnIndex = 2;
-            } else {
-                columnIndex = 3;
-            }
+            columnIndex = ArticleTableCellRenderer.calculateColumnIndex(mouseEvent.getX());
         }
 
         return columnIndex;
@@ -502,8 +511,7 @@ public class MainGui {
      * @param articleIndex the index of the article (to show in the window title).
      */
     private void selectArticle(final Article article, final int articleIndex) {
-        final String articleCounterAndSize = (articleIndex + 1) + "/" + filteredArticles.size();
-        frame.setTitle(configuration.getApplicationNameAndVersion() + " - " + articleCounterAndSize);
+        updateFrameTitle(articleIndex);
 
         selectedArticle = article;
 

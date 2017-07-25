@@ -53,6 +53,16 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
     );
 
     /**
+     * Width of the starred column.
+     */
+    private static final int STARRED_COLUMN_WIDTH = 36;
+
+    /**
+     * Width of the read column.
+     */
+    private static final int READ_COLUMN_WIDTH = 24;
+
+    /**
      * Default background color for this renderer.
      */
     private static Color defaultBackgroundColor;
@@ -139,11 +149,9 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
      */
     private void positionAndAddTopComponents() {
         final int starredX = 4;
-        final int starredWidth = 36;
-        final int readX = starredX + starredWidth;
-        final int readWidth = 24;
+        final int readX = starredX + STARRED_COLUMN_WIDTH;
 
-        titleAndTextX = readX + readWidth;
+        titleAndTextX = readX + READ_COLUMN_WIDTH;
 
         final int titleWidth = 400;
         final int likesX = titleAndTextX + titleWidth + 154;
@@ -157,10 +165,10 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
         final int flagsHeight = 40;
         final int topTextComponentsHeight = 18;
 
-        starredLabel.setBounds(starredX, topRowY, starredWidth, flagsHeight);
+        starredLabel.setBounds(starredX, topRowY, STARRED_COLUMN_WIDTH, flagsHeight);
         add(starredLabel);
 
-        readLabel.setBounds(readX, topRowY, readWidth, flagsHeight);
+        readLabel.setBounds(readX, topRowY, READ_COLUMN_WIDTH, flagsHeight);
         add(readLabel);
 
         titleLabel.setBounds(titleAndTextX, topRowY, titleWidth, topTextComponentsHeight);
@@ -231,5 +239,26 @@ public class ArticleTableCellRenderer extends JPanel implements TableCellRendere
      */
     private Color getBackgroundColor(final String sourceId) {
         return BACKGROUND_COLOR_MAP.getOrDefault(sourceId, defaultBackgroundColor);
+    }
+
+    /**
+     * Calculate column index for a mouse click in the GUI table.
+     *
+     * @param xCoordinate x coordinate of the mouse.
+     * @return column index for a mouse click in the GUI table.
+     */
+    static int calculateColumnIndex(final int xCoordinate) {
+        final int columnIndex;
+        final int columnIndexForOtherColumns = 3;
+
+        if (xCoordinate < STARRED_COLUMN_WIDTH) {
+            columnIndex = 1;
+        } else if (xCoordinate < STARRED_COLUMN_WIDTH + READ_COLUMN_WIDTH) {
+            columnIndex = 2;
+        } else {
+            columnIndex = columnIndexForOtherColumns;
+        }
+
+        return columnIndex;
     }
 }
