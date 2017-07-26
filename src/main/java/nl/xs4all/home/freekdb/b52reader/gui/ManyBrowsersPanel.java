@@ -61,7 +61,7 @@ public class ManyBrowsersPanel extends JPanel {
      *
      * @param browserFactory the browser factory for creating embedded browsers.
      */
-    public ManyBrowsersPanel(BrowserFactory browserFactory) {
+    public ManyBrowsersPanel(final BrowserFactory browserFactory) {
         super(new BorderLayout());
 
         this.browserFactory = browserFactory;
@@ -76,7 +76,7 @@ public class ManyBrowsersPanel extends JPanel {
      * @param url the URL to check for.
      * @return whether there is an embedded web browser for the specified URL.
      */
-    boolean hasBrowserForUrl(String url) {
+    boolean hasBrowserForUrl(final String url) {
         return urlToBrowserPanels.containsKey(url);
     }
 
@@ -88,7 +88,7 @@ public class ManyBrowsersPanel extends JPanel {
      * @param url                the URL the browser should go to.
      * @param makeBrowserVisible whether to make the browser for this URL visible or not.
      */
-    void showBrowser(String url, boolean makeBrowserVisible) {
+    void showBrowser(final String url, final boolean makeBrowserVisible) {
         if (urlToBrowserPanels.containsKey(url)) {
             if (makeBrowserVisible) {
                 logger.info("Show browser for {}", url);
@@ -96,13 +96,13 @@ public class ManyBrowsersPanel extends JPanel {
                 makeBrowserPanelVisible(url);
             }
         } else {
-            Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
+            final Optional<JPanel> visibleBrowserPanel = browserPanels.stream().filter(Component::isVisible).findFirst();
             hideAllBrowserPanels();
 
-            JWebBrowser webBrowser = createWebBrowser(url);
+            final JWebBrowser webBrowser = createWebBrowser(url);
             webBrowsers.add(webBrowser);
 
-            JPanel browserPanel = new JPanel(new BorderLayout());
+            final JPanel browserPanel = new JPanel(new BorderLayout());
             browserPanel.add(webBrowser, BorderLayout.CENTER);
             browserPanels.add(browserPanel);
             urlToBrowserPanels.put(url, browserPanel);
@@ -123,11 +123,11 @@ public class ManyBrowsersPanel extends JPanel {
      * Dispose of all browsers.
      */
     void disposeAllBrowsers() {
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
 
         webBrowsers.forEach(NSPanelComponent::disposeNativePeer);
 
-        int browserCount = webBrowsers.size();
+        final int browserCount = webBrowsers.size();
 
         webBrowsers.clear();
         urlToBrowserPanels.clear();
@@ -135,7 +135,7 @@ public class ManyBrowsersPanel extends JPanel {
 
         removeAll();
 
-        long end = System.currentTimeMillis();
+        final long end = System.currentTimeMillis();
         logger.info("Disposed {} in {} milliseconds.",
                     Utilities.countAndWord(browserCount, "browser"), end - start);
     }
@@ -146,17 +146,21 @@ public class ManyBrowsersPanel extends JPanel {
      * @param url the URL to go to.
      * @return the embedded web browser.
      */
-    private JWebBrowser createWebBrowser(String url) {
-        JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(
-                browser -> {
-                    String partUrl = url.substring(url.lastIndexOf('/') + 1);
-                    logger.trace("[{}] Page loaded.", partUrl);
-                }
-        );
+    private JWebBrowser createWebBrowser(final String url) {
+        final JWebBrowser webBrowser = (JWebBrowser) browserFactory.createBrowser(browser -> logPageLoaded(url));
 
         webBrowser.navigate(url);
 
         return webBrowser;
+    }
+
+    /**
+     * Log when the page is loaded.
+     *
+     * @param url the URL to go to.
+     */
+    private void logPageLoaded(final String url) {
+        logger.trace("[{}] Page loaded.", url.substring(url.lastIndexOf('/') + 1));
     }
 
     /**
@@ -171,7 +175,7 @@ public class ManyBrowsersPanel extends JPanel {
      *
      * @param url the URL for which the browser panel should be shown.
      */
-    private void makeBrowserPanelVisible(String url) {
+    private void makeBrowserPanelVisible(final String url) {
         urlToBrowserPanels.get(url).setVisible(true);
     }
 }
