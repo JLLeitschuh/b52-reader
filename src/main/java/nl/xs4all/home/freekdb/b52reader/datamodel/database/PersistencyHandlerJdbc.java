@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,22 +38,64 @@ import org.apache.logging.log4j.Logger;
  * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class PersistencyHandlerJdbc implements PersistencyHandler {
+    /**
+     * Word article to use in GUI and logging.
+     */
     private static final String ARTICLE_WORD = "article";
+
+    /**
+     * Table name article to use in database.
+     */
     private static final String ARTICLE_TABLE_NAME = ARTICLE_WORD;
 
+    /**
+     * Word author to use in GUI and logging.
+     */
     private static final String AUTHOR_WORD = "author";
+
+    /**
+     * Table name author to use in database.
+     */
     private static final String AUTHOR_TABLE_NAME = AUTHOR_WORD;
+
+    /**
+     * Column name of id field in author table (in database).
+     */
+    private static final String AUTHOR_ID = "id";
+
+    /**
+     * Column name of name field in author table (in database).
+     */
+    private static final String AUTHOR_NAME = "name";
 
     /**
      * Logger for this class.
      */
     private static final Logger logger = LogManager.getLogger();
 
+    /**
+     * Database connection.
+     */
     private Connection databaseConnection;
+
+    /**
+     * Statement to execute static SQL queries.
+     */
     private Statement statement;
 
+    /**
+     * Authors stored in database.
+     */
     private List<Author> storedAuthors;
+
+    /**
+     * Map of names to authors stored in database.
+     */
     private Map<String, Author> storedAuthorsMap;
+
+    /**
+     * Map of URLs to articles stored in database.
+     */
     private Map<String, Article> storedArticlesMap;
 
     @Override
@@ -79,26 +122,31 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
     public void createTablesIfNeeded() {
         try {
             if (!tableExists(AUTHOR_TABLE_NAME)) {
-                statement.execute("create table " + AUTHOR_TABLE_NAME + "(id int auto_increment primary key, "
-                                  + "name varchar(100))");
-
-                logger.info("Created the " + AUTHOR_TABLE_NAME + " database table.");
+                createTable(String.format(
+                    "create table %s (id int auto_increment primary key, name varchar(100))", AUTHOR_TABLE_NAME
+                ), AUTHOR_TABLE_NAME);
             }
 
             if (!tableExists(ARTICLE_TABLE_NAME)) {
-                statement.execute("create table " + ARTICLE_TABLE_NAME + " (id int auto_increment primary key, "
-                                  + "url varchar(2800), source_id varchar(42), "
-                                  + "author_id int not null references " + AUTHOR_TABLE_NAME + "(id), "
-                                  + "title varchar(200), date_time timestamp, text varchar(8128), "
-                                  + "starred boolean, read boolean, archived boolean, likes int)");
-
-                logger.info("Created the " + ARTICLE_TABLE_NAME + " database table.");
+                createTable(String.format(
+                    "create table %s (id int auto_increment primary key, url varchar(2800), source_id varchar(42), "
+                    + "author_id int not null references %s (id), title varchar(200), date_time timestamp, "
+                    + "text varchar(8128), starred boolean, read boolean, archived boolean, likes int)",
+                    ARTICLE_TABLE_NAME, AUTHOR_TABLE_NAME
+                ), ARTICLE_TABLE_NAME);
             }
         } catch (final SQLException e) {
             logger.error("Exception while creating the database tables.", e);
         }
     }
 
+    /**
+     * Check whether a table exists in the database or not.
+     *
+     * @param tableName database table name.
+     * @return whether a table exists in the database or not.
+     * @throws SQLException if a database error occurs.
+     */
     private boolean tableExists(final String tableName) throws SQLException {
         final boolean result;
 
@@ -110,42 +158,90 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         return result;
     }
 
+    /**
+     * Create a database table using the specified create table query.
+     *
+     * @param createQuery SQL query to create database table.
+     * @param tableName   database table name.
+     * @throws SQLException if a database error occurs.
+     */
+    private void createTable(final String createQuery, final String tableName) throws SQLException {
+        statement.execute(createQuery);
+
+        logger.info(String.format("Created the %s database table.", tableName));
+    }
+
     @Override
     public void readAuthorsAndArticles() {
         try {
             storedAuthors = new ArrayList<>();
             storedAuthorsMap = new HashMap<>();
-
-            try (ResultSet authorsResultSet = statement.executeQuery("select distinct * from " + AUTHOR_TABLE_NAME)) {
-                while (authorsResultSet.next()) {
-                    final int id = authorsResultSet.getInt("id");
-                    final String name = authorsResultSet.getString("name");
-                    final Author author = new Author(name, id);
-
-                    storedAuthors.add(author);
-                    storedAuthorsMap.put(name, author);
-                }
-            }
-
-            logger.info("Read {} from the database.",
-                        Utilities.countAndWord(storedAuthors.size(), AUTHOR_WORD));
-
             storedArticlesMap = new HashMap<>();
 
-            try (ResultSet articlesResultSet = statement.executeQuery("select distinct * from "
-                                                                      + ARTICLE_TABLE_NAME)) {
-                while (articlesResultSet.next()) {
-                    final Article article = Article.createArticleFromDatabase(articlesResultSet, storedAuthors);
-
-                    storedArticlesMap.put(article.getUrl(), article);
-                }
-            }
-
-            logger.info("Read {} from the database.",
-                        Utilities.countAndWord(storedArticlesMap.size(), ARTICLE_WORD));
+            readObjects(AUTHOR_TABLE_NAME, getAuthorRecordHandler(), AUTHOR_WORD);
+            readObjects(ARTICLE_TABLE_NAME, getArticleRecordHandler(), AUTHOR_WORD);
         } catch (final SQLException e) {
             logger.error("Exception while reading authors and articles from the database.", e);
         }
+    }
+
+    /**
+     * Get a handler for reading authors (via a record set).
+     *
+     * @return handler for reading authors (via a record set).
+     */
+    private Consumer<ResultSet> getAuthorRecordHandler() {
+        return resultSet -> {
+            try {
+                final int id = resultSet.getInt(AUTHOR_ID);
+                final String name = resultSet.getString(AUTHOR_NAME);
+                final Author author = new Author(name, id);
+
+                storedAuthors.add(author);
+                storedAuthorsMap.put(name, author);
+            } catch (final SQLException e) {
+                logger.error("Exception while reading authors from the database.", e);
+            }
+        };
+    }
+
+    /**
+     * Get a handler for reading articles (via a record set).
+     *
+     * @return handler for reading articles (via a record set).
+     */
+    private Consumer<ResultSet> getArticleRecordHandler() {
+        return resultSet -> {
+            final Article article = Article.createArticleFromDatabase(resultSet, storedAuthors);
+
+            storedArticlesMap.put(article.getUrl(), article);
+        };
+    }
+
+    /**
+     * Read objects from a database table.
+     *
+     * @param tableName     database table name.
+     * @param recordHandler handler for reading object.
+     * @param objectWord    word describing objects for logging.
+     * @throws SQLException if a database error occurs.
+     */
+    private void readObjects(final String tableName, final Consumer<ResultSet> recordHandler, final String objectWord)
+            throws SQLException {
+        int objectCount = 0;
+
+        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement("select distinct * from ?")) {
+            preparedStatement.setString(1, tableName);
+
+            try (ResultSet authorsResultSet = preparedStatement.executeQuery()) {
+                while (authorsResultSet.next()) {
+                    recordHandler.accept(authorsResultSet);
+                    objectCount++;
+                }
+            }
+        }
+
+        logger.info("Read {} from the database.", Utilities.countAndWord(objectCount, objectWord));
     }
 
     @Override
@@ -193,9 +289,14 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         }
     }
 
+    /**
+     * Save new authors (from memory to database).
+     *
+     * @param newAuthors new authors.
+     */
     private void saveNewAuthors(final List<Author> newAuthors) {
         if (!newAuthors.isEmpty()) {
-            final String insertQuery = "insert into " + AUTHOR_TABLE_NAME + "(name) values (?)";
+            final String insertQuery = String.format("insert into %s (name) values (?)", AUTHOR_TABLE_NAME);
 
             try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery)) {
                 for (Author newAuthor : newAuthors) {
@@ -215,19 +316,24 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                 logger.error("Exception while inserting " + AUTHOR_WORD + "s into the database.", e);
             }
 
-            logger.info("Wrote {} to the database.",
-                        Utilities.countAndWord(newAuthors.size(), "new " + AUTHOR_WORD));
+            logger.info(String.format("Wrote %s to the database.",
+                                      Utilities.countAndWord(newAuthors.size(), "new " + AUTHOR_WORD)));
         }
     }
 
+    /**
+     * Update the database record ids for the specified authors.
+     *
+     * @param authors authors to update the database record id for.
+     */
     private void updateObjectAuthorIds(final List<Author> authors) {
         final Map<String, Author> authorsMap = authors.stream()
             .collect(Collectors.toMap(Author::getName, Function.identity()));
 
         try (ResultSet authorsResultSet = statement.executeQuery("select distinct * from " + AUTHOR_TABLE_NAME)) {
             while (authorsResultSet.next()) {
-                final int id = authorsResultSet.getInt("id");
-                final String name = authorsResultSet.getString("name");
+                final int id = authorsResultSet.getInt(AUTHOR_ID);
+                final String name = authorsResultSet.getString(AUTHOR_NAME);
 
                 if (authorsMap.containsKey(name)) {
                     authorsMap.put(name, new Author(name, id));
@@ -238,6 +344,11 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         }
     }
 
+    /**
+     * Update existing articles from memory to database.
+     *
+     * @param existingArticles existing articles to update.
+     */
     private void updateExistingArticles(final List<Article> existingArticles) {
         final String updateQuery
             = "update " + ARTICLE_TABLE_NAME + " "
@@ -255,18 +366,11 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                 existingArticle.setRecordId(storedArticle.getRecordId());
 
                 if (!Objects.equals(existingArticle, storedArticle) || !existingArticle.metadataEquals(storedArticle)) {
-                    preparedStatement.setString(1, existingArticle.getUrl());
-                    preparedStatement.setString(2, existingArticle.getSourceId());
-                    preparedStatement.setInt(3, existingArticle.getAuthor().getRecordId());
-                    preparedStatement.setString(4, existingArticle.getTitle());
-                    preparedStatement.setTimestamp(5, Timestamp.from(existingArticle.getDateTime().toInstant()));
-                    preparedStatement.setString(6, existingArticle.getText());
-                    preparedStatement.setInt(7, existingArticle.getLikes());
-                    preparedStatement.setBoolean(8, existingArticle.isStarred());
-                    preparedStatement.setBoolean(9, existingArticle.isRead());
-                    preparedStatement.setBoolean(10, existingArticle.isArchived());
-
-                    preparedStatement.setInt(11, storedArticle.getRecordId());
+                    setParameters(preparedStatement, existingArticle.getUrl(), existingArticle.getSourceId(),
+                                  existingArticle.getAuthor().getRecordId(), existingArticle.getTitle(),
+                                  Timestamp.from(existingArticle.getDateTime().toInstant()),
+                                  existingArticle.getText(), existingArticle.getLikes(), existingArticle.isStarred(),
+                                  existingArticle.isRead(), existingArticle.isArchived(), storedArticle.getRecordId());
 
                     preparedStatement.addBatch();
 
@@ -274,15 +378,7 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                 }
             }
 
-            if (!updateArticles.isEmpty()) {
-                final int[] results = preparedStatement.executeBatch();
-                for (int articleIndex = 0; articleIndex < results.length; articleIndex++) {
-                    final int result = results[articleIndex];
-                    if (result != 1) {
-                        logger.error("Error updating article {} in the database.", updateArticles.get(articleIndex));
-                    }
-                }
-            }
+            executeArticlesUpdate(updateArticles, preparedStatement);
         } catch (final SQLException e) {
             logger.error("Exception while updating articles in the database.", e);
         }
@@ -292,25 +388,44 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         }
     }
 
+    /**
+     * Execute article updates in database.
+     *
+     * @param updateArticles    articles that need to be updated in database.
+     * @param preparedStatement prepared statement to execute a batch of updates with.
+     * @throws SQLException if a database error occurs.
+     */
+    private void executeArticlesUpdate(final List<Article> updateArticles, final PreparedStatement preparedStatement)
+            throws SQLException {
+        if (!updateArticles.isEmpty()) {
+            final int[] results = preparedStatement.executeBatch();
+            for (int articleIndex = 0; articleIndex < results.length; articleIndex++) {
+                final int result = results[articleIndex];
+                if (result != 1) {
+                    logger.error("Error updating article {} in the database.", updateArticles.get(articleIndex));
+                }
+            }
+        }
+    }
+
+    /**
+     * Save new articles (from memory to database).
+     *
+     * @param newArticles new articles.
+     */
     private void saveNewArticles(final List<Article> newArticles) {
         try {
-            final String insertQuery
-                = "insert into " + ARTICLE_TABLE_NAME
-                  + " (url, source_id, author_id, title, date_time, text, starred, read, archived, likes) "
-                  + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            final String insertQuery = String.format(
+                "insert into %s (url, source_id, author_id, title, date_time, text, starred, read, archived, likes) "
+                + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ARTICLE_TABLE_NAME);
 
             try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery)) {
                 for (Article newArticle : newArticles) {
-                    preparedStatement.setString(1, newArticle.getUrl());
-                    preparedStatement.setString(2, newArticle.getSourceId());
-                    preparedStatement.setInt(3, newArticle.getAuthor().getRecordId());
-                    preparedStatement.setString(4, newArticle.getTitle());
-                    preparedStatement.setTimestamp(5, Timestamp.from(newArticle.getDateTime().toInstant()));
-                    preparedStatement.setString(6, newArticle.getText());
-                    preparedStatement.setBoolean(7, newArticle.isStarred());
-                    preparedStatement.setBoolean(8, newArticle.isRead());
-                    preparedStatement.setBoolean(9, newArticle.isArchived());
-                    preparedStatement.setInt(10, newArticle.getLikes());
+                    setParameters(preparedStatement, newArticle.getUrl(), newArticle.getSourceId(),
+                                  newArticle.getAuthor().getRecordId(), newArticle.getTitle(),
+                                  Timestamp.from(newArticle.getDateTime().toInstant()), newArticle.getText(),
+                                  newArticle.isStarred(), newArticle.isRead(), newArticle.isArchived(),
+                                  newArticle.getLikes());
 
                     preparedStatement.addBatch();
                 }
@@ -328,6 +443,19 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
                         Utilities.countAndWord(newArticles.size(), "new article"));
         } catch (final SQLException e) {
             logger.error("Exception while inserting articles into the database.", e);
+        }
+    }
+
+    /**
+     * Set parameters for specified prepared statement.
+     *
+     * @param preparedStatement prepared statement to set parameters for.
+     * @param values            parameter values to set.
+     * @throws SQLException if a database error occurs.
+     */
+    private void setParameters(final PreparedStatement preparedStatement, final Object... values) throws SQLException {
+        for (int parameterIndex = 0; parameterIndex < values.length; parameterIndex++) {
+            preparedStatement.setObject(parameterIndex + 1, values[parameterIndex]);
         }
     }
 
