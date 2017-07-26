@@ -127,7 +127,7 @@ public class RssArticleSource implements ArticleSource {
             // : entry.getTitleEx() != null ? entry.getTitleEx().getValue() : ""
             : "";
 
-        final Author entryAuthor = entry.getAuthor() != null
+        final Author entryAuthor = entry.getAuthor() != null && entry.getAuthor().length() > 0
             ? persistencyHandler.getOrCreateAuthor(entry.getAuthor())
             : null;
 

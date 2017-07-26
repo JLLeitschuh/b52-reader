@@ -89,7 +89,7 @@ public class SpanCellTableModel extends DefaultTableModel {
                     article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
                     article.isRead() ? "" : "unread",
                     article.getTitle(),
-                    article.getAuthor(),
+                    article.getAuthor().getName(),
                     article.getDateTime() != null
                         ? configuration.getDateTimeFormatLonger().format(article.getDateTime())
                         : ""
