@@ -8,7 +8,7 @@ package nl.xs4all.home.freekdb.b52reader.gui.multispan;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for the {@link DefaultTableSpans} class.
@@ -24,8 +24,8 @@ public class DefaultTableSpansTest {
         tableSpans.combine(new int[]{0, 1}, new int[]{0, 1});
         tableSpans.combine(new int[]{0, 1, 2, 3}, new int[]{0, 1, 2, 3});
 
-        assertArrayEquals(new int[]{2, 2}, tableSpans.getSpan(0, 0));
-        assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(2, 2));
+        assertEquals(new SpanCounts(2, 2), tableSpans.getSpan(0, 0));
+        assertEquals(new SpanCounts(1, 1), tableSpans.getSpan(2, 2));
     }
 
     @Test
@@ -38,7 +38,7 @@ public class DefaultTableSpansTest {
         tableSpans.addColumn();
 
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(rowIndex, columnCount));
+            assertEquals(new SpanCounts(1, 1), tableSpans.getSpan(rowIndex, columnCount));
         }
     }
 
@@ -52,7 +52,7 @@ public class DefaultTableSpansTest {
         tableSpans.addRow();
 
         for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-            assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(rowCount, columnIndex));
+            assertEquals(new SpanCounts(1, 1), tableSpans.getSpan(rowCount, columnIndex));
         }
     }
 
@@ -90,10 +90,10 @@ public class DefaultTableSpansTest {
 
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             if (rowIndex == newRowIndex) {
-                assertArrayEquals(new int[]{1, columnCount}, tableSpans.getSpan(newRowIndex, 0));
+                assertEquals(new SpanCounts(1, columnCount), tableSpans.getSpan(newRowIndex, 0));
             } else {
                 for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                    assertArrayEquals(new int[]{1, 1}, tableSpans.getSpan(rowIndex, columnIndex));
+                    assertEquals(new SpanCounts(1, 1), tableSpans.getSpan(rowIndex, columnIndex));
                 }
             }
         }

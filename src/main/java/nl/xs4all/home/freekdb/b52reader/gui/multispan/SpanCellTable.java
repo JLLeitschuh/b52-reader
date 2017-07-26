@@ -48,33 +48,33 @@ public class SpanCellTable extends JTable {
 
     @Override
     @Nonnull
-    public Rectangle getCellRect(int row, int column, boolean includeSpacing) {
+    public Rectangle getCellRect(final int row, final int column, final boolean includeSpacing) {
         if ((row < 0) || (column < 0) || (row >= getRowCount()) || (column >= getColumnCount())) {
             return super.getCellRect(row, column, includeSpacing);
         } else {
-            Rectangle cellRect = new Rectangle();
-            TableSpans tableSpans = tableModel.getTableSpans();
-            int[] spanCounts = tableSpans.getSpan(row, column);
+            final Rectangle cellRect = new Rectangle();
+            final TableSpans tableSpans = tableModel.getTableSpans();
+            final SpanCounts spanCounts = tableSpans.getSpan(row, column);
 
             // Adjust row and column for spanned cells.
             int adjustedRowIndex = row;
             int adjustedColumnIndex = column;
             if (!tableSpans.isVisible(adjustedRowIndex, adjustedColumnIndex)) {
-                adjustedRowIndex += spanCounts[TableSpans.ROW];
-                adjustedColumnIndex += spanCounts[TableSpans.COLUMN];
+                adjustedRowIndex += spanCounts.getRowSpanNumber();
+                adjustedColumnIndex += spanCounts.getColumnSpanNumber();
             }
 
-            int columnMargin = getColumnModel().getColumnMargin();
-            int cellHeight = rowHeight + rowMargin;
+            final int columnMargin = getColumnModel().getColumnMargin();
+            final int cellHeight = rowHeight + rowMargin;
             cellRect.y = adjustedRowIndex * cellHeight;
-            cellRect.height = spanCounts[TableSpans.ROW] * cellHeight;
+            cellRect.height = spanCounts.getRowSpanNumber() * cellHeight;
 
-            Enumeration columnEnumeration = getColumnModel().getColumns();
+            final Enumeration columnEnumeration = getColumnModel().getColumns();
             int columnIndex = 0;
 
             // First determine cellRect.x and the start value for cellRect.width.
             while (columnEnumeration.hasMoreElements()) {
-                TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
+                final TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
                 cellRect.width = tableColumn.getWidth() + columnMargin;
 
                 if (columnIndex == adjustedColumnIndex) {
@@ -86,14 +86,14 @@ public class SpanCellTable extends JTable {
             }
 
             // Now determine the total cellRect.width by including all spanned columns.
-            for (int spanColumnIndex = 0; spanColumnIndex < spanCounts[TableSpans.COLUMN] - 1; spanColumnIndex++) {
-                TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
+            for (int spanColumnIndex = 0; spanColumnIndex < spanCounts.getColumnSpanNumber() - 1; spanColumnIndex++) {
+                final TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
                 cellRect.width += tableColumn.getWidth() + columnMargin;
             }
 
             if (!includeSpacing) {
                 // Exclude spacing margins.
-                Dimension spacing = getIntercellSpacing();
+                final Dimension spacing = getIntercellSpacing();
 
                 cellRect.setBounds(cellRect.x + spacing.width / 2, cellRect.y + spacing.height / 2,
                                    cellRect.width - spacing.width, cellRect.height - spacing.height);
@@ -104,52 +104,50 @@ public class SpanCellTable extends JTable {
     }
 
     @Override
-    public int rowAtPoint(@Nonnull Point point) {
-        return rowColumnAtPoint(point)[TableSpans.ROW];
+    public int rowAtPoint(@Nonnull final Point point) {
+        return rowColumnAtPoint(point).getRowSpanNumber();
     }
 
     @Override
-    public int columnAtPoint(@Nonnull Point point) {
-        return rowColumnAtPoint(point)[TableSpans.COLUMN];
+    public int columnAtPoint(@Nonnull final Point point) {
+        return rowColumnAtPoint(point).getColumnSpanNumber();
     }
 
-    private int[] rowColumnAtPoint(Point point) {
-        int[] rowColumn = {-1, -1};
+    private SpanCounts rowColumnAtPoint(final Point point) {
+        final SpanCounts spanCountsPoint = new SpanCounts(-1, -1);
 
-        int row = point.y / (rowHeight + rowMargin);
+        final int row = point.y / (rowHeight + rowMargin);
 
-        if ((row < 0) || (getRowCount() <= row)) {
-            return rowColumn;
-        } else {
-            int column = getColumnModel().getColumnIndexAtX(point.x);
-            TableSpans tableSpans = tableModel.getTableSpans();
-            boolean visible = tableSpans.isVisible(row, column);
-            int[] spanCounts = tableSpans.getSpan(row, column);
+        if ((row >= 0) && (row < getRowCount())) {
+            final int column = getColumnModel().getColumnIndexAtX(point.x);
+            final TableSpans tableSpans = tableModel.getTableSpans();
+            final boolean visible = tableSpans.isVisible(row, column);
+            final SpanCounts spanCounts = tableSpans.getSpan(row, column);
 
-            rowColumn[TableSpans.COLUMN] = column + (visible ? 0 : spanCounts[TableSpans.COLUMN]);
-            rowColumn[TableSpans.ROW] = row + (visible ? 0 : spanCounts[TableSpans.ROW]);
-
-            return rowColumn;
+            spanCountsPoint.setColumnSpanNumber(column + (visible ? 0 : spanCounts.getColumnSpanNumber()));
+            spanCountsPoint.setRowSpanNumber(row + (visible ? 0 : spanCounts.getRowSpanNumber()));
         }
+
+        return spanCountsPoint;
     }
 
     @Override
-    public void columnSelectionChanged(ListSelectionEvent e) {
+    public void columnSelectionChanged(final ListSelectionEvent e) {
         repaint();
     }
 
     @Override
-    public void valueChanged(ListSelectionEvent listSelectionEvent) {
-        int firstIndex = listSelectionEvent.getFirstIndex();
-        int lastIndex = listSelectionEvent.getLastIndex();
+    public void valueChanged(final ListSelectionEvent listSelectionEvent) {
+        final int firstIndex = listSelectionEvent.getFirstIndex();
+        final int lastIndex = listSelectionEvent.getLastIndex();
 
         if (firstIndex == -1 && lastIndex == -1) {
             // Selection cleared.
             repaint();
         } else {
-            Rectangle dirtyRegion = getCellRect(firstIndex, 0, false);
+            final Rectangle dirtyRegion = getCellRect(firstIndex, 0, false);
 
-            int columnCount = getColumnCount();
+            final int columnCount = getColumnCount();
 
             for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 dirtyRegion.add(getCellRect(firstIndex, columnIndex, false));

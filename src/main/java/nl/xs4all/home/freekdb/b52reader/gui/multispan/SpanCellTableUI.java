@@ -31,19 +31,19 @@ import javax.swing.table.TableCellRenderer;
  */
 public class SpanCellTableUI extends BasicTableUI {
     @Override
-    public void paint(Graphics graphics, JComponent component) {
-        Rectangle oldClipBounds = graphics.getClipBounds();
+    public void paint(final Graphics graphics, final JComponent component) {
+        final Rectangle oldClipBounds = graphics.getClipBounds();
 
-        Rectangle clipBounds = new Rectangle(oldClipBounds);
-        int tableWidth = table.getColumnModel().getTotalColumnWidth();
+        final Rectangle clipBounds = new Rectangle(oldClipBounds);
+        final int tableWidth = table.getColumnModel().getTotalColumnWidth();
         clipBounds.width = Math.min(clipBounds.width, tableWidth);
 
         graphics.setClip(clipBounds);
 
-        int firstRowIndex = table.rowAtPoint(new Point(0, clipBounds.y));
-        int lastRowIndex = table.getRowCount() - 1;
+        final int firstRowIndex = table.rowAtPoint(new Point(0, clipBounds.y));
+        final int lastRowIndex = table.getRowCount() - 1;
 
-        Rectangle rowRect = new Rectangle(0, 0, tableWidth, table.getRowHeight() + table.getRowMargin());
+        final Rectangle rowRect = new Rectangle(0, 0, tableWidth, table.getRowHeight() + table.getRowMargin());
         rowRect.y = firstRowIndex * rowRect.height;
 
         for (int rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++) {
@@ -57,37 +57,37 @@ public class SpanCellTableUI extends BasicTableUI {
         graphics.setClip(oldClipBounds);
     }
 
-    private void paintTableRow(Graphics graphics, int rowIndex) {
-        Rectangle clipBounds = graphics.getClipBounds();
+    private void paintTableRow(final Graphics graphics, final int rowIndex) {
+        final Rectangle clipBounds = graphics.getClipBounds();
         boolean drawn = false;
 
-        SpanCellTableModel tableModel = (SpanCellTableModel) table.getModel();
-        TableSpans tableSpans = tableModel.getTableSpans();
-        int columnCount = table.getColumnCount();
+        final SpanCellTableModel tableModel = (SpanCellTableModel) table.getModel();
+        final TableSpans tableSpans = tableModel.getTableSpans();
+        final int columnCount = table.getColumnCount();
 
         for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-            Rectangle cellRect = table.getCellRect(rowIndex, columnIndex, true);
+            final Rectangle cellRect = table.getCellRect(rowIndex, columnIndex, true);
 
-            boolean visible = tableSpans.isVisible(rowIndex, columnIndex);
-            int[] spanCounts = tableSpans.getSpan(rowIndex, columnIndex);
-            int cellRow = rowIndex + (visible ? 0 : spanCounts[TableSpans.ROW]);
-            int cellColumn = columnIndex + (visible ? 0 : spanCounts[TableSpans.COLUMN]);
+            final boolean visible = tableSpans.isVisible(rowIndex, columnIndex);
+            final SpanCounts spanCounts = tableSpans.getSpan(rowIndex, columnIndex);
+            final int cellRow = rowIndex + (visible ? 0 : spanCounts.getRowSpanNumber());
+            final int cellColumn = columnIndex + (visible ? 0 : spanCounts.getColumnSpanNumber());
 
             if (cellRect.intersects(clipBounds)) {
                 drawn = true;
                 paintTableCell(graphics, cellRect, cellRow, cellColumn);
-            }
-            else if (drawn) {
+            } else if (drawn) {
                 break;
             }
         }
     }
 
-    private void paintTableCell(Graphics graphics, Rectangle cellRect, int rowIndex, int columnIndex) {
-        int spacingHeight = table.getRowMargin();
-        int spacingWidth = table.getColumnModel().getColumnMargin();
+    private void paintTableCell(final Graphics graphics, final Rectangle cellRect, final int rowIndex,
+                                final int columnIndex) {
+        final int spacingHeight = table.getRowMargin();
+        final int spacingWidth = table.getColumnModel().getColumnMargin();
 
-        Color contentColor = graphics.getColor();
+        final Color contentColor = graphics.getColor();
         graphics.setColor(table.getGridColor());
         graphics.drawRect(cellRect.x, cellRect.y, cellRect.width - 1, cellRect.height - 1);
         graphics.setColor(contentColor);
@@ -95,14 +95,14 @@ public class SpanCellTableUI extends BasicTableUI {
         cellRect.setBounds(cellRect.x + spacingWidth / 2, cellRect.y + spacingHeight / 2,
                            cellRect.width - spacingWidth, cellRect.height - spacingHeight);
 
-        if (table.isEditing() && table.getEditingRow() == rowIndex &&
-            table.getEditingColumn() == columnIndex) {
-            Component component = table.getEditorComponent();
+        if (table.isEditing() && table.getEditingRow() == rowIndex
+            && table.getEditingColumn() == columnIndex) {
+            final Component component = table.getEditorComponent();
             component.setBounds(cellRect);
             component.validate();
         } else {
-            TableCellRenderer renderer = table.getCellRenderer(rowIndex, columnIndex);
-            Component component = table.prepareRenderer(renderer, rowIndex, columnIndex);
+            final TableCellRenderer renderer = table.getCellRenderer(rowIndex, columnIndex);
+            final Component component = table.prepareRenderer(renderer, rowIndex, columnIndex);
 
             if (component.getParent() == null) {
                 rendererPane.add(component);

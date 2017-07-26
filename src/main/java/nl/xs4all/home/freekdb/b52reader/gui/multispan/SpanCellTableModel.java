@@ -44,14 +44,14 @@ public class SpanCellTableModel extends DefaultTableModel {
     private transient TableSpans tableSpans;
     private transient List<Article> articles;
 
-    public SpanCellTableModel(List<Article> articles, int columnCount, Configuration configuration) {
+    public SpanCellTableModel(final List<Article> articles, final int columnCount, final Configuration configuration) {
         this.articles = articles;
         this.configuration = configuration;
 
-        int rowCount = 2 * articles.size();
+        final int rowCount = 2 * articles.size();
 
         @SuppressWarnings("squid:S1149")
-        Vector names = new Vector(columnCount);
+        final Vector names = new Vector(columnCount);
 
         names.setSize(columnCount);
         setColumnIdentifiers(names);
@@ -67,12 +67,12 @@ public class SpanCellTableModel extends DefaultTableModel {
     }
 
     @Override
-    public Class<?> getColumnClass(int columnIndex) {
+    public Class<?> getColumnClass(final int columnIndex) {
         return columnClasses.get(columnIndex);
     }
 
-    public void setColumnsAndData(List<String> columnNames, List<Class<?>> columnClasses, List<Article> articles,
-                                  Predicate<Article> isFetched) {
+    public void setColumnsAndData(final List<String> columnNames, final List<Class<?>> columnClasses,
+                                  final List<Article> articles, final Predicate<Article> isFetched) {
         // Code modified to prevent stack overflow. See http://stackoverflow.com/a/21977825/1694043 for more information.
         // setColumnIdentifiers(columnNames)
         this.columnIdentifiers = listToVector(columnNames);
@@ -80,7 +80,7 @@ public class SpanCellTableModel extends DefaultTableModel {
         this.articles = articles;
 
         @SuppressWarnings("squid:S1149")
-        Vector<Vector<Object>> newDataVector = new Vector<>();
+        final Vector<Vector<Object>> newDataVector = new Vector<>();
 
         if (articles != null) {
             articles.forEach(article -> {
@@ -115,12 +115,12 @@ public class SpanCellTableModel extends DefaultTableModel {
      * @return the vector with the same items as are in the list.
      */
     @SuppressWarnings("squid:S1149")
-    private <T> Vector<T> listToVector(List<T> list) {
+    private <T> Vector<T> listToVector(final List<T> list) {
         return list != null ? new Vector<>(list) : null;
     }
 
     @Override
-    public void addColumn(Object columnName, Vector columnData) {
+    public void addColumn(final Object columnName, final Vector columnData) {
         if (columnName == null) {
             throw new IllegalArgumentException("addColumn() - null parameter");
         }
@@ -129,10 +129,10 @@ public class SpanCellTableModel extends DefaultTableModel {
         columnIdentifiers.addElement(columnName);
 
         int index = 0;
-        Enumeration enumeration = dataVector.elements();
+        final Enumeration enumeration = dataVector.elements();
 
         while (enumeration.hasMoreElements()) {
-            Object value = (columnData != null && index < columnData.size()) ? columnData.elementAt(index) : null;
+            final Object value = (columnData != null && index < columnData.size()) ? columnData.elementAt(index) : null;
 
             //noinspection unchecked
             ((Vector) enumeration.nextElement()).addElement(value);
@@ -146,9 +146,9 @@ public class SpanCellTableModel extends DefaultTableModel {
     }
 
     @Override
-    public void addRow(Vector rowData) {
+    public void addRow(final Vector rowData) {
         @SuppressWarnings("squid:S1149")
-        Vector newData;
+        final Vector newData;
 
         if (rowData == null) {
             newData = new Vector(getColumnCount());
@@ -170,9 +170,9 @@ public class SpanCellTableModel extends DefaultTableModel {
     }
 
     @Override
-    public void insertRow(int rowIndex, Vector rowData) {
+    public void insertRow(final int rowIndex, final Vector rowData) {
         @SuppressWarnings("squid:S1149")
-        Vector newData;
+        final Vector newData;
 
         if (rowData == null) {
             newData = new Vector(getColumnCount());
@@ -193,7 +193,7 @@ public class SpanCellTableModel extends DefaultTableModel {
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
     }
 
-    Article getArticle(int rowIndex) {
+    Article getArticle(final int rowIndex) {
         return (articles != null && rowIndex >= 0 && rowIndex < articles.size())
             ? articles.get(rowIndex)
             : null;

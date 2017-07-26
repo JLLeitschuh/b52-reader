@@ -36,34 +36,34 @@ public class DefaultTableSpans implements TableSpans {
      * span numbers equal to the number of rows and columns in the group, while the other cells have span numbers
      * smaller than or equal to zero.
      */
-    private int[][][] span;
+    private SpanCounts[][] span;
 
-    DefaultTableSpans(int rowCount, int columnCount) {
+    DefaultTableSpans(final int rowCount, final int columnCount) {
         setSize(new Dimension(columnCount, rowCount));
     }
 
-    public boolean isVisible(int rowIndex, int columnIndex) {
-        return !isOutOfBounds(rowIndex, columnIndex) &&
-               span[rowIndex][columnIndex][TableSpans.ROW] >= 1 &&
-               span[rowIndex][columnIndex][TableSpans.COLUMN] >= 1;
+    public boolean isVisible(final int rowIndex, final int columnIndex) {
+        return !isOutOfBounds(rowIndex, columnIndex)
+               && span[rowIndex][columnIndex].getRowSpanNumber() >= 1
+               && span[rowIndex][columnIndex].getColumnSpanNumber() >= 1;
     }
 
-    public int[] getSpan(int rowIndex, int columnIndex) {
-        return !isOutOfBounds(rowIndex, columnIndex) ? span[rowIndex][columnIndex] : new int[]{1, 1};
+    public SpanCounts getSpan(final int rowIndex, final int columnIndex) {
+        return !isOutOfBounds(rowIndex, columnIndex) ? span[rowIndex][columnIndex] : new SpanCounts();
     }
 
-    public void combine(int[] rowIndices, int[] columnIndices) {
+    public void combine(final int[] rowIndices, final int[] columnIndices) {
         if (!isOutOfBounds(rowIndices, columnIndices)) {
-            int startRowIndex = rowIndices[0];
-            int startColumnIndex = columnIndices[0];
-            int combineRowCount = rowIndices.length;
-            int combineColumnCount = columnIndices.length;
+            final int startRowIndex = rowIndices[0];
+            final int startColumnIndex = columnIndices[0];
+            final int combineRowCount = rowIndices.length;
+            final int combineColumnCount = columnIndices.length;
 
             if (isValidCombinationArea(startRowIndex, startColumnIndex, combineRowCount, combineColumnCount)) {
                 int rowSpanNumber = 0;
 
                 for (int rowOffset = 0; rowOffset < combineRowCount; rowOffset++) {
-                    int cellRowIndex = startRowIndex + rowOffset;
+                    final int cellRowIndex = startRowIndex + rowOffset;
                     int columnSpanNumber = 0;
 
                     for (int columnOffset = 0; columnOffset < combineColumnCount; columnOffset++) {
@@ -81,12 +81,12 @@ public class DefaultTableSpans implements TableSpans {
         }
     }
 
-    private boolean isValidCombinationArea(int startRowIndex, int startColumnIndex,
-                                           int combinationRowCount, int combinationColumnCount) {
+    private boolean isValidCombinationArea(final int startRowIndex, final int startColumnIndex,
+                                           final int combinationRowCount, final int combinationColumnCount) {
         for (int rowIndex = 0; rowIndex < combinationRowCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < combinationColumnCount; columnIndex++) {
-                if (span[startRowIndex + rowIndex][startColumnIndex + columnIndex][TableSpans.ROW] != 1 ||
-                    span[startRowIndex + rowIndex][startColumnIndex + columnIndex][TableSpans.COLUMN] != 1) {
+                if (span[startRowIndex + rowIndex][startColumnIndex + columnIndex].getRowSpanNumber() != 1
+                    || span[startRowIndex + rowIndex][startColumnIndex + columnIndex].getColumnSpanNumber() != 1) {
                     return false;
                 }
             }
@@ -95,62 +95,58 @@ public class DefaultTableSpans implements TableSpans {
         return true;
     }
 
-    private void setSpanCellNumbers(int cellRowIndex, int cellColumnIndex) {
-        setSpanCellNumbers(cellRowIndex, cellColumnIndex, 1, 1);
+    private void setSpanCellNumbers(final int cellRowIndex, final int cellColumnIndex, final int rowSpanNumber,
+                                    final int columnSpanNumber) {
+        span[cellRowIndex][cellColumnIndex].setRowSpanNumber(rowSpanNumber);
+        span[cellRowIndex][cellColumnIndex].setColumnSpanNumber(columnSpanNumber);
     }
 
-    private void setSpanCellNumbers(int cellRowIndex, int cellColumnIndex, int rowSpanNumber, int columnSpanNumber) {
-        span[cellRowIndex][cellColumnIndex][TableSpans.ROW] = rowSpanNumber;
-        span[cellRowIndex][cellColumnIndex][TableSpans.COLUMN] = columnSpanNumber;
-    }
-
-    public void setSize(Dimension size) {
+    public void setSize(final Dimension size) {
         columnCount = size.width;
         rowCount = size.height;
-        span = new int[rowCount][columnCount][2];   // 2: COLUMN,ROW
+
+        span = new SpanCounts[rowCount][columnCount];
 
         for (int rowIndex = 0; rowIndex < span.length; rowIndex++) {
             for (int columnIndex = 0; columnIndex < span[rowIndex].length; columnIndex++) {
-                setSpanCellNumbers(rowIndex, columnIndex);
+                span[rowIndex][columnIndex] = new SpanCounts();
             }
         }
     }
 
     public void addColumn() {
-        int[][][] oldSpan = span;
-        int currentRowCount = oldSpan.length;
-        int oldColumnCount = oldSpan[0].length;
+        final SpanCounts[][] oldSpan = span;
+        final int currentRowCount = oldSpan.length;
+        final int oldColumnCount = oldSpan[0].length;
 
-        span = new int[currentRowCount][oldColumnCount + 1][2];
+        span = new SpanCounts[currentRowCount][oldColumnCount + 1];
 
         for (int rowIndex = 0; rowIndex < currentRowCount; rowIndex++) {
             span[rowIndex] = Arrays.copyOf(oldSpan[rowIndex], oldColumnCount + 1);
-            span[rowIndex][oldColumnCount] = new int[2];
-
-            setSpanCellNumbers(rowIndex, oldColumnCount);
+            span[rowIndex][oldColumnCount] = new SpanCounts();
         }
     }
 
     public void addRow() {
-        int[][][] oldSpan = span;
-        int oldRowCount = oldSpan.length;
-        int currentColumnCount = oldSpan[0].length;
+        final SpanCounts[][] oldSpan = span;
+        final int oldRowCount = oldSpan.length;
+        final int currentColumnCount = oldSpan[0].length;
 
-        span = new int[oldRowCount + 1][currentColumnCount][2];
+        span = new SpanCounts[oldRowCount + 1][currentColumnCount];
 
         System.arraycopy(oldSpan, 0, span, 0, oldRowCount);
 
         for (int columnIndex = 0; columnIndex < currentColumnCount; columnIndex++) {
-            setSpanCellNumbers(oldRowCount, columnIndex);
+            span[oldRowCount][columnIndex] = new SpanCounts();
         }
     }
 
-    public void insertRow(int rowIndex) {
-        int[][][] oldSpan = span;
-        int oldRowCount = oldSpan.length;
-        int currentColumnCount = oldSpan[0].length;
+    public void insertRow(final int rowIndex) {
+        final SpanCounts[][] oldSpan = span;
+        final int oldRowCount = oldSpan.length;
+        final int currentColumnCount = oldSpan[0].length;
 
-        span = new int[oldRowCount + 1][currentColumnCount][2];
+        span = new SpanCounts[oldRowCount + 1][currentColumnCount];
 
         if (rowIndex > 0) {
             System.arraycopy(oldSpan, 0, span, 0, rowIndex);
@@ -159,16 +155,16 @@ public class DefaultTableSpans implements TableSpans {
         System.arraycopy(oldSpan, 0, span, rowIndex + 1, oldRowCount - rowIndex);
 
         for (int columnIndex = 0; columnIndex < currentColumnCount; columnIndex++) {
-            setSpanCellNumbers(rowIndex, columnIndex);
+            span[rowIndex][columnIndex] = new SpanCounts();
         }
     }
 
-    private boolean isOutOfBounds(int row, int column) {
+    private boolean isOutOfBounds(final int row, final int column) {
         return (row < 0) || (row >= rowCount) || (column < 0) || (column >= columnCount);
     }
 
-    private boolean isOutOfBounds(int[] rows, int[] columns) {
-        return Arrays.stream(rows).anyMatch(row -> row < 0 || row >= rowCount) ||
-               Arrays.stream(columns).anyMatch(column -> column < 0 || column >= columnCount);
+    private boolean isOutOfBounds(final int[] rows, final int[] columns) {
+        return Arrays.stream(rows).anyMatch(row -> row < 0 || row >= rowCount)
+               || Arrays.stream(columns).anyMatch(column -> column < 0 || column >= columnCount);
     }
 }
