@@ -29,11 +29,22 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 /**
+ * GUI table that supports combining multiple cells into a large rectangle.
+ *
+ * @author <a href="mailto:unknown@unknown.org">Nobuo Tamemasa</a>
  * @version 1.0 11/26/98
  */
 public class SpanCellTable extends JTable {
+    /**
+     * Specialized table model for this GUI table.
+     */
     private SpanCellTableModel tableModel;
 
+    /**
+     * Construct a span cell GUI table.
+     *
+     * @param tableModel specialized table model for this GUI table.
+     */
     public SpanCellTable(final TableModel tableModel) {
         super(tableModel);
 
@@ -69,37 +80,52 @@ public class SpanCellTable extends JTable {
             cellRect.y = adjustedRowIndex * cellHeight;
             cellRect.height = spanCounts.getRowSpanNumber() * cellHeight;
 
-            final Enumeration columnEnumeration = getColumnModel().getColumns();
-            int columnIndex = 0;
-
-            // First determine cellRect.x and the start value for cellRect.width.
-            while (columnEnumeration.hasMoreElements()) {
-                final TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
-                cellRect.width = tableColumn.getWidth() + columnMargin;
-
-                if (columnIndex == adjustedColumnIndex) {
-                    break;
-                }
-
-                cellRect.x += cellRect.width;
-                columnIndex++;
-            }
-
-            // Now determine the total cellRect.width by including all spanned columns.
-            for (int spanColumnIndex = 0; spanColumnIndex < spanCounts.getColumnSpanNumber() - 1; spanColumnIndex++) {
-                final TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
-                cellRect.width += tableColumn.getWidth() + columnMargin;
-            }
-
-            if (!includeSpacing) {
-                // Exclude spacing margins.
-                final Dimension spacing = getIntercellSpacing();
-
-                cellRect.setBounds(cellRect.x + spacing.width / 2, cellRect.y + spacing.height / 2,
-                                   cellRect.width - spacing.width, cellRect.height - spacing.height);
-            }
+            determineCellRectWidthAndX(cellRect, columnMargin, adjustedColumnIndex, spanCounts, includeSpacing);
 
             return cellRect;
+        }
+    }
+
+    /**
+     * Determine the width and x coordinate for the specific cell rect.
+     *
+     * @param cellRect            cell rect being constructed.
+     * @param columnMargin        width between cells.
+     * @param adjustedColumnIndex column index adjusted for spanned cells.
+     * @param spanCounts          span counts for the rectangle that dictates the width.
+     * @param includeSpacing      whether to include the intercell spacing.
+     */
+    private void determineCellRectWidthAndX(final Rectangle cellRect, final int columnMargin,
+                                            final int adjustedColumnIndex, final SpanCounts spanCounts,
+                                            final boolean includeSpacing) {
+        final Enumeration columnEnumeration = getColumnModel().getColumns();
+        int columnIndex = 0;
+
+        // First determine cellRect.x and the start value for cellRect.width.
+        while (columnEnumeration.hasMoreElements()) {
+            final TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
+            cellRect.width = tableColumn.getWidth() + columnMargin;
+
+            if (columnIndex == adjustedColumnIndex) {
+                break;
+            }
+
+            cellRect.x += cellRect.width;
+            columnIndex++;
+        }
+
+        // Now determine the total cellRect.width by including all spanned columns.
+        for (int spanColumnIndex = 0; spanColumnIndex < spanCounts.getColumnSpanNumber() - 1; spanColumnIndex++) {
+            final TableColumn tableColumn = (TableColumn) columnEnumeration.nextElement();
+            cellRect.width += tableColumn.getWidth() + columnMargin;
+        }
+
+        if (!includeSpacing) {
+            // Exclude spacing margins.
+            final Dimension spacing = getIntercellSpacing();
+
+            cellRect.setBounds(cellRect.x + spacing.width / 2, cellRect.y + spacing.height / 2,
+                               cellRect.width - spacing.width, cellRect.height - spacing.height);
         }
     }
 
@@ -113,6 +139,12 @@ public class SpanCellTable extends JTable {
         return rowColumnAtPoint(point).getColumnSpanNumber();
     }
 
+    /**
+     * Determine the span counts for a specific point.
+     *
+     * @param point the location of interest.
+     * @return the span counts for point.
+     */
     private SpanCounts rowColumnAtPoint(final Point point) {
         final SpanCounts spanCountsPoint = new SpanCounts(-1, -1);
 
@@ -121,8 +153,8 @@ public class SpanCellTable extends JTable {
         if ((row >= 0) && (row < getRowCount())) {
             final int column = getColumnModel().getColumnIndexAtX(point.x);
             final TableSpans tableSpans = tableModel.getTableSpans();
-            final boolean visible = tableSpans.isVisible(row, column);
             final SpanCounts spanCounts = tableSpans.getSpan(row, column);
+            final boolean visible = tableSpans.isVisible(row, column);
 
             spanCountsPoint.setColumnSpanNumber(column + (visible ? 0 : spanCounts.getColumnSpanNumber()));
             spanCountsPoint.setRowSpanNumber(row + (visible ? 0 : spanCounts.getRowSpanNumber()));
