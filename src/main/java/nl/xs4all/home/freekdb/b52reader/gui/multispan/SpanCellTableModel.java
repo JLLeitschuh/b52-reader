@@ -34,16 +34,39 @@ import nl.xs4all.home.freekdb.b52reader.general.Constants;
 // todo: Contents should be adjusted -> change dataVector or let getValueAt use the list of articles.
 
 /**
+ * Specialized table model for the <code>SpanCellTable</code> class.
+ *
+ * @author <a href="mailto:unknown@unknown.org">Nobuo Tamemasa</a>
  * @version 1.0 11/22/98
  */
 public class SpanCellTableModel extends DefaultTableModel {
+    /**
+     * Configuration object.
+     */
     private final transient Configuration configuration;
 
+    /**
+     * Column classes for this model.
+     */
     private List<Class<?>> columnClasses;
 
+    /**
+     * Table spans for this model (and the related span cell GUI table).
+     */
     private transient TableSpans tableSpans;
+
+    /**
+     * Articles to be shown.
+     */
     private transient List<Article> articles;
 
+    /**
+     * Construct a model for a span cell GUI table.
+     *
+     * @param articles      articles to be shown.
+     * @param columnCount   number of columns.
+     * @param configuration configuration object.
+     */
     public SpanCellTableModel(final List<Article> articles, final int columnCount, final Configuration configuration) {
         this.articles = articles;
         this.configuration = configuration;
@@ -62,6 +85,11 @@ public class SpanCellTableModel extends DefaultTableModel {
         tableSpans = new DefaultTableSpans(rowCount, columnCount);
     }
 
+    /**
+     * Get the table spans for this model (and the related span cell GUI table).
+     *
+     * @return the table spans for this model (and the related span cell GUI table).
+     */
     public TableSpans getTableSpans() {
         return tableSpans;
     }
@@ -71,6 +99,14 @@ public class SpanCellTableModel extends DefaultTableModel {
         return columnClasses.get(columnIndex);
     }
 
+    /**
+     * Set the column names, column classes, and the articles to be shown.
+     *
+     * @param columnNames column names.
+     * @param columnClasses column classes.
+     * @param articles articles.
+     * @param isFetched predicate that can determine whether an article is already fetched or not.
+     */
     public void setColumnsAndData(final List<String> columnNames, final List<Class<?>> columnClasses,
                                   final List<Article> articles, final Predicate<Article> isFetched) {
         // Code modified to prevent stack overflow. See http://stackoverflow.com/a/21977825/1694043 for more information.
@@ -79,8 +115,7 @@ public class SpanCellTableModel extends DefaultTableModel {
         this.columnClasses = columnClasses;
         this.articles = articles;
 
-        @SuppressWarnings("squid:S1149")
-        final Vector<Vector<Object>> newDataVector = new Vector<>();
+        @SuppressWarnings("squid:S1149") final Vector<Vector<Object>> newDataVector = new Vector<>();
 
         if (articles != null) {
             articles.forEach(article -> {
@@ -122,7 +157,7 @@ public class SpanCellTableModel extends DefaultTableModel {
     @Override
     public void addColumn(final Object columnName, final Vector columnData) {
         if (columnName == null) {
-            throw new IllegalArgumentException("addColumn() - null parameter");
+            throw new IllegalArgumentException("addColumn: column name is null");
         }
 
         //noinspection unchecked
@@ -193,9 +228,13 @@ public class SpanCellTableModel extends DefaultTableModel {
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
     }
 
+    /**
+     * Get the article on the specified row index.
+     *
+     * @param rowIndex row index.
+     * @return the article on the specified row index or <code>null</code> if row index is invalid.
+     */
     Article getArticle(final int rowIndex) {
-        return (articles != null && rowIndex >= 0 && rowIndex < articles.size())
-            ? articles.get(rowIndex)
-            : null;
+        return (articles != null && rowIndex >= 0 && rowIndex < articles.size()) ? articles.get(rowIndex) : null;
     }
 }

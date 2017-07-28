@@ -27,6 +27,9 @@ import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.table.TableCellRenderer;
 
 /**
+ * Look and feel for the <code>SpanCellTable</code> class.
+ *
+ * @author <a href="mailto:unknown@unknown.org">Nobuo Tamemasa</a>
  * @version 1.0 11/26/98
  */
 public class SpanCellTableUI extends BasicTableUI {
@@ -57,6 +60,12 @@ public class SpanCellTableUI extends BasicTableUI {
         graphics.setClip(oldClipBounds);
     }
 
+    /**
+     * Paint a row of the GUI table.
+     *
+     * @param graphics the <code>Graphics</code> context in which to paint.
+     * @param rowIndex the row index to paint.
+     */
     private void paintTableRow(final Graphics graphics, final int rowIndex) {
         final Rectangle clipBounds = graphics.getClipBounds();
         boolean drawn = false;
@@ -82,6 +91,14 @@ public class SpanCellTableUI extends BasicTableUI {
         }
     }
 
+    /**
+     * Paint a cell of the GUI table.
+     *
+     * @param graphics the <code>Graphics</code> context in which to paint.
+     * @param cellRect the rectangle occupied by the cell.
+     * @param rowIndex the row index to paint.
+     * @param columnIndex the column index to paint.
+     */
     private void paintTableCell(final Graphics graphics, final Rectangle cellRect, final int rowIndex,
                                 final int columnIndex) {
         final int spacingHeight = table.getRowMargin();
