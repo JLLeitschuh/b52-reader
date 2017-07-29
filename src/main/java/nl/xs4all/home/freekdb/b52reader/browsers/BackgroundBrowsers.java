@@ -107,7 +107,7 @@ public class BackgroundBrowsers {
             }
 
             closeBackgroundBrowser(url);
-        } catch (InterruptedException | InvocationTargetException e) {
+        } catch (final InterruptedException | InvocationTargetException e) {
             logger.error("Exception while getting html content with a background browser.", e);
         }
 
@@ -206,7 +206,7 @@ public class BackgroundBrowsers {
                     webBrowsers.remove(webBrowser);
                     backgroundBrowsersPanel.remove(webBrowser);
                 });
-            } catch (InterruptedException | InvocationTargetException e) {
+            } catch (final InterruptedException | InvocationTargetException e) {
                 logger.error("Exception while closing a background browser.", e);
             }
         } else {

@@ -151,7 +151,7 @@ public class MainApplication implements MainCallbacks {
             } else {
                 result = false;
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (final ClassNotFoundException | SQLException e) {
             logger.error("Exception while initializing the database connection.", e);
 
             result = false;

@@ -561,7 +561,7 @@ public class Configuration {
                     articleSource = (ArticleSource) sourceClass.getConstructor().newInstance();
                 }
             }
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException
+        } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException
             | InvocationTargetException e) {
             logger.error("Exception while initializing article source " + sourceId + ".", e);
         }
@@ -597,7 +597,7 @@ public class Configuration {
             final SyndFeed feed = new SyndFeedInput().build(new XmlReader(feedUrl));
 
             source = new RssArticleSource(sourceId, feed, feedName, defaultAuthorName, feedUrl, categoryName);
-        } catch (FeedException | IOException e) {
+        } catch (final FeedException | IOException e) {
             logger.error("Exception while fetching articles from an RSS feed.", e);
         }
 

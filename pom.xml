@@ -45,6 +45,9 @@
         <jacoco-plugin.version>0.7.9</jacoco-plugin.version>
         <coveralls-plugin.version>4.3.0</coveralls-plugin.version>
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
+
+        <!-- Checkstyle configuration location. -->
+        <checkstyle.config.location>src/configuration/checkstyle-checks.xml</checkstyle.config.location>
     </properties>
 
 
@@ -239,36 +242,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
-
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>checkstyle</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-
-                <!--<inherited>true</inherited>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>verify</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>checkstyle</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-
-                <configuration>
-                    <configLocation>src/configuration/checkstyle-checks.xml</configLocation>
-                    <suppressionsLocation>src/configuration/checkstyle-suppressions.xml</suppressionsLocation>
-                    <!--
-                        Workaround for resolving the suppressions file in a Maven build: always check two
-                        module levels above the current project. IDE builds should provide the config_loc
-                        property, hence this setting will not influence the builds triggered in IDEs.
-                    -->
-                    <!--<propertyExpansion>config_loc=${project.parent.parent.basedir}/</propertyExpansion>-->
-                    <failsOnError>true</failsOnError>
-                </configuration>
             </plugin>
 
         </plugins>
