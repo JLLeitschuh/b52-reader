@@ -367,8 +367,8 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
 
                 if (!Objects.equals(existingArticle, storedArticle) || !existingArticle.metadataEquals(storedArticle)) {
                     setParameters(preparedStatement, existingArticle.getUrl(), existingArticle.getSourceId(),
-                                  existingArticle.getAuthor().getRecordId(), existingArticle.getTitle(),
-                                  Timestamp.from(existingArticle.getDateTime().toInstant()),
+                                  existingArticle.getAuthor() != null ? existingArticle.getAuthor().getRecordId() : null,
+                                  existingArticle.getTitle(), Timestamp.from(existingArticle.getDateTime().toInstant()),
                                   existingArticle.getText(), existingArticle.getLikes(), existingArticle.isStarred(),
                                   existingArticle.isRead(), existingArticle.isArchived(), storedArticle.getRecordId());
 
@@ -422,10 +422,10 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
             try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(insertQuery)) {
                 for (Article newArticle : newArticles) {
                     setParameters(preparedStatement, newArticle.getUrl(), newArticle.getSourceId(),
-                                  newArticle.getAuthor().getRecordId(), newArticle.getTitle(),
-                                  Timestamp.from(newArticle.getDateTime().toInstant()), newArticle.getText(),
-                                  newArticle.isStarred(), newArticle.isRead(), newArticle.isArchived(),
-                                  newArticle.getLikes());
+                                  newArticle.getAuthor() != null ? newArticle.getAuthor().getRecordId() : null,
+                                  newArticle.getTitle(), Timestamp.from(newArticle.getDateTime().toInstant()),
+                                  newArticle.getText(), newArticle.isStarred(), newArticle.isRead(),
+                                  newArticle.isArchived(), newArticle.getLikes());
 
                     preparedStatement.addBatch();
                 }

@@ -44,6 +44,7 @@ public class PersistencyHandlerJdbcTest {
     private Connection mockDatabaseConnection;
     private PersistencyHandler persistencyHandler;
     private Statement mockStatement;
+    private PreparedStatement mockPreparedStatement;
     private Author author;
     private Article article;
 
@@ -55,8 +56,10 @@ public class PersistencyHandlerJdbcTest {
     public void setUp() throws SQLException {
         mockDatabaseConnection = Mockito.mock(Connection.class);
         mockStatement = Mockito.mock(Statement.class);
+        mockPreparedStatement = Mockito.mock(PreparedStatement.class);
 
         Mockito.when(mockDatabaseConnection.createStatement()).thenReturn(mockStatement);
+        Mockito.when(mockDatabaseConnection.prepareStatement(Mockito.anyString())).thenReturn(mockPreparedStatement);
 
         persistencyHandler = new PersistencyHandlerJdbc();
     }
@@ -152,20 +155,19 @@ public class PersistencyHandlerJdbcTest {
                                               final ExecuteBatchResult executeBatchResult) throws SQLException {
         createConnectionAndRelatedMocks();
 
-        PreparedStatement mockPreparedStatement = null;
+        boolean throwExceptionPrepareStatement = prepareStatementResult.equals(PrepareStatementResult.THROW_EXCEPTION);
+        boolean expectedValueExecuteBatch = executeBatchResult.equals(ExecuteBatchResult.EXPECTED_VALUE);
+        boolean unexpectedValueExecuteBatch = executeBatchResult.equals(ExecuteBatchResult.UNEXPECTED_VALUE);
 
-        if (prepareStatementResult.equals(PrepareStatementResult.THROW_EXCEPTION)) {
+        if (throwExceptionPrepareStatement) {
             Mockito.when(mockDatabaseConnection.prepareStatement(Mockito.anyString()))
                 .thenThrow(new SQLException("Unit test with prepareStatement throwing an exception."));
         } else {
-            mockPreparedStatement = Mockito.mock(PreparedStatement.class);
-            Mockito.when(mockDatabaseConnection.prepareStatement(Mockito.anyString())).thenReturn(mockPreparedStatement);
-
             if (executeBatchResult.equals(ExecuteBatchResult.THROW_EXCEPTION)) {
                 Mockito.when(mockPreparedStatement.executeBatch())
                     .thenThrow(new SQLException("Unit test with executeBatch throwing an exception."));
             } else {
-                final int returnValue = executeBatchResult.equals(ExecuteBatchResult.EXPECTED_VALUE) ? 1 : 33550336;
+                final int returnValue = expectedValueExecuteBatch ? 1 : 33550336;
                 Mockito.when(mockPreparedStatement.executeBatch()).thenReturn(new int[]{returnValue});
             }
         }
@@ -196,12 +198,12 @@ public class PersistencyHandlerJdbcTest {
 
         persistencyHandler.saveAuthorsAndArticles(currentArticles);
 
-        if (mockPreparedStatement != null) {
-            List<Invocation> setStringInvocations = Mockito.mockingDetails(mockPreparedStatement)
-                .getInvocations().stream().filter(invocation -> invocation.toString().contains("setString"))
-                .collect(Collectors.toList());
+        if (!throwExceptionPrepareStatement) {
+            List<Invocation> setStringInvocations = getInvocations("setString");
 
-            assertEquals(9, setStringInvocations.size());
+            final int factor = expectedValueExecuteBatch ? 1 : unexpectedValueExecuteBatch ? 2 : 3;
+            assertEquals(3 * factor, setStringInvocations.size());
+            assertEquals(21 * factor, getInvocations("setObject").size());
 
             Optional<Invocation> optionalAuthorInvocation = setStringInvocations.stream()
                 .filter(invocation -> invocation.toString().contains("1") && invocation.toString().contains("Patrick"))
@@ -210,6 +212,12 @@ public class PersistencyHandlerJdbcTest {
             assertTrue(optionalAuthorInvocation.isPresent());
             assertTrue(optionalAuthorInvocation.get().toString().contains(newAuthorName));
         }
+    }
+
+    private List<Invocation> getInvocations(final String methodName) {
+        return Mockito.mockingDetails(mockPreparedStatement)
+                    .getInvocations().stream().filter(invocation -> invocation.toString().contains(methodName))
+                    .collect(Collectors.toList());
     }
 
     @Test
@@ -245,7 +253,7 @@ public class PersistencyHandlerJdbcTest {
         ResultSet mockResultSetAuthor = Mockito.mock(ResultSet.class);
         ResultSet mockResultSetArticle = Mockito.mock(ResultSet.class);
 
-        Mockito.when(mockStatement.executeQuery(Mockito.anyString()))
+        Mockito.when(mockPreparedStatement.executeQuery())
             .thenReturn(mockResultSetAuthor, mockResultSetArticle);
 
         Mockito.when(mockResultSetAuthor.next()).thenReturn(true, false);
