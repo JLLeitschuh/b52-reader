@@ -11,65 +11,67 @@ find . -name '*.java' | xargs wc -l | sort
     10 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/package-info.java
     10 ./main/java/nl/xs4all/home/freekdb/b52reader/main/package-info.java
     11 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/package-info.java
-    21 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BrowserListener.java
-    22 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/EmbeddedBrowserType.java
-    23 ./main/java/nl/xs4all/home/freekdb/b52reader/main/MainCallbacks.java
+    23 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BrowserListener.java
+    24 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/EmbeddedBrowserType.java
     25 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/package-info.java
+    25 ./main/java/nl/xs4all/home/freekdb/b52reader/main/MainCallbacks.java
     26 ./test/java/nl/xs4all/home/freekdb/b52reader/general/EmbeddedBrowserTypeTest.java
-    31 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BrowserFactory.java
-    32 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/database/PersistencyHandler.java
+    33 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BrowserFactory.java
     35 ./test/java/nl/xs4all/home/freekdb/b52reader/general/ConstantsTest.java
     35 ./test/java/nl/xs4all/home/freekdb/b52reader/main/B52ReaderTest.java
-    36 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/TableSpans.java
     38 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/Author.java
     39 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/ArticleSource.java
-    39 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/website/HtmlHelper.java
-    48 ./test/java/nl/xs4all/home/freekdb/b52reader/TestUtilities.java
+    41 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/website/HtmlHelper.java
     51 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/website/HtmlHelperTest.java
-    52 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanArticleTableCellRenderer.java
     52 ./test/java/nl/xs4all/home/freekdb/b52reader/browsers/JWebBrowserFactoryTest.java
     55 ./test/java/nl/xs4all/home/freekdb/b52reader/datamodel/AuthorTest.java
     58 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/JWebBrowserFactory.java
     61 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/testdata/TestDataArticleSourceTest.java
-    61 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRendererTest.java
     62 ./main/java/nl/xs4all/home/freekdb/b52reader/main/B52Reader.java
     62 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ArticlesTableModelTest.java
-    65 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/testdata/TestDataArticleSource.java
+    62 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanArticleTableCellRendererTest.java
+    63 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCounts.java
     68 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/CombinationArticleSource.java
+    69 ./test/java/nl/xs4all/home/freekdb/b52reader/TestUtilities.java
+    75 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/database/PersistencyHandler.java
     77 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleFilterTest.java
+    77 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRendererTest.java
+    78 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/TableSpans.java
     81 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticlesTableModel.java
-    88 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Utilities.java
+    83 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/testdata/TestDataArticleSource.java
+    90 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanArticleTableCellRenderer.java
     90 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/CombinationArticleSourceTest.java
     92 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/website/ArticleListFetcher.java
-    96 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/nrc/NrcScienceArticleSource.java
+    98 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableUITest.java
    100 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/ArticleListFetcherTest.java
-   100 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableUITest.java
    101 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/DefaultTableSpansTest.java
    103 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Constants.java
-   110 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/nrc/NrcScienceArticleSourceTest.java
-   115 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableUI.java
-   115 ./test/java/nl/xs4all/home/freekdb/b52reader/main/MainApplicationTest.java
+   109 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/nrc/NrcScienceArticleSourceTest.java
+   117 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableModelTest.java
+   117 ./test/java/nl/xs4all/home/freekdb/b52reader/main/MainApplicationTest.java
    118 ./test/java/nl/xs4all/home/freekdb/b52reader/utilities/UtilitiesTest.java
-   120 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableModelTest.java
-   134 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/RssArticleSource.java
+   122 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Utilities.java
+   125 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/nrc/NrcScienceArticleSource.java
+   132 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableUI.java
    143 ./test/java/nl/xs4all/home/freekdb/b52reader/browsers/BackgroundBrowsersTest.java
    148 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/ManyBrowsersPanelTest.java
-   157 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/RssArticleSourceTest.java
+   152 ./main/java/nl/xs4all/home/freekdb/b52reader/articlesources/RssArticleSource.java
+   158 ./test/java/nl/xs4all/home/freekdb/b52reader/articlesources/RssArticleSourceTest.java
    163 ./test/java/nl/xs4all/home/freekdb/b52reader/datamodel/ArticleTest.java
-   164 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTable.java
-   174 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/DefaultTableSpans.java
-   175 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ManyBrowsersPanel.java
+   181 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ManyBrowsersPanel.java
    185 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleFilter.java
-   198 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableModel.java
-   202 ./test/java/nl/xs4all/home/freekdb/b52reader/general/ConfigurationTest.java
-   212 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/Article.java
-   219 ./main/java/nl/xs4all/home/freekdb/b52reader/main/MainApplication.java
-   225 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRenderer.java
-   231 ./test/java/nl/xs4all/home/freekdb/b52reader/datamodel/database/PersistencyHandlerJdbcTest.java
-   236 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BackgroundBrowsers.java
-   340 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/database/PersistencyHandlerJdbc.java
-   382 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/MainGuiTest.java
-   516 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Configuration.java
-   552 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/MainGui.java
+   195 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTable.java
+   204 ./test/java/nl/xs4all/home/freekdb/b52reader/general/ConfigurationTest.java
+   215 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/Article.java
+   223 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/DefaultTableSpans.java
+   224 ./main/java/nl/xs4all/home/freekdb/b52reader/main/MainApplication.java
+   244 ./main/java/nl/xs4all/home/freekdb/b52reader/browsers/BackgroundBrowsers.java
+   251 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/multispan/SpanCellTableModel.java
+   264 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/ArticleTableCellRenderer.java
+   272 ./test/java/nl/xs4all/home/freekdb/b52reader/datamodel/database/PersistencyHandlerJdbcTest.java
+   387 ./test/java/nl/xs4all/home/freekdb/b52reader/gui/MainGuiTest.java
+   475 ./main/java/nl/xs4all/home/freekdb/b52reader/datamodel/database/PersistencyHandlerJdbc.java
+   574 ./main/java/nl/xs4all/home/freekdb/b52reader/gui/MainGui.java
+   641 ./main/java/nl/xs4all/home/freekdb/b52reader/general/Configuration.java
 
-  7460 total
+  8392 total
