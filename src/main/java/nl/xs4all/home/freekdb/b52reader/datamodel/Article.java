@@ -14,6 +14,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 
 import org.apache.logging.log4j.LogManager;
@@ -51,6 +53,7 @@ public class Article {
     /**
      * Main author of the article.
      */
+    @Nullable
     private final Author author;
 
     /**

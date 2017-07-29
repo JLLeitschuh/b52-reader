@@ -102,10 +102,10 @@ public class SpanCellTableModel extends DefaultTableModel {
     /**
      * Set the column names, column classes, and the articles to be shown.
      *
-     * @param columnNames column names.
+     * @param columnNames   column names.
      * @param columnClasses column classes.
-     * @param articles articles.
-     * @param isFetched predicate that can determine whether an article is already fetched or not.
+     * @param articles      articles.
+     * @param isFetched     predicate that can determine whether an article is already fetched or not.
      */
     public void setColumnsAndData(final List<String> columnNames, final List<Class<?>> columnClasses,
                                   final List<Article> articles, final Predicate<Article> isFetched) {
@@ -115,21 +115,12 @@ public class SpanCellTableModel extends DefaultTableModel {
         this.columnClasses = columnClasses;
         this.articles = articles;
 
-        @SuppressWarnings("squid:S1149") final Vector<Vector<Object>> newDataVector = new Vector<>();
+        @SuppressWarnings("squid:S1149")
+        final Vector<Vector<Object>> newDataVector = new Vector<>();
 
         if (articles != null) {
             articles.forEach(article -> {
-                newDataVector.add(listToVector(Arrays.asList(
-                    isFetched.test(article) ? configuration.getFetchedValue() : "",
-                    article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
-                    article.isRead() ? "" : "unread",
-                    article.getTitle(),
-                    article.getAuthor().getName(),
-                    article.getDateTime() != null
-                        ? configuration.getDateTimeFormatLonger().format(article.getDateTime())
-                        : ""
-                )));
-
+                newDataVector.add(createArticleVector(article, isFetched));
                 newDataVector.add(listToVector(Arrays.asList("", "", "", article.getText())));
             });
         }
@@ -140,6 +131,26 @@ public class SpanCellTableModel extends DefaultTableModel {
 
         newRowsAdded(new TableModelEvent(this, 0, getRowCount() - 1,
                                          TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+    }
+
+    /**
+     * Create a vector with article data to be shown in the GUI table columns.
+     *
+     * @param article   article to be shown.
+     * @param isFetched predicate that can determine whether an article is already fetched or not.
+     * @return vector with article data to be shown in the GUI table columns.
+     */
+    private Vector<Object> createArticleVector(final Article article, final Predicate<Article> isFetched) {
+        return listToVector(Arrays.asList(
+            isFetched.test(article) ? configuration.getFetchedValue() : "",
+            article.isStarred() ? Constants.STARRED_ICON : Constants.UNSTARRED_ICON,
+            article.isRead() ? "" : "unread",
+            article.getTitle(),
+            article.getAuthor() != null ? article.getAuthor().getName() : "",
+            article.getDateTime() != null
+                ? configuration.getDateTimeFormatLonger().format(article.getDateTime())
+                : ""
+        ));
     }
 
     /**
