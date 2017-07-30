@@ -20,6 +20,8 @@ import javax.swing.ImageIcon;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility methods for the entire application.
@@ -27,6 +29,11 @@ import org.apache.commons.lang3.StringUtils;
  * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
 public class Utilities {
+    /**
+     * Logger for this class.
+     */
+    private static final Logger logger = LogManager.getLogger();
+
     /**
      * Private constructor to hide the implicit public one, since this class is not meant to be instantiated.
      */
@@ -71,7 +78,7 @@ public class Utilities {
      * character is added to the word. Some examples: "0 bikes", "1 programmer", and "6 guitarists".
      *
      * @param count number of times that applies to the word.
-     * @param word word to include in the string (the plural form should require the addition of an 's' character).
+     * @param word  word to include in the string (the plural form should require the addition of an 's' character).
      * @return "[count] [word](s)" (if count is not equal to one, an 's' character is added).
      */
     public static String countAndWord(final int count, final String word) {
@@ -81,8 +88,8 @@ public class Utilities {
     /**
      * Create a zoned date(/time). The time part is empty.
      *
-     * @param year year.
-     * @param month month.
+     * @param year       year.
+     * @param month      month.
      * @param dayOfMonth day of the month.
      * @return <code>ZonedDateTime</code> object.
      */
@@ -98,14 +105,27 @@ public class Utilities {
     public static void ignoreStandardErrorStream() {
         // Ignore characters written to the standard error stream, since the dj-nativeswing library sometimes has
         // difficulties with the contents of the clipboard, resulting in ClassNotFoundException-s.
-        System.setErr(new PrintStream(new OutputStream() {
+        try (OutputStream outputStream = getIgnorantStream()) {
+            System.setErr(new PrintStream(outputStream, false, "UTF-8"));
+        } catch (final IOException e) {
+            logger.error("Exception while redirecting the standard error stream.", e);
+        }
+    }
+
+    /**
+     * Create an output stream that ignores everything that is written to it.
+     *
+     * @return an output stream that ignores everything.
+     */
+    private static OutputStream getIgnorantStream() {
+        return new OutputStream() {
             @Override
             public void write(final int b) throws IOException {
                 // Ignore it.
             }
-        }));
+        };
     }
-    
+
     /**
      * If there is previous data available for this article, copy the fields that are managed by the B52 reader.
      *
