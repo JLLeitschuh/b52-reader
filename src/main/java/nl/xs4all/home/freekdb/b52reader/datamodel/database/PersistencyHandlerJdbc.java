@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -151,7 +152,8 @@ public class PersistencyHandlerJdbc implements PersistencyHandler {
         final boolean result;
 
         try (ResultSet tables = databaseConnection.getMetaData().getTables(null, null,
-                                                                           tableName.toUpperCase(), null)) {
+                                                                           tableName.toUpperCase(Locale.US),
+                                                                           null)) {
             result = tables.next();
         }
 
