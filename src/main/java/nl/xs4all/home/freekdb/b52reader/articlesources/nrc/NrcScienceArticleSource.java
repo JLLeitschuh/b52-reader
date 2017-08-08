@@ -27,11 +27,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Article source for the science section of NRC Handelsblad (a Dutch newspaper).
  *
  * @author <a href="mailto:fdbdbr@gmail.com">Freek de Bruijn</a>
  */
+@RequiredArgsConstructor
 public class NrcScienceArticleSource implements ArticleSource {
     /**
      * Logger for this class.
@@ -48,22 +51,6 @@ public class NrcScienceArticleSource implements ArticleSource {
      */
     private final Configuration configuration;
 
-    /**
-     * Persistency handler to communicate with database.
-     */
-    private PersistencyHandler persistencyHandler;
-
-    /**
-     * Construct an article source for the science section of NRC Handelsblad (a Dutch newspaper).
-     *
-     * @param articleListFetcher article fetcher to get list of science articles from NRC website.
-     * @param configuration      configuration with settings.
-     */
-    public NrcScienceArticleSource(final ArticleListFetcher articleListFetcher, final Configuration configuration) {
-        this.articleListFetcher = articleListFetcher;
-        this.configuration = configuration;
-    }
-
     @Override
     public String getSourceId() {
         return Constants.NRC_SOURCE_ID;
@@ -73,13 +60,13 @@ public class NrcScienceArticleSource implements ArticleSource {
     public List<Article> getArticles(final PersistencyHandler persistencyHandler,
                                      final Map<String, Article> previousArticlesMap,
                                      final Map<String, Author> previousAuthorsMap) {
-        this.persistencyHandler = persistencyHandler;
         final List<Article> newArticles = new ArrayList<>();
 
         final Document articleListDocument = articleListFetcher.getArticleListDocument();
 
         if (articleListDocument != null) {
-            parseArticles(newArticles, articleListDocument, previousArticlesMap, previousAuthorsMap);
+            parseArticles(newArticles, articleListDocument, previousArticlesMap, previousAuthorsMap,
+                          persistencyHandler.getOrCreateAuthor("NRC science"));
         }
 
         logger.info("Fetched {} from the NRC website.",
@@ -96,12 +83,12 @@ public class NrcScienceArticleSource implements ArticleSource {
      * @param articleListDocument html document with article data.
      * @param previousArticlesMap previously available articles.
      * @param previousAuthorsMap  previously available authors.
+     * @param defaultAuthor       default author to use for NRC science articles.
      */
     private void parseArticles(final List<Article> newArticles, final Document articleListDocument,
                                final Map<String, Article> previousArticlesMap,
-                               final Map<String, Author> previousAuthorsMap) {
+                               final Map<String, Author> previousAuthorsMap, final Author defaultAuthor) {
         final Elements articleElements = articleListDocument.select(".nmt-item__link");
-        final Author defaultAuthor = persistencyHandler.getOrCreateAuthor("NRC science");
 
         for (Element articleElement : articleElements) {
             final String url = configuration.getNrcMainUrl() + articleElement.attr("href");
