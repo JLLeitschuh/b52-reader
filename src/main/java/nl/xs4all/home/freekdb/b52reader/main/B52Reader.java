@@ -18,7 +18,7 @@ import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 
-// todo: Use more tools from the wish list: Lombok, Guice, JPA/Hibernate, FindBugs, and PMD/CPD.
+// todo: Use more tools from the wish list: Lombok, Guice, JPA/Hibernate, SpotBugs (FindBugs successor), and PMD/CPD.
 
 /**
  * The b52-reader main class which creates the application and launches it.
