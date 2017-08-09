@@ -256,6 +256,7 @@
             <!-- SpotBugs (FindBugs successor) for error detection. -->
             <plugin>
                 <groupId>com.github.hazendaz.spotbugs</groupId>
+                <!-- todo: check whether we can use https://github.com/spotbugs/spotbugs-maven-plugin -->
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${spotbugs-maven-plugin.version}</version>
 
@@ -287,6 +288,7 @@
                  See https://github.com/hazendaz/findbugs-maven-plugin/tree/spotbugs/ for more information. -->
             <plugin>
                 <groupId>com.github.hazendaz.spotbugs</groupId>
+                <!-- todo: check whether we can use https://github.com/spotbugs/spotbugs-maven-plugin -->
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${spotbugs-maven-plugin.version}</version>
 
