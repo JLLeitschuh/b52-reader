@@ -25,6 +25,7 @@
         <!-- h2 1.4.194 has a problem: the pom file is empty in several maven repositories? -->
         <!--<h2.version>1.4.194</h2.version>-->
         <h2.version>1.4.193</h2.version>
+        <lombok.version>1.16.18</lombok.version>
         <jsoup.version>1.10.2</jsoup.version>
         <rome.version>1.7.2</rome.version>
         <log4j.version>2.8.2</log4j.version>
@@ -35,19 +36,22 @@
         <mockito.version>2.8.9</mockito.version>
         <equalsverifier.version>2.3</equalsverifier.version>
         <awaitility.version>3.0.0</awaitility.version>
+        <spotbugs.version>3.1.0-RC4</spotbugs.version>
+        <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
 
         <!-- Source properties. -->
         <java-version>1.8</java-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Checkstyle configuration location. -->
+        <checkstyle.config.location>src/configuration/checkstyle-checks.xml</checkstyle.config.location>
 
         <!-- Plugin versions. -->
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <jacoco-plugin.version>0.7.9</jacoco-plugin.version>
         <coveralls-plugin.version>4.3.0</coveralls-plugin.version>
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-
-        <!-- Checkstyle configuration location. -->
-        <checkstyle.config.location>src/configuration/checkstyle-checks.xml</checkstyle.config.location>
+        <spotbugs-maven-plugin.version>3.0.6</spotbugs-maven-plugin.version>
     </properties>
 
 
@@ -102,7 +106,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.18</version>
+            <version>${lombok.version}</version>
         </dependency>
 
         <dependency>
@@ -182,6 +186,21 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs</artifactId>
+            <version>${spotbugs.version}</version>
+        </dependency>
+
+        <!-- Dependency for JSR-305 annotations for SpotBugs. -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${findbugs-jsr305.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
 
@@ -234,6 +253,22 @@
                 <version>${coveralls-plugin.version}</version>
             </plugin>
 
+            <!-- SpotBugs (FindBugs successor) for error detection. -->
+            <plugin>
+                <groupId>com.github.hazendaz.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs-maven-plugin.version}</version>
+
+                <dependencies>
+                    <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+                    <dependency>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs</artifactId>
+                        <version>${spotbugs.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
         </plugins>
 
     </build>
@@ -246,6 +281,18 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
+            </plugin>
+
+            <!-- SpotBugs configuration.
+                 See https://github.com/hazendaz/findbugs-maven-plugin/tree/spotbugs/ for more information. -->
+            <plugin>
+                <groupId>com.github.hazendaz.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs-maven-plugin.version}</version>
+
+                <!--<configuration>-->
+                    <!--<excludeFilterFile>src/configuration/findBugsFilter.xml</excludeFilterFile>-->
+                <!--</configuration>-->
             </plugin>
 
         </plugins>
