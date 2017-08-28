@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 public class EmbeddedBrowserTypeTest {
     @Test
     public void testEnumSizeAndOneValue() {
-        assertEquals(2, EmbeddedBrowserType.values().length);
+        assertEquals(3, EmbeddedBrowserType.values().length);
 
         EmbeddedBrowserType embeddedBrowserType = EmbeddedBrowserType.valueOf("EMBEDDED_BROWSER_DJ_NATIVE_SWING");
         assertEquals(EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING, embeddedBrowserType);

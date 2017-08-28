@@ -6,14 +6,15 @@
 
 package nl.xs4all.home.freekdb.b52reader.browsers;
 
-import com.teamdev.jxbrowser.chromium.Browser;
-import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
-import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
-import com.teamdev.jxbrowser.chromium.swing.BrowserView;
+//import com.teamdev.jxbrowser.chromium.Browser;
+//import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
+//import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+//import com.teamdev.jxbrowser.chromium.swing.BrowserView;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
-import lombok.RequiredArgsConstructor;
+//import lombok.RequiredArgsConstructor;
 
 /**
  * Factory for creating embedded JxBrowser components.
@@ -39,38 +40,40 @@ public class JxBrowserFactory implements BrowserFactory {
      */
     @Override
     public JComponent createBrowser(final BrowserListener browserListener) {
-        final Browser browser = new Browser();
-        final BrowserView browserView = new BrowserView(browser);
+//        final Browser browser = new Browser();
+//        final BrowserView browserView = new BrowserView(browser);
+//
+//        if (browserListener != null) {
+//            browser.addLoadListener(new FinishLoadingListener(browserView, browserListener));
+//        }
+//
+//        return browserView;
 
-        if (browserListener != null) {
-            browser.addLoadListener(new FinishLoadingListener(browserView, browserListener));
-        }
-
-        return browserView;
+        return new JLabel("Not implemented yet.");
     }
 
 
-    /**
-     * TeamDev web browser listener that receives a "finish loading frame" event from a web browser and then sends a
-     * page loaded event to a (b52-reader) browser listener.
-     */
-    @RequiredArgsConstructor
-    static class FinishLoadingListener extends LoadAdapter {
-        /**
-         * Browser view with browser that loads content.
-         */
-        final BrowserView browserView;
-
-        /**
-         * Browser listener that receives a page loaded event.
-         */
-        private final BrowserListener browserListener;
-
-        @Override
-        public void onFinishLoadingFrame(final FinishLoadingEvent event) {
-            super.onFinishLoadingFrame(event);
-
-            browserListener.pageLoaded(browserView);
-        }
-    }
+//    /**
+//     * TeamDev web browser listener that receives a "finish loading frame" event from a web browser and then sends a
+//     * page loaded event to a (b52-reader) browser listener.
+//     */
+//    @RequiredArgsConstructor
+//    static class FinishLoadingListener extends LoadAdapter {
+//        /**
+//         * Browser view with browser that loads content.
+//         */
+//        final BrowserView browserView;
+//
+//        /**
+//         * Browser listener that receives a page loaded event.
+//         */
+//        private final BrowserListener browserListener;
+//
+//        @Override
+//        public void onFinishLoadingFrame(final FinishLoadingEvent event) {
+//            super.onFinishLoadingFrame(event);
+//
+//            browserListener.pageLoaded(browserView);
+//        }
+//    }
 }

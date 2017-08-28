@@ -74,13 +74,13 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>com.teamdev.jxbrowser</groupId>
-            <!-- todo: Use separate platform dependencies for Maven? -->
-            <!-- todo: How to add the license.jar for Maven and Travis CI? -->
-            <artifactId>jxbrowser-cross-platform</artifactId>
-            <version>${jxbrowser.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.teamdev.jxbrowser</groupId>-->
+            <!--&lt;!&ndash; todo: Use separate platform dependencies for Maven? &ndash;&gt;-->
+            <!--&lt;!&ndash; todo: How to add the license.jar for Maven and Travis CI? &ndash;&gt;-->
+            <!--<artifactId>jxbrowser-cross-platform</artifactId>-->
+            <!--<version>${jxbrowser.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>chrriis</groupId>
