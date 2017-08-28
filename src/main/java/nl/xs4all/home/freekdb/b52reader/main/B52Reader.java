@@ -9,7 +9,6 @@ package nl.xs4all.home.freekdb.b52reader.main;
 import java.net.URL;
 
 import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
-import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandlerJdbc;
 import nl.xs4all.home.freekdb.b52reader.general.Constants;
 import nl.xs4all.home.freekdb.b52reader.general.Utilities;
@@ -17,6 +16,8 @@ import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
 import nl.xs4all.home.freekdb.b52reader.gui.ManyBrowsersPanel;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
+
+// todo: Test and improve searching/archiving old articles. Use Lucene for smarter searching?
 
 // todo: Use more tools from the wish list: Lombok, Guice, JPA/Hibernate, SpotBugs (FindBugs successor), and PMD/CPD.
 
@@ -47,7 +48,7 @@ public class B52Reader {
             NativeInterface.open();
         }
 
-        final MainGui mainGui = new MainGui(new ManyBrowsersPanel(new JWebBrowserFactory()));
+        final MainGui mainGui = new MainGui(new ManyBrowsersPanel(Utilities.getBrowserFactory()));
         final URL configurationUrl = B52Reader.class.getClassLoader().getResource(Constants.CONFIGURATION_FILE_NAME);
         final PersistencyHandlerJdbc persistencyHandler = new PersistencyHandlerJdbc();
 

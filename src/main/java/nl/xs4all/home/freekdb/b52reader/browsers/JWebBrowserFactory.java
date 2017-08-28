@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Factory for creating embedded JWebBrowser components.
@@ -54,6 +55,7 @@ public class JWebBrowserFactory implements BrowserFactory {
      * Nativeswing web browser listener that receives a location changed event from a web browser and then sends a page
      * loaded event to a (b52-reader) browser listener.
      */
+    @RequiredArgsConstructor
     static class PageLoadedListener extends WebBrowserAdapter {
         /**
          * Web browser that loads content.
@@ -64,17 +66,6 @@ public class JWebBrowserFactory implements BrowserFactory {
          * Browser listener that receives a page loaded event.
          */
         private final BrowserListener browserListener;
-
-        /**
-         * Construct a page loaded listener.
-         *
-         * @param webBrowser      web browser that loads content.
-         * @param browserListener browser listener that receives a page loaded event.
-         */
-        PageLoadedListener(final JWebBrowser webBrowser, final BrowserListener browserListener) {
-            this.webBrowser = webBrowser;
-            this.browserListener = browserListener;
-        }
 
         @Override
         public void locationChanged(final WebBrowserNavigationEvent webBrowserNavigationEvent) {

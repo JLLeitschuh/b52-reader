@@ -90,7 +90,7 @@ public class NrcScienceArticleSource implements ArticleSource {
                                final Map<String, Author> previousAuthorsMap, final Author defaultAuthor) {
         final Elements articleElements = articleListDocument.select(".nmt-item__link");
 
-        for (Element articleElement : articleElements) {
+        for (final Element articleElement : articleElements) {
             final String url = configuration.getNrcMainUrl() + articleElement.attr("href");
             final String title = articleElement.getElementsByClass("nmt-item__headline").text();
             final ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);

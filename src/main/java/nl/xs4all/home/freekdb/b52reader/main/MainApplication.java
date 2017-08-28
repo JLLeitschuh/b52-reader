@@ -25,11 +25,11 @@ import javax.swing.JFrame;
 import nl.xs4all.home.freekdb.b52reader.articlesources.ArticleSource;
 import nl.xs4all.home.freekdb.b52reader.articlesources.CombinationArticleSource;
 import nl.xs4all.home.freekdb.b52reader.browsers.BackgroundBrowsers;
-import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Author;
 import nl.xs4all.home.freekdb.b52reader.datamodel.database.PersistencyHandler;
 import nl.xs4all.home.freekdb.b52reader.general.Configuration;
+import nl.xs4all.home.freekdb.b52reader.general.Utilities;
 import nl.xs4all.home.freekdb.b52reader.gui.MainGui;
 
 import org.apache.logging.log4j.LogManager;
@@ -100,7 +100,7 @@ public class MainApplication implements MainCallbacks {
         if (configuration != null && initializeDatabase()) {
             mainGui.initializeBackgroundBrowsersPanel(new JFrame(), configuration);
 
-            backgroundBrowsers = new BackgroundBrowsers(new JWebBrowserFactory(),
+            backgroundBrowsers = new BackgroundBrowsers(Utilities.getBrowserFactory(),
                                                         mainGui.getBackgroundBrowsersPanel());
 
             configuration.injectBackgroundBrowsers(backgroundBrowsers);
@@ -117,6 +117,8 @@ public class MainApplication implements MainCallbacks {
      * @return the configuration object.
      */
     private Configuration initializeConfiguration() {
+        logger.info("Initializing configuration.");
+
         Configuration applicationConfiguration = null;
 
         try {
@@ -185,6 +187,8 @@ public class MainApplication implements MainCallbacks {
     @Override
     public boolean shutdownApplication(final int frameExtendedState, final Rectangle frameBounds) {
         boolean result = true;
+
+        // todo: hide window, or clear window and show shutdown progress?
 
         try {
             if (configurationUrl != null) {

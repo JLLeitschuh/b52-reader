@@ -20,6 +20,7 @@
 
     <properties>
         <!-- Dependency versions. -->
+        <jxbrowser.version>6.14.2</jxbrowser.version>
         <dj-nativeswing.version>1.0.2.20120308</dj-nativeswing.version>
         <org.eclipse.swt.version>4.3</org.eclipse.swt.version>
         <!-- h2 1.4.194 has a problem: the pom file is empty in several maven repositories? -->
@@ -58,6 +59,11 @@
     <repositories>
 
         <repository>
+            <id>com.teamdev</id>
+            <url>http://maven.teamdev.com/repository/products</url>
+        </repository>
+
+        <repository>
             <id>repository.jspresso.org-maven2</id>
             <name>Jspresso framework repository</name>
             <url>http://repository.jspresso.org/maven2/</url>
@@ -67,6 +73,14 @@
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.teamdev.jxbrowser</groupId>
+            <!-- todo: Use separate platform dependencies for Maven? -->
+            <!-- todo: How to add the license.jar for Maven and Travis CI? -->
+            <artifactId>jxbrowser-cross-platform</artifactId>
+            <version>${jxbrowser.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>chrriis</groupId>

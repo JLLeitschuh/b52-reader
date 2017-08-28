@@ -18,6 +18,11 @@ public enum EmbeddedBrowserType {
     EMBEDDED_BROWSER_DJ_NATIVE_SWING,
 
     /**
+     * The {@link com.teamdev.jxbrowser.chromium.Browser} from TeamDev.
+     */
+    EMBEDDED_BROWSER_JX_BROWSER,
+
+    /**
      * A simple placeholder for the real embedded browsers (a panel with a label).
      */
     EMBEDDED_BROWSER_PLACEHOLDER

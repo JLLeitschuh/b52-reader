@@ -17,6 +17,10 @@ import java.time.ZonedDateTime;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import nl.xs4all.home.freekdb.b52reader.browsers.BrowserFactory;
+import nl.xs4all.home.freekdb.b52reader.browsers.EmbeddedBrowserType;
+import nl.xs4all.home.freekdb.b52reader.browsers.JWebBrowserFactory;
+import nl.xs4all.home.freekdb.b52reader.browsers.JxBrowserFactory;
 import nl.xs4all.home.freekdb.b52reader.datamodel.Article;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +37,11 @@ public class Utilities {
      * Logger for this class.
      */
     private static final Logger logger = LogManager.getLogger();
+
+    /**
+     * Factory for creating embedded web browser components.
+     */
+    private static BrowserFactory browserFactory;
 
     /**
      * Private constructor to hide the implicit public one, since this class is not meant to be instantiated.
@@ -138,5 +147,23 @@ public class Utilities {
             article.setRead(previousArticle.isRead());
             article.setArchived(previousArticle.isArchived());
         }
+    }
+
+    /**
+     * Get factory for creating embedded web browser components, based on <code>Constants.EMBEDDED_BROWSER_TYPE</code>
+     * setting.
+     *
+     * @return factory for creating embedded web browser components.
+     */
+    public static BrowserFactory getBrowserFactory() {
+        if (browserFactory == null) {
+            if (Constants.EMBEDDED_BROWSER_TYPE == EmbeddedBrowserType.EMBEDDED_BROWSER_JX_BROWSER) {
+                browserFactory = new JxBrowserFactory();
+            } else {
+                browserFactory = new JWebBrowserFactory();
+            }
+        }
+
+        return browserFactory;
     }
 }

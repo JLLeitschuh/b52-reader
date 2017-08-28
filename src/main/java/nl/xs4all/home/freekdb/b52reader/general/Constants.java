@@ -36,7 +36,7 @@ public class Constants {
     /**
      * The embedded browser type that is currently used.
      */
-    public static final EmbeddedBrowserType EMBEDDED_BROWSER_TYPE = EmbeddedBrowserType.EMBEDDED_BROWSER_DJ_NATIVE_SWING;
+    public static final EmbeddedBrowserType EMBEDDED_BROWSER_TYPE = EmbeddedBrowserType.EMBEDDED_BROWSER_JX_BROWSER;
 
 //    /**
 //     * The maximum number of browsers that are loaded in the background.
