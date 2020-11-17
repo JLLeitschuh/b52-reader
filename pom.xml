@@ -30,7 +30,7 @@
         <jsoup.version>1.10.2</jsoup.version>
         <rome.version>1.7.2</rome.version>
         <log4j.version>2.8.2</log4j.version>
-        <jackson.version>2.8.7</jackson.version>
+        <jackson.version>2.11.3</jackson.version>
         <commons-lang3.version>3.5</commons-lang3.version>
         <guava.version>22.0</guava.version>
         <junit.version>4.12</junit.version>
